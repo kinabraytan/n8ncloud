@@ -1,0 +1,49 @@
+# Render Blueprint for n8n + Postgres (Free Tier)
+
+services:
+  - type: web
+    name: n8n
+    plan: free
+    runtime: image
+    image:
+      url: docker.io/n8nio/n8n:latest
+    envVars:
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromDatabase:
+          name: n8n-db
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        fromDatabase:
+          name: n8n-db
+          property: port
+      - key: DB_POSTGRESDB_DATABASE
+        fromDatabase:
+          name: n8n-db
+          property: database
+      - key: DB_POSTGRESDB_USER
+        fromDatabase:
+          name: n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromDatabase:
+          name: n8n-db
+          property: password
+      - key: N8N_DIAGNOSTICS_ENABLED
+        value: "false"
+      - key: N8N_PERSONALIZATION_ENABLED
+        value: "false"
+      # Add your secrets below (set in Render dashboard for security)
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+      - key: N8N_USER_MANAGEMENT_JWT_SECRET
+        sync: false
+      # Optional: WEBHOOK_URL for incoming webhooks
+      # - key: WEBHOOK_URL
+      #   value: https://n8n.onrender.com/
+
+# Managed Postgres database (free tier)
+databases:
+  - name: n8n-db
+    plan: free
