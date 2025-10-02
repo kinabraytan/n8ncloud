@@ -165,6 +165,26 @@ def wait_for_ready(base_url: str, headers: Dict[str, str], timeout_seconds: int,
 def main(argv: Iterable[str]) -> int:
     args = parse_args(argv)
 
+    # Parse local files first so dry-run does not require network/env configuration
+    workflows_dir = args.root / "workflows"
+    credentials_dir = args.root / "credentials"
+    workflow_files = load_json_files(workflows_dir)
+    credential_files = load_json_files(credentials_dir)
+
+    print(f"Prepared {len(workflow_files)} workflow objects, {len(credential_files)} credential objects")
+
+    # Local count sanity checks before any API requirement
+    if args.min_workflows and len(workflow_files) < args.min_workflows:
+        print(f"Error: discovered only {len(workflow_files)} workflows (< --min-workflows {args.min_workflows})", file=sys.stderr)
+        return 1
+    if args.min_credentials and len(credential_files) < args.min_credentials:
+        print(f"Error: discovered only {len(credential_files)} credentials (< --min-credentials {args.min_credentials})", file=sys.stderr)
+        return 1
+
+    if args.dry_run:
+        print("Dry-run complete; no API calls made")
+        return 0
+
     base_url = os.environ.get("N8N_BASE_URL") or os.environ.get("WEBHOOK_URL")
     if not base_url:
         print("Error: N8N_BASE_URL (or WEBHOOK_URL) must be set", file=sys.stderr)
@@ -182,26 +202,6 @@ def main(argv: Iterable[str]) -> int:
     skip_credentials = bool(os.environ.get("N8N_SKIP_CREDENTIALS"))
 
     headers = build_auth_headers(user, password)
-
-    workflows_dir = args.root / "workflows"
-    credentials_dir = args.root / "credentials"
-
-    workflow_files = load_json_files(workflows_dir)
-    credential_files = load_json_files(credentials_dir)
-
-    print(f"Prepared {len(workflow_files)} workflow objects, {len(credential_files)} credential objects")
-
-    # Local count sanity checks before API calls
-    if args.min_workflows and len(workflow_files) < args.min_workflows:
-        print(f"Error: discovered only {len(workflow_files)} workflows (< --min-workflows {args.min_workflows})", file=sys.stderr)
-        return 1
-    if args.min_credentials and len(credential_files) < args.min_credentials:
-        print(f"Error: discovered only {len(credential_files)} credentials (< --min-credentials {args.min_credentials})", file=sys.stderr)
-        return 1
-
-    if args.dry_run:
-        print("Dry-run complete; no API calls made")
-        return 0
 
     if not wait_for_ready(base_url, headers, args.wait_ready, args.ready_interval):
         print(f"Error: n8n API not ready after --wait-ready {args.wait_ready} seconds", file=sys.stderr)
