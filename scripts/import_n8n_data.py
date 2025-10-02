@@ -117,8 +117,15 @@ def upsert_workflow(base_url: str, headers: Dict[str, str], workflow: Dict[str, 
         created = request_json(base_url, "POST", WORKFLOWS_ENDPOINT, headers, workflow, (200, 201))
         return f"created:{created.get('id','?')}"
     # Try update
-    request_json(base_url, "PUT", f"{WORKFLOWS_ENDPOINT}/{workflow_id}", headers, workflow, (200,))
-    return f"updated:{workflow_id}"
+    try:
+        request_json(base_url, "PUT", f"{WORKFLOWS_ENDPOINT}/{workflow_id}", headers, workflow, (200,))
+        return f"updated:{workflow_id}"
+    except RuntimeError as exc:
+        # Fallback: if 404, create instead (instance may be fresh)
+        if "404" in str(exc):
+            created = request_json(base_url, "POST", WORKFLOWS_ENDPOINT, headers, workflow, (200, 201))
+            return f"created_after_404:{created.get('id','?')}"
+        raise
 
 
 def upsert_credential(base_url: str, headers: Dict[str, str], credential: Dict[str, Any]) -> str:
@@ -126,8 +133,14 @@ def upsert_credential(base_url: str, headers: Dict[str, str], credential: Dict[s
     if not credential_id:
         created = request_json(base_url, "POST", CREDENTIALS_ENDPOINT, headers, credential, (200, 201))
         return f"created:{created.get('id','?')}"
-    request_json(base_url, "PATCH", f"{CREDENTIALS_ENDPOINT}/{credential_id}", headers, credential, (200,))
-    return f"updated:{credential_id}"
+    try:
+        request_json(base_url, "PATCH", f"{CREDENTIALS_ENDPOINT}/{credential_id}", headers, credential, (200,))
+        return f"updated:{credential_id}"
+    except RuntimeError as exc:
+        if "404" in str(exc):
+            created = request_json(base_url, "POST", CREDENTIALS_ENDPOINT, headers, credential, (200, 201))
+            return f"created_after_404:{created.get('id','?')}"
+        raise
 
 
 def parse_args(argv: Iterable[str]) -> argparse.Namespace:
