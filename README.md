@@ -85,24 +85,123 @@ for installation instructions, and run the starter kit as follows:
 
 ```bash
 git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
 cp .env.example .env # you should update secrets and passwords inside
 docker compose up
 ```
+
+   When redeploying your n8n instance on Render, you probably want to keep all existing workflows and credentials. This repository includes helper scripts to export from a running instance and re-import into a fresh one.
+
+   ### 1. Ensure Stable Encryption Key
+   Set a permanent `N8N_ENCRYPTION_KEY` (and keep the original value) in the Render Dashboard (Environment tab). If this key changes, previously exported credentials cannot be decrypted.
+
+   ### 2. Export Current Production Data
+   From your local machine (with network access to prod):
+
+   ```powershell
+   # Set auth for the current live instance (Basic Auth must be enabled)
 
 ##### For Mac users running OLLAMA locally
 
 If you're running OLLAMA locally on your Mac (not in Docker), you need to modify the OLLAMA_HOST environment variable
 
-1. Set OLLAMA_HOST to `host.docker.internal:11434` in your .env file. 
+1. Set OLLAMA_HOST to `host.docker.internal:11434` in your .env file.
+
+   This writes JSON files into `n8n/demo-data/workflows` and `n8n/demo-data/credentials` (already git-tracked). Review the diff and commit (credentials remain encrypted—safe to commit only if you are comfortable storing encrypted blobs; otherwise keep in a private fork or separate secure storage).
+
+   ### 3. (Optional) Prune Demo Files
+   Remove or archive any sample/demo files you no longer wish to seed. You can move outdated json to an `archive/` folder or delete them.
+
+   ### 4. Deploy / Rebuild on Render
+   Push changes to `main` (or your deployment branch). Render will rebuild the service. Make sure the following env vars exist in Render:
+
+   - `N8N_ENCRYPTION_KEY` (same as before)
+   - `N8N_BASIC_AUTH_ACTIVE=true`
+   - `N8N_BASIC_AUTH_USER`
+   - `N8N_BASIC_AUTH_PASSWORD`
+   - (DB vars are injected automatically by `render.yaml`)
+
+   ### 5. Import Data into Fresh Instance
+   After the new container is healthy, run the import script locally pointing to the NEW base URL:
+
+   ```powershell
 2. Additionally, after you see "Editor is now accessible via: <http://localhost:5678/>":
 
     1. Head to <http://localhost:5678/home/credentials>
     2. Click on "Local Ollama service"
     3. Change the base URL to "http://host.docker.internal:11434/"
 
+   The script updates (PUT/PATCH) by id, so running it multiple times is safe. Use `--dry-run` to preview.
+
+   #### Pre-Push Checklist (Render Deploy Safety)
+   Before you push changes that update workflows/credentials:
+   1. Run export script (optional but recommended to sync latest prod):
+      `python scripts/export_n8n_data.py` (with proper auth env vars)
+   2. Review git diff – ensure only intended JSON changes.
+   3. Confirm `.env` (local) still contains the ORIGINAL `N8N_ENCRYPTION_KEY` that matches Render.
+   4. Do NOT commit a new random encryption key.
+   5. Avoid accidental deletion of needed workflow/credential JSON files.
+   6. If you removed files intentionally, note that the import script will NOT delete them server-side (manual cleanup required in UI).
+   7. (Optional) Pin your image tag in `render.yaml` (replace `latest` with a specific version like `n8nio/n8n:1.51.0`) to prevent surprise upstream changes.
+   8. If using the GitHub Action importer, ensure repository secrets `N8N_BASIC_AUTH_USER` and `N8N_BASIC_AUTH_PASSWORD` are set.
+   9. Decide whether to run manual script locally or trigger the action after deploy.
+   10. Commit & push.
+
+   #### Common Pitfalls & Mitigations
+   | Pitfall | Risk | Mitigation |
+   |---------|------|------------|
+   | Changing `N8N_ENCRYPTION_KEY` | Encrypted credentials become unreadable | Keep a safe copy; never rotate casually |
+   | Using `latest` image | Unexpected n8n upgrade breaks workflows | Pin image tag; upgrade intentionally |
+   | Empty import set (e.g., wrong path) | Overwrites nothing, you assume success | Use `--min-workflows` / `--min-credentials` thresholds |
+   | Import before service ready | HTTP errors or partial results | Use `--wait-ready` flag (GitHub Action already does) |
+   | Accidental deletion locally | Missing workflow post-deploy | Manually delete on server only if intentional; version control diff review |
+   | Duplicate workflows (edited IDs) | Confusion and drift | Do not edit `id` fields manually |
+   | Uncommitted latest changes on prod | Drift between prod & repo | Run export script before editing locally |
+
+   #### Automation via GitHub Action
+   A workflow file at `.github/workflows/sync-n8n.yml` lets you trigger an import from the Actions tab:
+   1. Add repository secrets: `N8N_BASIC_AUTH_USER` and `N8N_BASIC_AUTH_PASSWORD`.
+   2. Go to Actions → `Sync n8n Data` → Run workflow.
+   3. Provide the deployed `base_url` (e.g., `https://your-n8n.onrender.com`).
+   4. The action performs a dry-run count and then an import with readiness wait.
+
+   You can optionally uncomment the schedule block for a nightly sync (be cautious—"last write wins" semantics).
+
+   #### Example Manual Import (PowerShell)
+   ```powershell
+   $env:N8N_BASE_URL='https://your-n8n.onrender.com/'
+   $env:N8N_BASIC_AUTH_USER='user@example.com'
+   $env:N8N_BASIC_AUTH_PASSWORD='XXXX'
+   python scripts/import_n8n_data.py --root n8n/demo-data --wait-ready 120 --min-workflows 5 --min-credentials 1
+   ```
+
+   ### 6. Selective Import
+   Skip one category by setting an env var:
+
+   ```powershell
+
 #### For everyone else
 
+
+   ### 7. Validation Checklist
+
+   After import:
+   - Open the n8n UI and confirm workflows list matches expectations.
+   - Open a credential and ensure it decrypts (no red error banner). If it fails, confirm the encryption key is identical.
+   - Trigger a simple workflow to verify DB connectivity.
+
+   ### 8. Troubleshooting
+   | Symptom | Cause | Fix |
+   | ------- | ----- | --- |
+   | Credentials show decryption error | Wrong `N8N_ENCRYPTION_KEY` | Restore original key and restart service |
+   | 401 during import | Basic Auth mismatch | Update user/password env vars locally |
+   | Duplicate workflows | Manual edits changed IDs | Delete duplicates via UI and re-run import |
+
+   ### 9. Automation Option
+   You can automate seeding by creating an init job (similar to the `n8n-import` service in `docker-compose.yml`). On Render free plan, a one-time script container isn’t native, so manual script execution is usually simpler.
+
+   ---
+   ### Quick Command Reference
+   ```powershell
 ```bash
 git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
 cd self-hosted-ai-starter-kit
@@ -112,6 +211,9 @@ docker compose --profile cpu up
 
 ## ⚡️ Quick start and usage
 
+
+   ---
+   Security note: Although credential JSON contains encrypted blobs, treat the repository as sensitive. Anyone with both the repo and your encryption key can decrypt.
 The core of the Self-hosted AI Starter Kit is a Docker Compose file, pre-configured with network and storage settings, minimizing the need for additional installations.
 After completing the installation steps above, simply follow the steps below to get started.
 
