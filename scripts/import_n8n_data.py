@@ -138,27 +138,42 @@ def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     p.add_argument("--ready-interval", type=float, default=2.0, metavar="SEC", help="Polling interval while waiting for readiness (default: 2s)")
     p.add_argument("--min-workflows", type=int, default=0, help="Fail if fewer than this many workflow JSON objects are discovered locally")
     p.add_argument("--min-credentials", type=int, default=0, help="Fail if fewer than this many credential JSON objects are discovered locally")
+    p.add_argument("--ready-log-every", type=int, default=10, metavar="N", help="Log a probe failure every N attempts (default: 10)")
     return p.parse_args(list(argv))
 
 
-def wait_for_ready(base_url: str, headers: Dict[str, str], timeout_seconds: int, interval: float) -> bool:
-    """Poll the workflows endpoint until it responds or timeout expires.
+def wait_for_ready(base_url: str, headers: Dict[str, str], timeout_seconds: int, interval: float, log_every: int) -> bool:
+    """Poll several endpoints until one responds with a ready state or timeout.
 
-    Returns True if ready, False otherwise.
+    Considered ready when:
+      * /rest/workflows returns 200 (OK) or 401 (auth required) OR
+      * /rest/healthz or /healthz returns 200
+
+    401 is treated as *potentially* ready because n8n may enforce auth even for listing.
+    A wrong credential set will surface later during import calls.
     """
     if timeout_seconds <= 0:
         return True
+    endpoints = [WORKFLOWS_ENDPOINT, "/rest/healthz", "/healthz"]
     deadline = time.time() + timeout_seconds
     attempt = 0
+    last_error: str | None = None
     while time.time() < deadline:
         attempt += 1
-        try:
-            # Lightweight readiness probe: list workflows (no modification)
-            request_json(base_url, "GET", WORKFLOWS_ENDPOINT, headers, None, (200,))
-            print(f"Service ready after {attempt} attempt(s)")
-            return True
-        except Exception:  # noqa: BLE001
-            time.sleep(interval)
+        for ep in endpoints:
+            try:
+                # Accept both 200 and 401 for workflows endpoint
+                expected = (200, 401) if ep == WORKFLOWS_ENDPOINT else (200,)
+                request_json(base_url, "GET", ep, headers, None, expected)
+                print(f"Service ready after {attempt} attempt(s) via {ep}")
+                return True
+            except Exception as exc:  # noqa: BLE001
+                last_error = f"{ep}: {exc}"
+        if attempt % max(1, log_every) == 0 and last_error:
+            print(f"Still waiting (attempt {attempt}) - last error: {last_error}")
+        time.sleep(interval)
+    if last_error:
+        print(f"Final readiness failure after {attempt} attempts: {last_error}", file=sys.stderr)
     return False
 
 
@@ -203,7 +218,7 @@ def main(argv: Iterable[str]) -> int:
 
     headers = build_auth_headers(user, password)
 
-    if not wait_for_ready(base_url, headers, args.wait_ready, args.ready_interval):
+    if not wait_for_ready(base_url, headers, args.wait_ready, args.ready_interval, args.ready_log_every):
         print(f"Error: n8n API not ready after --wait-ready {args.wait_ready} seconds", file=sys.stderr)
         return 1
 
