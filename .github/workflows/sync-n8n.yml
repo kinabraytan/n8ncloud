@@ -1,0 +1,54 @@
+name: Sync n8n Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL of target n8n (e.g. https://your-n8n.onrender.com)"
+        required: true
+      min_workflows:
+        description: "Minimum expected workflows to guard against empty import"
+        required: false
+        default: "1"
+      min_credentials:
+        description: "Minimum expected credentials to guard against empty import"
+        required: false
+        default: "0"
+  # Optional: scheduled safety sync (disabled by default)
+  # schedule:
+  #   - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dry run parse
+        env:
+          N8N_BASIC_AUTH_USER: ${{ secrets.N8N_BASIC_AUTH_USER }}
+          N8N_BASIC_AUTH_PASSWORD: ${{ secrets.N8N_BASIC_AUTH_PASSWORD }}
+        run: |
+          python scripts/import_n8n_data.py --root n8n/demo-data --dry-run \
+            --min-workflows "${{ github.event.inputs.min_workflows }}" \
+            --min-credentials "${{ github.event.inputs.min_credentials }}"
+
+      - name: Import to n8n
+        env:
+          N8N_BASE_URL: ${{ github.event.inputs.base_url }}
+          N8N_BASIC_AUTH_USER: ${{ secrets.N8N_BASIC_AUTH_USER }}
+          N8N_BASIC_AUTH_PASSWORD: ${{ secrets.N8N_BASIC_AUTH_PASSWORD }}
+        run: |
+          python scripts/import_n8n_data.py --root n8n/demo-data \
+            --wait-ready 120 --ready-interval 3 \
+            --min-workflows "${{ github.event.inputs.min_workflows }}" \
+            --min-credentials "${{ github.event.inputs.min_credentials }}"
