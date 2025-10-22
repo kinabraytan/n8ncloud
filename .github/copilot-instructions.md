@@ -132,12 +132,14 @@ OLLAMA_HOST=host.docker.internal:11434 docker compose up
 ### Render Optimization
 1. **Environment Variables**: Set all required vars in Render dashboard:
    ```
-   N8N_ENCRYPTION_KEY=your-32-char-hex-key
    N8N_BASIC_AUTH_ACTIVE=true
    N8N_BASIC_AUTH_USER=your-email
    N8N_BASIC_AUTH_PASSWORD=your-password
-   N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+   N8N_ENCRYPTION_KEY=your-32-char-hex-key
+   N8N_USER_MANAGEMENT_JWT_SECRET=your-secret
    WEBHOOK_URL=https://your-n8n.onrender.com
+   TRUST_PROXY=true
+   N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
    ```
 2. **Auto-scaling**: Free tier limitations - consider upgrading for production use
 3. **Database Persistence**: Render PostgreSQL free tier persists data automatically

@@ -38,9 +38,9 @@ services:
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
         value: "false"
-      - key: N8N_BASIC_AUTH_ACTIVE
-        value: "true"
       # Add your secrets below (set in Render dashboard for security)
+      - key: N8N_BASIC_AUTH_ACTIVE
+        sync: false
       - key: N8N_ENCRYPTION_KEY
         sync: false
       - key: N8N_USER_MANAGEMENT_JWT_SECRET

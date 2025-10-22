@@ -3,9 +3,6 @@ name: Sync n8n Data
 on:
   workflow_dispatch:
     inputs:
-      base_url:
-        description: "Base URL of target n8n (e.g. https://your-n8n.onrender.com)"
-        required: true
       min_workflows:
         description: "Minimum expected workflows to guard against empty import"
         required: false
@@ -44,7 +41,7 @@ jobs:
 
       - name: Import to n8n
         env:
-          N8N_BASE_URL: ${{ github.event.inputs.base_url }}
+          N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
           N8N_BASIC_AUTH_USER: ${{ secrets.N8N_BASIC_AUTH_USER }}
           N8N_BASIC_AUTH_PASSWORD: ${{ secrets.N8N_BASIC_AUTH_PASSWORD }}
         run: |
