@@ -38,14 +38,20 @@ services:
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
         value: "false"
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: "true"
       # Add your secrets below (set in Render dashboard for security)
       - key: N8N_ENCRYPTION_KEY
         sync: false
       - key: N8N_USER_MANAGEMENT_JWT_SECRET
         sync: false
+      - key: N8N_BASIC_AUTH_USER
+        sync: false
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
       # Optional: WEBHOOK_URL for incoming webhooks
-      # - key: WEBHOOK_URL
-      #   value: https://n8n.onrender.com/
+      - key: WEBHOOK_URL
+        value: https://n8n-3d2s.onrender.com/
 
 # Managed Postgres database (free tier)
 databases:
