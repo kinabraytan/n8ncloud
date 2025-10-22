@@ -60,8 +60,9 @@ OLLAMA_HOST=host.docker.internal:11434 docker compose up
 
 ### GitHub Actions Integration
 - `.github/workflows/sync-n8n.yml`: Manual workflow dispatch for data sync
-- Requires repository secrets: `N8N_BASIC_AUTH_USER`, `N8N_BASIC_AUTH_PASSWORD`
+- Requires repository secrets: `N8N_BASE_URL`, `N8N_BASIC_AUTH_USER`, `N8N_BASIC_AUTH_PASSWORD`
 - Use `--min-workflows` and `--min-credentials` for safety guards
+- Run from GitHub Actions tab for automated import
 
 ## Project-Specific Patterns
 
