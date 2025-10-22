@@ -6,8 +6,10 @@ services:
     plan: free
     runtime: image
     image:
-      url: docker.io/n8nio/n8n:1.51.0
+      url: docker.io/n8nio/n8n:latest
     envVars:
+      - key: TRUST_PROXY
+        value: "true"
       - key: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
         value: "true"
       - key: DB_TYPE

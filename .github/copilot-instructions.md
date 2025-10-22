@@ -37,18 +37,15 @@ OLLAMA_HOST=host.docker.internal:11434 docker compose up
 ### Docker Image Updates
 **Problem**: n8n image may be behind by several versions
 **Solution**:
-1. **Pin specific versions** in `docker-compose.yml` instead of using `latest`:
+1. **Use latest for automatic updates** in `render.yaml`:
    ```yaml
-   image: n8nio/n8n:1.51.0  # Replace latest with specific version
+   image:
+     url: docker.io/n8nio/n8n:latest
    ```
 2. **Update workflow**:
-   ```bash
-   # Check current version
-   docker compose --profile cpu pull
-   # Recreate containers with new images
-   docker compose create && docker compose --profile cpu up
-   ```
-3. **In render.yaml**: Update image URL to specific version for predictable deployments
+   - Render automatically pulls latest on rebuild
+   - Monitor for breaking changes in n8n releases
+3. **For local development**: Pin specific versions in `docker-compose.yml` for consistency
 
 ### Production Deployment (Render)
 1. **Environment Setup**: Keep `N8N_ENCRYPTION_KEY` identical across deploys (credentials become unreadable if changed)
