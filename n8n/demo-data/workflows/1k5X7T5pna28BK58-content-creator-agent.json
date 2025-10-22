@@ -1,0 +1,209 @@
+{
+  "createdAt": "2025-03-13T17:57:15.321Z",
+  "updatedAt": "2025-03-13T17:57:15.321Z",
+  "id": "1k5X7T5pna28BK58",
+  "name": "Content Creator Agent",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to search the internet",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"api_key\": \"your-api-key\",\n    \"query\": \"{searchTerm}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "searchTerm",
+              "description": "What the user has requested to write a blog about",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -1180,
+        280
+      ],
+      "id": "271728f9-9881-46bf-88e1-0e10ab34ab1a",
+      "name": "Tavily"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are a skilled AI blog writer specializing in engaging, well-structured, and informative content. Your writing style is clear, compelling, and tailored to the target audience. You optimize for readability, SEO, and value, ensuring blogs are well-researched, original, and free of fluff.\n\n## Tools\nTavily - Use this to search the web about the requested topic for the blog post.\n\n## Blog Requirements\nFormat all blog content in HTML, using proper headings (<h1>, <h2>), paragraphs (<p>), bullet points (<ul><li>), and links (<a href=\"URL\">) for citations. All citations from the Tavily tool must be preserved, with clickable hyperlinks so readers can access the original sources.\n\nMaintain a natural, human-like tone, use varied sentence structures, and include relevant examples or data when needed. Structure content for easy reading with concise paragraphs and logical flow. Always ensure factual accuracy and align the tone with the intended brand or purpose.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1300,
+        0
+      ],
+      "id": "3339eaf2-f8ee-44d7-89f2-b5f14efcdb6a",
+      "name": "Content Creator Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        -1460,
+        240
+      ],
+      "id": "2dfafa5c-d260-4aa5-81db-c71a1ec8753c",
+      "name": "Anthropic Chat Model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14d9076e-27ea-4846-8b44-f83cf4022b9e",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -860,
+        -80
+      ],
+      "id": "3a09f78e-4311-42cb-85ee-0dab6663ba55",
+      "name": "Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2a8ff2d-6b59-4ad6-a2e7-8705354f4105",
+              "name": "response",
+              "value": "Error occurred. Please try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -860,
+        100
+      ],
+      "id": "e8ffb153-99d5-4d43-844e-479d18fcb5a8",
+      "name": "Try Again"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1560,
+        0
+      ],
+      "id": "ed206fad-3da6-4fcc-90b5-63c854d20fb0",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "connections": {
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "Content Creator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Creator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Creator Agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Try Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Content Creator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "9de4faae-2f90-4e81-aeba-09226c37be98",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-13T17:57:15.321Z",
+      "updatedAt": "2025-03-13T17:57:15.321Z",
+      "role": "workflow:owner",
+      "workflowId": "1k5X7T5pna28BK58",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

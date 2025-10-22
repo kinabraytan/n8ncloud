@@ -1,0 +1,294 @@
+{
+  "createdAt": "2025-08-25T22:05:29.329Z",
+  "updatedAt": "2025-09-22T20:12:53.157Z",
+  "id": "bUxK3eC1WXswo1BD",
+  "name": "LSI_ZohoSign",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.document.fileId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -288,
+        -128
+      ],
+      "id": "c3615837-4a1c-4c10-831d-f7db8d21d413",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lsi_system_sign",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -128
+      ],
+      "id": "f3d0ece0-4613-4799-8eae-921f19c85d6c",
+      "name": "Webhook",
+      "webhookId": "73948add-667f-472c-8af0-9f8b0a51bc4f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sign.zoho.com/api/v1/requests/{{ $json.requests.request_id }}/submit",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": {\n    \"actions\": [\n      {\n        \"action_id\": \"{{ $json.requests.actions[0].action_id }}\",\n        \"fields\": [\n          {\n            \"field_name\": \"CandidateSignature\",\n            \"field_type_name\": \"Signature\",\n            \"page_no\": 3,\n            \"x_coord\": 120,\n            \"y_coord\": 1006,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\"\n          },\n          {\n            \"field_name\": \"CandidateSignDate\",\n            \"field_type_name\": \"Date\",\n            \"page_no\": 3,\n            \"x_coord\": 346,\n            \"y_coord\": 1006,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\"\n          },\n          {\n            \"field_name\": \"NominalDay\",\n            \"field_type_name\": \"Textfield\",\n            \"page_no\": 3,\n            \"x_coord\": 179,\n            \"y_coord\": 740,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\",\n            \"default_value\": \"{{ $now.format('d') }}\"\n          },\n          {\n            \"field_name\": \"Month\",\n            \"field_type_name\": \"Textfield\",\n            \"page_no\": 3,\n            \"x_coord\": 350,\n            \"y_coord\": 740,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\",\n            \"default_value\": \"{{ $now.format('MMMM') }}\"\n          },\n          {\n            \"field_name\": \"Year\",\n            \"field_type_name\": \"Textfield\",\n            \"page_no\": 3,\n            \"x_coord\": 546,\n            \"y_coord\": 740,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\",\n            \"default_value\": \"{{ $now.format('YYYY') }}\"\n          }\n        ]\n      },\n      {\n        \"action_id\": \"{{ $json.requests.actions[1].action_id }}\",\n        \"fields\": [\n          {\n            \"field_name\": \"EmployerSignature\",\n            \"field_type_name\": \"Signature\",\n            \"page_no\": 3,\n            \"x_coord\": 125,\n            \"y_coord\": 857,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\"\n          },\n          {\n            \"field_name\": \"EmployerSignDate\",\n            \"field_type_name\": \"Date\",\n            \"page_no\": 3,\n            \"x_coord\": 335,\n            \"y_coord\": 857,\n            \"document_id\": \"{{ $json.requests.document_ids[0].document_id }}\"\n          }\n        ]\n      }\n    ]\n  }\n}\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        176,
+        -128
+      ],
+      "id": "db6e7e63-f3dc-4cd7-b07a-5f0ab61ff65f",
+      "name": "Send document for Zoho Signing",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "qg4OW57J1uFXFfDs",
+          "name": "ZohoSign"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sign.zoho.com/api/v1/requests",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "data",
+              "value": "={\n  \"requests\": {\n    \"request_name\": \"Offer Letter\",\n    \"description\": \"{{ $json.document.fileName }}\",\n    \"is_sequential\": true,\n    \"actions\": [\n      {\n        \"action_type\": \"SIGN\",\n        \"recipient_email\": \"{{ $json.signers[0].email }}\",\n        \"recipient_name\": \"{{ $json.signers[0].name }}\",\n        \"signing_order\": 1,\n        \"verify_recipient\": false,\n        \"verification_type\": \"EMAIL\",\n        \"private_notes\": \"Please review and sign your offer.\"\n      },\n      {\n        \"action_type\": \"SIGN\",\n        \"recipient_email\": \"joel@virtualxperiencellc.com\",\n        \"recipient_name\": \"Lakeisha Law\",\n        \"signing_order\": 2,\n        \"verify_recipient\": false,\n        \"private_notes\": \"Please review and sign\"\n      }\n    ],\n    \"expiration_days\": 10,\n    \"email_reminders\": true,\n    \"reminder_period\": 2,\n    \"notes\": \"Offer letter inside. Please review and sign.\"\n  }\n}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        -128
+      ],
+      "id": "fecf1749-e607-47c6-b03f-80680c0b66cc",
+      "name": "Create a Zoho Document",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "qg4OW57J1uFXFfDs",
+          "name": "ZohoSign"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Create a Zoho Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a Zoho Document": {
+      "main": [
+        [
+          {
+            "node": "Send document for Zoho Signing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "candidate": {
+            "name": "Bryan Griffin",
+            "firstName": "Bryan",
+            "email": "joel@virtualxperiencellc.com",
+            "position": "Intake Coordinator",
+            "startDate": "2025-09-05T04:00:00.000Z",
+            "address": "31 Spooner Street, Quahog, RI, 00093",
+            "supervisor": "Glenn Quagmire\r",
+            "rate": 5,
+            "folderId": "174vt7pdK0TKZDF3nTl4oByq4Fwzjwbp8",
+            "sheetRow": 18
+          },
+          "document": {
+            "fileId": "1tzSr9xCeZ3qOQPlNMTj2IDodGfJTrEFF",
+            "fileName": "Offer_Letter_Bryan_Griffin_20250825.1100.pdf",
+            "version": "20250825.1100",
+            "downloadUrl": "https://drive.google.com/uc?export=download&id=1tzSr9xCeZ3qOQPlNMTj2IDodGfJTrEFF"
+          },
+          "envelope": {
+            "subject": "Bryan Griffin's Offer for your signature",
+            "message": "Please review and sign the attached offer letter. If you have questions, reply to this email.",
+            "externalEnvelopeId": "LSI-OFFER-174vt7pdK0TKZDF3nTl4oByq4Fwzjwbp8-20250825.1100-R18"
+          },
+          "documents": [
+            {
+              "documentId": "1",
+              "name": "Offer_Letter_Bryan_Griffin_20250825.1100.pdf",
+              "fileExtension": "pdf",
+              "fileId": "1tzSr9xCeZ3qOQPlNMTj2IDodGfJTrEFF",
+              "downloadUrl": "https://drive.google.com/uc?export=download&id=1tzSr9xCeZ3qOQPlNMTj2IDodGfJTrEFF",
+              "isSupplemental": false
+            }
+          ],
+          "signers": [
+            {
+              "role": "candidate",
+              "email": "joel@virtualxperiencellc.com",
+              "name": "Bryan Griffin",
+              "recipientId": "1",
+              "externalId": "joel@virtualxperiencellc.com",
+              "note": "Offer letter for Bryan Griffin",
+              "tabs": {
+                "signHereTabs": [
+                  {
+                    "anchorString": "/emp_sig_1/",
+                    "anchorUnits": "pixels",
+                    "anchorXOffset": "0",
+                    "anchorYOffset": "-10",
+                    "anchorIgnoreIfNotPresent": "false"
+                  }
+                ],
+                "dateSignedTabs": [
+                  {
+                    "anchorString": "/sign_date_1/",
+                    "anchorUnits": "pixels",
+                    "anchorXOffset": "0",
+                    "anchorYOffset": "0",
+                    "anchorIgnoreIfNotPresent": "false"
+                  }
+                ],
+                "textTabs": []
+              }
+            },
+            {
+              "role": "hr",
+              "email": "lifestagescs.hr@gmail.com",
+              "name": "HR Team",
+              "recipientId": "2",
+              "externalId": "lifestagescs.hr@gmail.com",
+              "note": "Counter-signature for Bryan Griffin",
+              "tabs": {
+                "signHereTabs": [
+                  {
+                    "anchorString": "/emp_sig_2/",
+                    "anchorUnits": "pixels",
+                    "anchorXOffset": "0",
+                    "anchorYOffset": "-10",
+                    "anchorIgnoreIfNotPresent": "false"
+                  }
+                ],
+                "dateSignedTabs": [
+                  {
+                    "anchorString": "/sign_date_2/",
+                    "anchorUnits": "pixels",
+                    "anchorXOffset": "0",
+                    "anchorYOffset": "0",
+                    "anchorIgnoreIfNotPresent": "false"
+                  }
+                ],
+                "textTabs": []
+              }
+            }
+          ],
+          "workflow": {
+            "type": "docusign_signature",
+            "timestamp": "2025-08-25T15:12:01.645Z",
+            "source": "google_apps_script",
+            "payloadVersion": "2"
+          },
+          "rowNumber": 18
+        }
+      }
+    ]
+  },
+  "versionId": "e8c8e5ad-3b75-4a95-b85a-2996429bdf36",
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-08-25T22:05:29.329Z",
+      "updatedAt": "2025-08-25T22:05:29.329Z",
+      "role": "workflow:owner",
+      "workflowId": "bUxK3eC1WXswo1BD",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

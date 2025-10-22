@@ -1,0 +1,193 @@
+{
+  "createdAt": "2025-03-21T19:38:47.069Z",
+  "updatedAt": "2025-09-15T11:08:02.964Z",
+  "id": "rGRothKMtiMiGlPB",
+  "name": "VAPI Agent",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "49e16c98-4cf7-416d-b73a-b1812474aea0",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        -860
+      ],
+      "id": "de5668ff-b4e3-43cc-860c-d01dc729eccb",
+      "name": "Webhook",
+      "webhookId": "49e16c98-4cf7-416d-b73a-b1812474aea0"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.transcript }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are the ultimate personal assistant. Your job is to send the user's query to the correct tool. You should never be writing emails, or creating even summaries, you just need to call the correct tool.\n\n## Tools\n- emailAgent: Use this tool to take action in email\n- calendarAgent: Use this tool to take action in calendar\n- contactAgent: Use this tool to get, update, or add contacts\n- contentCreator: Use this tool to create blog posts\n- Tavily: Use this tool to search the web\n\n## Rules\n- Some actions require you to look up contact information first. For the following actions, you must get contact information and send that to the agent who needs it:\n  - sending emails\n  - drafting emails\n  - creating calendar event with attendee\n\n## Examples\n1) \n- Input: send an email to Alvin Smith asking him what time he wants to leave\n  - Action: Use contactAgent to get Alvin Smith's email\n  - Action: Use emailAgent to send the email. You will pass the tool a query like \"send Alvin Smith an email to ask what time he wants to leave. here is his email: [email address]\n- Output: The email has been sent to Alvin Smith. Anything else I can help you with?\n\n\n## Final Reminders\nHere is the current date/time: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -1120,
+        -860
+      ],
+      "id": "cf1de9ae-78ae-4291-98eb-a9a3e4e03523",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1340,
+        -660
+      ],
+      "id": "03358ce4-643e-481b-a4de-27ced809efd2",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=calendarAgent",
+        "description": "Call this agent for any calendar action",
+        "workflowId": {
+          "__rl": true,
+          "value": "sWvMifZdu8AQBgoy",
+          "mode": "list",
+          "cachedResultName": "Calendar Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        -840,
+        -660
+      ],
+      "id": "62101173-772a-4360-84a5-9d5335417eb3",
+      "name": "Calendar Agent1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n    \"results\": [\n        {\n            \"toolCallId\": \"X\",\n            \"result\": \"Y\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        -860
+      ],
+      "id": "025e107e-b5c3-48b4-975d-b301a6f97cda",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "8e3c8642-ad6f-4fc8-aebe-eb31d80633e4",
+  "triggerCount": 1,
+  "tags": [
+    {
+      "createdAt": "2025-03-13T18:00:47.318Z",
+      "updatedAt": "2025-03-13T18:00:47.318Z",
+      "id": "RT0FG5gDUQsf13qd",
+      "name": "VX AI Agent"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-03-21T19:38:47.069Z",
+      "updatedAt": "2025-03-21T19:38:47.069Z",
+      "role": "workflow:owner",
+      "workflowId": "rGRothKMtiMiGlPB",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

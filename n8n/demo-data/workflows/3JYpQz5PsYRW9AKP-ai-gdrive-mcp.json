@@ -1,0 +1,344 @@
+{
+  "createdAt": "2025-07-24T02:04:13.993Z",
+  "updatedAt": "2025-07-24T02:04:21.361Z",
+  "id": "3JYpQz5PsYRW9AKP",
+  "name": "AI Gdrive MCP",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ab3b0e89-c55b-4d86-a9a7-73b7ebdb99da"
+      },
+      "id": "7a6e6c8e-d763-42b8-ae76-9884bd169c36",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        360,
+        20
+      ],
+      "webhookId": "ab3b0e89-c55b-4d86-a9a7-73b7ebdb99da",
+      "typeVersion": 1.1,
+      "notes": "Entry point for the workflow - triggers when MCP server receives a request"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "archive_folder_id",
+          "cachedResultName": "Archive"
+        }
+      },
+      "id": "41a247c9-138d-4862-b930-14d2e4975461",
+      "name": "Archive Old Files",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        100,
+        580
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Archives files older than specified threshold to maintain clean workspace"
+    },
+    {
+      "parameters": {
+        "content": "## Google Drive File Management Workflow\n\nThis workflow provides comprehensive file management capabilities for Google Drive:\n\n### Key Features:\n- **Smart Processing**: Downloads with format conversion\n- **Safety First**: Creates backups before modifications\n- **Organization**: Moves files to appropriate folders\n- **Audit Trail**: Logs all activities\n\n### Workflow Path:\n1. MCP Trigger receives request\n2. List files or download specific file\n3. Create backup if modifying\n4. Process based on file type/size\n5. Move to organized folders\n6. Log all activities",
+        "height": 580,
+        "width": 350,
+        "color": 4
+      },
+      "id": "aa986795-dedb-4d1a-9ae6-3ae5c61c6208",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "=### Input Parameters\n\n**MCP Trigger accepts:**\n- `action`:  download, move, archive\n- `fileId`: specific file identifier\n- `folderPath`: target folder path\n- `filters`: file type, size, date filters\n\n**Example payload:**\n```json\n{\n  \"action\": \"download\",\n  \"fileId\": \"1a2b3c4d5e6f\",\n  \"convertFormat\": \"pdf\"\n}\n```",
+        "height": 480,
+        "width": 300,
+        "color": 3
+      },
+      "id": "0f8f704d-46ad-42c1-bddb-af8105911212",
+      "name": "Input Parameters",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        480
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Error Handling & Safety\n\n**Built-in Safeguards:**\n- Backup creation before modifications\n- File size and type validation\n- Detailed error logging\n- Rollback capabilities\n\n**Best Practices:**\n- Test with non-critical files first\n- Monitor processing logs regularly\n- Set up folder permissions properly\n- Use version control for important docs",
+        "height": 380,
+        "width": 380,
+        "color": 6
+      },
+      "id": "6a8c1cc6-18b8-4fa6-a11c-abfa6d57e2b8",
+      "name": "Safety & Best Practices",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Performance Optimization\n\n**Recommendations:**\n- Use batch operations for multiple files\n- Implement rate limiting for API calls\n- Cache frequently accessed file metadata\n- Set up webhooks for real-time updates\n\n**Monitoring:**\n- Track API quota usage\n- Monitor workflow execution time\n- Set up alerts for failures\n- Regular cleanup of old logs",
+        "height": 460,
+        "width": 300,
+        "color": 5
+      },
+      "id": "2c9060e8-cab4-4e14-97af-916a3e5c8e53",
+      "name": "Performance Tips",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        340
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "04287e01-8ed5-4cd7-953d-6c1bbefe2b1a",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        320,
+        840
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "value": "0AAS-C0K9GIBpUk9PVA",
+          "mode": "list",
+          "cachedResultName": "Life Stages Workspace",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AAS-C0K9GIBpUk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "79dcb0af-1877-44e5-847e-d1ab5bf4a8fa",
+      "name": "Drive upload",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        80,
+        340
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_to_Update', ``, 'string') }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('New_Updated_File_Name', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "99d75819-7e19-43cd-a7f3-7946dc290f87",
+      "name": "Rename File",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        80,
+        160
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Creates timestamped backup copy in dedicated Backups folder before any modifications"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "0AAS-C0K9GIBpUk9PVA",
+          "mode": "list",
+          "cachedResultName": "Life Stages Workspace",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AAS-C0K9GIBpUk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Parent_Folder', ``, 'string') }}",
+          "mode": "id"
+        }
+      },
+      "id": "edb39fca-5460-42c7-bd39-1da9c30dfcc8",
+      "name": "Move to Appropriate Folder",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        160,
+        740
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Moves processed files to organized folder structure"
+    }
+  ],
+  "connections": {
+    "Drive upload": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Old Files": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename File": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Appropriate Folder": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "a069dfe2-8520-4700-8955-3c10a717e1cc",
+  "triggerCount": 0,
+  "tags": [
+    {
+      "createdAt": "2025-07-21T20:18:01.180Z",
+      "updatedAt": "2025-07-21T20:18:01.180Z",
+      "id": "Jix5w5AZ1rSoh8x1",
+      "name": "LifeStages"
+    },
+    {
+      "createdAt": "2025-06-19T23:39:52.053Z",
+      "updatedAt": "2025-06-19T23:39:52.053Z",
+      "id": "hqGuRJJPzE8JK1K2",
+      "name": "Google Drive"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-07-24T02:04:13.993Z",
+      "updatedAt": "2025-07-24T02:04:13.993Z",
+      "role": "workflow:owner",
+      "workflowId": "3JYpQz5PsYRW9AKP",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

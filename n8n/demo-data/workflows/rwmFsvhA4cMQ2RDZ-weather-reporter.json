@@ -1,0 +1,216 @@
+{
+  "createdAt": "2025-03-21T08:44:53.024Z",
+  "updatedAt": "2025-03-21T14:08:04.298Z",
+  "id": "rwmFsvhA4cMQ2RDZ",
+  "name": "Weather Reporter",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.weatherapi.com/v1/current.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "Martinsville"
+            },
+            {
+              "name": "lang",
+              "value": "en"
+            },
+            {
+              "name": "key",
+              "value": "2dfc887e5ddf45a9ab673910252103"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        340,
+        80
+      ],
+      "id": "dab2e716-ae78-4459-bb34-673685396e13",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {
+          "maxOutputTokens": 2048,
+          "safetySettings": {
+            "values": [
+              {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_ONLY_HIGH"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        580,
+        360
+      ],
+      "id": "025528d5-3b87-42f1-af7f-50fb1c3cfc8d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a weather reporter. Make this weather report make sense for everyday folks. Use simple language to make this make sense. The report will be in my message."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        580,
+        80
+      ],
+      "id": "69a05409-8b69-4c25-bf57-6d95cb0448e4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "google-chat-weather",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        80
+      ],
+      "id": "28cdea5d-e4d2-44a2-9e5d-5ae560e67bc1",
+      "name": "Webhook",
+      "webhookId": "d9edf5c0-478d-43f8-af08-74d8f0a8b2c9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.googleapis.com/v1/spaces/AAAAmHx01uc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kOl4BxxJZJrAwuucnWflWR0fhM6amDqxBLdlBMh3RIU",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        80
+      ],
+      "id": "3b5864f0-765c-46ff-9465-1419656b06e3",
+      "name": "Send Chat"
+    }
+  ],
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f1cad918-d852-4d33-a8fc-51275edf5fa6",
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-21T08:44:53.024Z",
+      "updatedAt": "2025-03-21T08:44:53.024Z",
+      "role": "workflow:owner",
+      "workflowId": "rwmFsvhA4cMQ2RDZ",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

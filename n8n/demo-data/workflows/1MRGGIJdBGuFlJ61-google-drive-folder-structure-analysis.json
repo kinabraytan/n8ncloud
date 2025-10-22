@@ -1,0 +1,463 @@
+{
+  "createdAt": "2025-06-16T01:33:29.800Z",
+  "updatedAt": "2025-06-23T21:43:36.176Z",
+  "id": "1MRGGIJdBGuFlJ61",
+  "name": "Google Drive Folder Structure Analysis",
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Definitions_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "list",
+          "cachedResultName": "AI Sorter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13cawol0keib58mS--h23xWgid31el-Ub"
+        },
+        "options": {}
+      },
+      "id": "648b5ed0-cd8f-47f7-b3c7-91b0aa31ea3b",
+      "name": "Save Folder Definitions1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1724,
+        1180
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Naming_Guide_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "list",
+          "cachedResultName": "AI Sorter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13cawol0keib58mS--h23xWgid31el-Ub"
+        },
+        "options": {}
+      },
+      "id": "c73dbe71-d1c6-406a-9e35-f97558f5f392",
+      "name": "Save Folder-Specific Naming Guide1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1724,
+        1380
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Final workflow summary\nconst summary = {\n  workflowComplete: true,\n  timestamp: new Date().toISOString(),\n  documentsCreated: [\n    'Life_Stages_Folder_Definitions',\n    'Life_Stages_Folder_Naming_Guide'\n  ],\n  status: 'SUCCESS - Folder analysis and documentation complete'\n};\n\n// Try to get folder count from available nodes\ntry {\n  // Check if AI Folder Analyst has output data\n  const aiAnalystData = $('AI Folder Analyst').all();\n  if (aiAnalystData && aiAnalystData.length > 0) {\n    summary.aiAnalysisItems = aiAnalystData.length;\n  }\n  \n  // Check if Create Folder-Specific Naming Guide has output\n  const namingGuideData = $('Create Folder-Specific Naming Guide1').all();\n  if (namingGuideData && namingGuideData.length > 0) {\n    summary.namingGuideItems = namingGuideData.length;\n  }\n  \n  // Get file conversion results\n  const fileConversions = $('Convert to File').all();\n  if (fileConversions && fileConversions.length > 0) {\n    summary.definitionsFileCreated = true;\n  }\n  \n  const fileConversions1 = $('Convert to File1').all();\n  if (fileConversions1 && fileConversions1.length > 0) {\n    summary.namingGuideFileCreated = true;\n  }\n  \n} catch (error) {\n  summary.note = 'Some metrics could not be calculated due to workflow structure';\n  console.log('Error calculating metrics:', error.message);\n}\n\nconsole.log('Workflow Summary:', JSON.stringify(summary, null, 2));\nreturn [{ json: summary }];\n"
+      },
+      "id": "e9f2ddc4-135b-4196-a823-ab5f8ebcc69b",
+      "name": "Workflow Summary1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2760,
+        1500
+      ],
+      "id": "e57bb405-6b0b-479a-803a-8832346ac2f9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}",
+        "contextWindowLength": 25
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2640,
+        1500
+      ],
+      "id": "c91174d3-a37b-4635-80a0-9ccf99374370",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput || $json['File for analysis'][0]   }}",
+        "options": {
+          "systemMessage": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. (mental health, housing, transportation, etc.)\n3. Standard business practices\n4. The naming conventions document provided\n\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\nFormat your response as a structured document that can be used as a reference guide.\n\nUser your available tools to complete your task when necessary."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -2728,
+        1280
+      ],
+      "id": "751c8c62-ad6e-4f14-8062-6580a108b038",
+      "name": "AI Folder Analyst"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. as a mental health wellness and recovery facility\n3. Standard business practices\n4. The {{Naming Conventions}} document provided\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\n\nFormat your response as a structured document that can be used as a reference guide.",
+              "role": "system"
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n\n{{ $json.output }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\nMental health services\n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized.\n\nFormat your output so that it is ready for document saving, and for process reference."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2320,
+        1380
+      ],
+      "id": "ef8d84d6-1d5b-4785-ac1c-8eac0124fb86",
+      "name": "Create Folder-Specific Naming Guide1",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://n8n.virtualxperiencellc.com/mcp/vxmcptrigger1/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        -2520,
+        1500
+      ],
+      "id": "5b734d53-a1bd-4e93-a63b-951f7837c62b",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3200,
+        1540
+      ],
+      "id": "db38bd0a-9bdb-4610-a623-b52b23915b49",
+      "name": "When chat message received",
+      "webhookId": "c3183999-08e9-4b05-a651-1b61666f497c"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1944,
+        1180
+      ],
+      "id": "9fa050ef-10d5-4c51-b7b8-3c067eb62d88",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "message.content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1944,
+        1380
+      ],
+      "id": "ec2b53fd-75a1-4f7f-8684-264d5ed72b1d",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Folder ID"
+            },
+            {
+              "name": "File for Analysis"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3200,
+        1240
+      ],
+      "id": "4dd2858c-9a32-4aaf-81d0-aa4a43f88ed1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "formTitle": "Document or File Upload",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File for analysis",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Your response has been recorded. Thank you!"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -3180,
+        960
+      ],
+      "id": "43e154ee-3935-4044-841e-0d57810e0dd8",
+      "name": "On form submission",
+      "webhookId": "05eb3161-ba6b-4a9e-972e-b68b82c8aed5"
+    }
+  ],
+  "connections": {
+    "Save Folder Definitions1": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder-Specific Naming Guide1": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Folder Analyst": {
+      "main": [
+        [
+          {
+            "node": "Create Folder-Specific Naming Guide1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder-Specific Naming Guide1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Save Folder Definitions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Save Folder-Specific Naming Guide1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "78e90d41-a85f-437b-8055-eef0a11afed0",
+  "triggerCount": 2,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-16T01:33:29.800Z",
+      "updatedAt": "2025-06-16T01:33:29.800Z",
+      "role": "workflow:owner",
+      "workflowId": "1MRGGIJdBGuFlJ61",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

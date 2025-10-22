@@ -1,0 +1,210 @@
+{
+  "createdAt": "2025-03-25T03:06:16.571Z",
+  "updatedAt": "2025-03-25T06:10:49.408Z",
+  "id": "MNOormmSXyYu79cs",
+  "name": "Youtube Check New Videos in a Channel",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        -540
+      ],
+      "id": "d8cd445e-d269-4961-827d-fefa1ebdd086",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "id",
+              "value": "={{$node[\"GetVideosYT\"].json[\"id\"][\"videoId\"]}}"
+            },
+            {
+              "name": "url",
+              "value": "=https://youtu.be/{{$node[\"GetVideosYT\"].json[\"id\"][\"videoId\"]}}"
+            },
+            {
+              "name": "title",
+              "value": "={{$node[\"GetVideosYT\"].json[\"snippet\"][\"title\"]}}"
+            },
+            {
+              "name": "published",
+              "value": "={{ \n  new Date($json.snippet.publishedAt).toLocaleString(\"en-US\", {\n    timeZone: \"America/New_York\",\n    month: \"2-digit\",\n    day: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    hour12: true\n  })\n  .replace(/(\\d+)\\/(\\d+)\\/(\\d+), (\\d+:\\d+ [AP]M)/, \"\\$1-\\$2-\\$3 \\$4 EST\")\n}}"
+            },
+            {
+              "name": "Description",
+              "value": "={{ $json.snippet.description }}"
+            },
+            {
+              "value": "={{ $json.snippet.thumbnails.high.url }}"
+            }
+          ],
+          "boolean": []
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        320,
+        -540
+      ],
+      "typeVersion": 1,
+      "id": "082e7865-424b-4e72-b03c-db8e0a4e490d"
+    },
+    {
+      "parameters": {
+        "functionCode": "const new_items = [];\nconst data = this.getWorkflowStaticData('node');\n\ndata.ids = data.ids || [];\n\nfor (var i=0; i<items.length; i++) {\n  if (data.ids.includes(items[i].json.id)) {\n    break;\n  } else {\n    new_items.push({json: {id: items[i].json.id, url: items[i].json.url, title: items[i].json.title}});\n  }\n}\n\ndata.ids = items.map(item => item.json.id)\nreturn new_items;\n"
+      },
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        560,
+        -540
+      ],
+      "typeVersion": 1,
+      "id": "bc592fdd-b03f-49d3-8bc1-37a9a8c5f7e9"
+    },
+    {
+      "parameters": {
+        "chatId": "-1001178002763",
+        "text": "=Nuovo video di almi su YouTube!\n<b>{{$node[\"Function\"].json[\"title\"]}}</b>\n\n{{$node[\"Function\"].json[\"url\"]}}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "name": "SendVideo",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        900,
+        -540
+      ],
+      "typeVersion": 1,
+      "id": "8742813b-c2cc-4934-ad3e-10192f4fa9a7",
+      "webhookId": "425bc703-13fb-4a90-8d03-95d37e242ffc",
+      "credentials": {
+        "telegramApi": {
+          "id": null,
+          "name": "bot raspino"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "limit": 2,
+        "filters": {
+          "channelId": "UCSlt3E2nExEEMZ-MtriDyHw",
+          "publishedBefore": "={{ $now }}"
+        },
+        "options": {
+          "order": "date"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -380
+      ],
+      "id": "e4849a20-8219-42da-bdc3-289d671e0732",
+      "name": "YouTube",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "JiMpJxJSVxffuplL",
+          "name": "YouTube account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function": {
+      "main": [
+        [
+          {
+            "node": "SendVideo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "c8fee892-b1d1-4b2a-8511-e55ddde33721",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-25T03:06:16.571Z",
+      "updatedAt": "2025-03-25T03:06:16.571Z",
+      "role": "workflow:owner",
+      "workflowId": "MNOormmSXyYu79cs",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

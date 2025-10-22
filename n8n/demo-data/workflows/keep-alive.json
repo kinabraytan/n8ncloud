@@ -1,0 +1,54 @@
+[
+  {
+    "id": "uMSqTMIWn2i34o2A",
+    "name": "Keep-Alive Ping",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "mode": "everyX",
+            "io-every-x-unit": "minutes",
+            "io-every-x-value": 10
+          }
+        },
+        "id": "324f8692-a831-457c-a249-993a8a815d91",
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "url": "={{ $env['WEBHOOK_URL'] ? $env['WEBHOOK_URL'] + '/rest/healthz' : 'https://your-n8n.onrender.com/rest/healthz' }}",
+          "options": {}
+        },
+        "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+        "name": "Ping Healthz",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.1,
+        "position": [
+          -100,
+          300
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Ping Healthz",
+              "type": "main"
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "tags": []
+  }
+]

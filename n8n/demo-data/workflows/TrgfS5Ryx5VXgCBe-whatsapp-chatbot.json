@@ -1,0 +1,687 @@
+{
+  "createdAt": "2025-03-13T20:47:41.380Z",
+  "updatedAt": "2025-03-13T20:47:41.380Z",
+  "id": "TrgfS5Ryx5VXgCBe",
+  "name": "WhatsApp ChatBot",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ]
+      },
+      "id": "ef5528c5-7627-49b5-bc12-174a7e85405e",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -960,
+        420
+      ],
+      "webhookId": "aaa71f03-f7af-4d18-8d9a-0afb86f1b554",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-2024-08-06",
+        "options": {}
+      },
+      "id": "e5bb8213-6910-43f2-9d69-8988052ba21d",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -360,
+        500
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=whatsapp-75-{{ $json.messages[0].from }}"
+      },
+      "id": "47ccb33f-8c2f-4ddc-a5c2-5394ff998540",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -240,
+        500
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "name": "query_product_brochure",
+        "description": "Call this tool to query the product brochure. Valid for the year 2024."
+      },
+      "id": "ce7d868e-4c91-4947-8261-56576b26020c",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        -120,
+        500
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "078fdf8d-a270-4685-afde-525acbe0bbc9",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        -120,
+        780
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-2024-08-06",
+        "options": {}
+      },
+      "id": "b951ea5f-9369-4603-b9bc-89d6aca4f49d",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        120,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "e07013d1-d9eb-4c64-a46f-d3bbace10df8",
+      "name": "When clicking \u2018Test workflow\u2019",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -2320,
+        460
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "2cbeaa84-f1f7-479d-a039-bba179ce9feb",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        -1560,
+        680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Extract from File').item.json.text }}",
+        "options": {}
+      },
+      "id": "ac0dfb16-4670-4a36-8767-230886ecec43",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        -1420,
+        680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkSize": 2000,
+        "chunkOverlap": {},
+        "options": {}
+      },
+      "id": "6269ea25-2b1c-428c-a7b8-15ae26888916",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        -1420,
+        800
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "101a457b-abef-43a3-91d9-0cb2a999dd4f",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -1960,
+        460
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "https://usa.yamaha.com/files/download/brochure/1/1474881/Yamaha-Powered-Loudspeakers-brochure-2024-en-web.pdf",
+        "options": {}
+      },
+      "id": "d6c90279-3462-41f2-9eab-c20d4ddb36bd",
+      "name": "get Product Brochure",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2140,
+        460
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "477115632141067",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {
+          "previewUrl": false
+        },
+        "requestOptions": {}
+      },
+      "id": "b8d95242-8a7a-4842-a38c-f24e33cae2ef",
+      "name": "Reply To User",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        500,
+        420
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "477115632141067",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "=I'm unable to process non-text messages. Please send only text messages. Thanks!",
+        "additionalFields": {
+          "previewUrl": false
+        },
+        "requestOptions": {}
+      },
+      "id": "034018fd-a921-4a8c-b32b-a39293c970d1",
+      "name": "Reply To User1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -560,
+        780
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "memoryKey": "whatsapp-75"
+      },
+      "id": "661a408e-3fc7-4110-b1f9-024db7bbd4e1",
+      "name": "Product Catalogue",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "position": [
+        -120,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 1. Download Product Brochure PDF\n[Read more about the HTTP Request Tool](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)\n\nImport your marketing PDF document to build your vector store. This will be used as the knowledgebase by the Sales AI Agent.\n\nFor this demonstration, we'll use the HTTP request node to import the YAMAHA POWERED LOUDSPEAKERS 2024 brochure ([Source](https://usa.yamaha.com/files/download/brochure/1/1474881/Yamaha-Powered-Loudspeakers-brochure-2024-en-web.pdf)) and an Extract from File node to extract the text contents. ",
+        "height": 434.6875,
+        "width": 640.4375,
+        "color": 7
+      },
+      "id": "e11a5486-9461-4947-85d0-c8192fa5be4e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2400,
+        220
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 2. Create Product Brochure Vector Store\n[Read more about the In-Memory Vector Store](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreinmemory/)\n\nVector stores are powerful databases which serve the purpose of matching a user's questions to relevant parts of a document. By creating a vector store of our product catalog, we'll allow users to query using natural language.\n\nTo keep things simple, we'll use the **In-memory Vector Store** which comes built-in to n8n and doesn't require a separate service. For production deployments, I'd recommend replacing the in-memory vector store with either [Qdrant](https://qdrant.tech) or [Pinecone](https://pinecone.io).",
+        "height": 731.1875,
+        "width": 614.6875,
+        "color": 7
+      },
+      "id": "f5ef2801-97ad-409e-89bc-66f60ab112d9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1740,
+        220
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": "whatsapp-75",
+        "clearStore": true
+      },
+      "id": "510365eb-7c79-4802-b740-0a0317588197",
+      "name": "Create Product Catalogue",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "position": [
+        -1560,
+        500
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 3. Use the WhatsApp Trigger\n[Learn more about the WhatsApp Trigger](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.whatsapptrigger/)\n\nThe WhatsApp Trigger allows you to receive incoming WhatsApp messages from customers. It requires a bit of setup so remember to follow the documentation carefully! Once ready however, it's quite easy to build powerful workflows which are easily accessible to users.\n\nNote that WhatsApp can send many message types such as audio and video so in this demonstration, we'll filter them out and just accept the text messages.",
+        "height": 484.1875,
+        "width": 546.6875,
+        "color": 7
+      },
+      "id": "f5b48221-bc86-4c9d-bc14-3502f672158d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Want to handle all message types?\nCheck out my other WhatsApp template in my creator page! https://n8n.io/creators/jimleuk/",
+        "height": 92,
+        "width": 338
+      },
+      "id": "2b859f7e-7c6b-46de-a05d-b8c428ceaf81",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        980
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 3a. Handle Unsupported Message Types\nFor non-text messages, we'll just reply with a simple message to inform the sender.",
+        "height": 311.1875,
+        "width": 337.6875,
+        "color": 7
+      },
+      "id": "394eb059-15f2-4b71-b824-e453fe693a13",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        660
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 4. Sales AI Agent Responds To Customers\n[Learn more about using AI Agents](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/)\n\nn8n's AI agents are powerful nodes which make it incredibly easy to use state-of-the-art AI in your workflows. Not only do they have the ability to remember conversations per individual customer but also tap into resources such as our product catalogue vector store to pull factual information and data for every question.\n\nIn this demonstration, we use an AI agent which is directed to help the user navigate the product brochure. A Chat memory subnode is attached to identify and keep track of the customer session. A Vector store tool is added to allow the Agent to tap into the product catalogue knowledgebase we built earlier.",
+        "height": 929.1875,
+        "width": 746.6875,
+        "color": 7
+      },
+      "id": "2aee7e83-bdc0-4b2f-9e2d-7b2473632933",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 5. Repond to WhatsApp User\n[Learn more about the WhatsApp Node](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.whatsapp/)\n\nThe WhatsApp node is the go-to if you want to interact with WhatsApp users. With this node, you can send text, images, audio and video messages as well as use your WhatsApp message templates.\n\nHere, we'll keep it simple by replying with a text message which is the output of the AI agent.",
+        "height": 484.1875,
+        "width": 495.4375,
+        "color": 7
+      },
+      "id": "4e8dddaa-6621-4859-a552-7de5f1d6bc96",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Try It Out!\n\n### This n8n template builds a simple WhatsApp chabot acting as a Sales Agent. The Agent is backed by a product catalog vector store to better answer user's questions.\n\n* This template is in 2 parts: creating the product catalog vector store and building the WhatsApp AI chatbot.\n* A product brochure is imported via HTTP request node and its text contents extracted.\n* The text contents are then uploaded to the in-memory vector store to build a knowledgebase for the chatbot.\n* A WhatsApp trigger is used to capture messages from customers where non-text messages are filtered out.\n* The customer's message is sent to the AI Agent which queries the product catalogue using the vector store tool.\n* The Agent's response is sent back to the user via the WhatsApp node.\n\n### Need Help?\nJoin the [Discord](https://discord.com/invite/XPKeKXeB7d) or ask in the [Forum](https://community.n8n.io/)!",
+        "height": 582.6283033962263,
+        "width": 401.25
+      },
+      "id": "4d0e4c56-2028-4143-bb38-de731bb9fccd",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2840,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "text"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Supported"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "89971d8c-a386-4e77-8f6c-f491a8e84cb6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "text"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Not Supported"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4634daf6-8b4c-4202-87b3-832db610c1c9",
+      "name": "Handle Message Types",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -760,
+        420
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "content": "### You only have to run this part once!\nRun this step to populate our product catalogue vector. Run again if you want to update the vector store with a new version.",
+        "height": 114.53583720930231,
+        "width": 345.10906976744184,
+        "color": 5
+      },
+      "id": "1d2e46a8-c6e6-4320-9847-47a28c67f453",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2400,
+        680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Activate your workflow to use!\nTo start using the WhatsApp chatbot, you'll need to activate the workflow. If you are self-hosting ensure WhatsApp is able to connect to your server.",
+        "height": 107.02804651162779,
+        "width": 364.6293255813954,
+        "color": 5
+      },
+      "id": "93defe1a-c169-4b08-9d76-df71b4eddf56",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        660
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are an assistant working for a company who sells Yamaha Powered Loudspeakers and helping the user navigate the product catalog for the year 2024. Your goal is not to facilitate a sale but if the user enquires, direct them to the appropriate website, url or contact information.\n\nDo your best to answer any questions factually. If you don't know the answer or unable to obtain the information from the datastore, then tell the user so."
+        }
+      },
+      "id": "8a440f17-09f9-45d3-a2b7-452f42bf7418",
+      "name": "AI Sales Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -360,
+        300
+      ],
+      "typeVersion": 1.6
+    }
+  ],
+  "connections": {
+    "AI Sales Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply To User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Handle Message Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Product Catalogue",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Create Product Catalogue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Sales Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Catalogue": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Sales Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Create Product Catalogue",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Create Product Catalogue",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Message Types": {
+      "main": [
+        [
+          {
+            "node": "AI Sales Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply To User1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Sales Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get Product Brochure": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Test workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "get Product Brochure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "1a7d7913-53e0-4a9d-857b-276373d5a1c1",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-13T20:47:41.380Z",
+      "updatedAt": "2025-03-13T20:47:41.380Z",
+      "role": "workflow:owner",
+      "workflowId": "TrgfS5Ryx5VXgCBe",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

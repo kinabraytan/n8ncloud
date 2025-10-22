@@ -1,0 +1,582 @@
+{
+  "createdAt": "2025-03-17T20:12:17.611Z",
+  "updatedAt": "2025-03-17T20:45:15.699Z",
+  "id": "LPijwRqmH3QCa96B",
+  "name": "Content Creator and Poster",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "appW9vYCHJcy24CPU",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "tblBQaU8UaRRiof2t",
+          "mode": "id"
+        },
+        "triggerField": "Last Modified Time",
+        "downloadAttachments": true,
+        "downloadFieldNames": "Final Video",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d6ea84a5-b4f7-4499-9cfd-4bd788181e36",
+      "name": "Airtable Trigger1"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "ff3359d3-977a-490c-a93a-a01e57ccac23",
+      "name": "OpenAI"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API KEY"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"import-my-file\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $json.fields['Final Video'][0].url }}\"\n    },\n    \"convert-my-file\": {\n      \"operation\": \"convert\",\n      \"input\": \"import-my-file\",\n      \"output_format\": \"mp3\"\n    },\n    \"export-my-file\": {\n      \"operation\": \"export/url\",\n      \"input\": \"convert-my-file\"\n    }\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "id": "2cec48bb-8a4d-4a5a-8744-f33203a3893f",
+      "name": "Convert File"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $json.body.data.id }}/wait",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        0
+      ],
+      "id": "9e3f45f8-509c-4c7a-b2cd-d05efb9bbe38",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "url": "=https://sync.api.cloudconvert.com/v2/jobs/{{ $json.data.tasks[0].job_id }}?redirect=true",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "4dd9bea7-9fe7-4283-954a-7ec87e33390e",
+      "name": "Download File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=I want you to generate 10 viral titles for my YouTube video that will make people want to click it, a description of what is covered in the video, and hyper-specific tags that people will search to find this video (500 characters total). Here is the script:\n\n{{ $json.text }}\n\nI want the output to be in JSON format with the following structure:\n{\n  \"titles\": \"comma-separated titles here\",\n  \"description\": \"Video description here\",\n  \"tags\": \"comma-separated tags here\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1400,
+        0
+      ],
+      "id": "11ff3129-7348-4bab-b8bc-1ce6dc45f5be",
+      "name": "OpenAI1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appW9vYCHJcy24CPU",
+          "mode": "list",
+          "cachedResultName": "Content V2",
+          "cachedResultUrl": "https://airtable.com/appW9vYCHJcy24CPU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblBQaU8UaRRiof2t",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appW9vYCHJcy24CPU/tblBQaU8UaRRiof2t"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Record ID": "={{ $('Airtable Trigger1').item.json.fields['Record ID'] }}",
+            "Title Generator": "={{ $json.message.content.titles }}",
+            "Description": "={{ $json.message.content.description }}",
+            "Tags": "={{ $json.message.content.tags }}",
+            "id": "={{ $('Airtable Trigger1').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Title Generator",
+              "displayName": "Title Generator",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Video Type",
+              "displayName": "Video Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "YouTube",
+                  "value": "YouTube"
+                },
+                {
+                  "name": "IG Reel",
+                  "value": "IG Reel"
+                },
+                {
+                  "name": "YT Short",
+                  "value": "YT Short"
+                },
+                {
+                  "name": "Twitter",
+                  "value": "Twitter"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Posting Time",
+              "displayName": "Posting Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Final Video",
+              "displayName": "Final Video",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Ready to Post",
+              "displayName": "Ready to Post",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Last Modified Time",
+              "displayName": "Last Modified Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Record ID",
+              "displayName": "Record ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "6a7cde08-8e18-4f5c-ab48-f84127571a41",
+      "name": "Airtable"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1bcbac0-cf51-4e94-a942-31fd979c39df",
+              "leftValue": "={{ $json.fields[\"Final Video\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "ea967779-e374-4fb4-8388-36d825393b86",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "path": "9eb82b84-b64f-400b-af29-a82",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        480
+      ],
+      "id": "5c14a1e6-40c0-4124-b767-06ade4e6567b",
+      "name": "Webhook",
+      "webhookId": "9eb82b84-b64f-400b-af29-a824e5a5c33f"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $json['Title Generator'] }}",
+        "regionCode": "CA",
+        "categoryId": "27",
+        "binaryProperty": "={{ $json['Final Video'][0].url }}",
+        "options": {
+          "description": "={{ $json.Description }}",
+          "notifySubscribers": true,
+          "selfDeclaredMadeForKids": false,
+          "tags": "={{ $json.Tags }}"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        480,
+        480
+      ],
+      "id": "e768c2ca-3de3-4e2a-a246-840c67a1a216",
+      "name": "YouTube"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appW9vYCHJcy24CPU",
+          "mode": "list",
+          "cachedResultName": "Content V2",
+          "cachedResultUrl": "https://airtable.com/appW9vYCHJcy24CPU"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblBQaU8UaRRiof2t",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appW9vYCHJcy24CPU/tblBQaU8UaRRiof2t"
+        },
+        "id": "={{ $json.query.recordId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        480
+      ],
+      "id": "8b517f3e-e538-4a47-9d60-03559c49ebce",
+      "name": "Airtable1"
+    }
+  ],
+  "connections": {
+    "Airtable Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert File": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Convert File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Airtable1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable1": {
+      "main": [
+        [
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "113a80f2-ac9d-4c04-984f-a196d2a8db65",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-17T20:12:17.611Z",
+      "updatedAt": "2025-03-17T20:12:17.611Z",
+      "role": "workflow:owner",
+      "workflowId": "LPijwRqmH3QCa96B",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

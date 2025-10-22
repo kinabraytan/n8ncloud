@@ -1,0 +1,49 @@
+{
+  "createdAt": "2025-09-29T15:50:44.529Z",
+  "updatedAt": "2025-09-29T17:14:54.535Z",
+  "id": "VAjAB2bIhOZFRyUd",
+  "name": "My workflow",
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5d3a5025-d37b-4e43-bba8-1b2b30252f58",
+      "name": "Error Trigger"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "329d3314-a591-47fc-95ee-5cfe90c7e325",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-09-29T15:50:44.529Z",
+      "updatedAt": "2025-09-29T15:50:44.529Z",
+      "role": "workflow:owner",
+      "workflowId": "VAjAB2bIhOZFRyUd",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

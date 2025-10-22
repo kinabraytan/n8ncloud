@@ -1,0 +1,381 @@
+{
+  "createdAt": "2025-03-26T21:52:47.214Z",
+  "updatedAt": "2025-03-27T22:09:23.197Z",
+  "id": "TtbYzEsBK6jZqLZW",
+  "name": "AI Web Crawler",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -120,
+        -20
+      ],
+      "id": "8b4b7b66-744a-4ee3-bed5-d7d72afa966a",
+      "name": "When chat message received",
+      "webhookId": "1919349f-f2f8-4b5f-908b-de6664f1555c"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an expert and helpful webscraping assistant. You should help the user by utilizing your available tools and give out answers as soon as you have it. \n\n- Utilize Firecrawl tools to scrape websites. As much as possible, utilize the \"firecrawl_extract\" tool and similar that utilizes LLM to help the user.\n\nStart by listing the available tools (listTools), the execute the appropriate tool (executeTool) when you're ready. ",
+          "maxIterations": 20,
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        280,
+        -60
+      ],
+      "id": "4521dcff-60de-4c41-9d18-f1d6b4a7d0e8",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -180,
+        240
+      ],
+      "id": "a0671e8b-02d7-4001-886e-4ac049f37b68",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeTool",
+        "toolName": "={{ $fromAI(\"tool_name\", \"Call this tool whenever you need to use firecrawl's (scrape) tool names.\") }}",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        640,
+        480
+      ],
+      "id": "3db329ec-cdc2-4872-9076-44886ab85cbe",
+      "name": "FireCrawl Execute Tool",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "ehdSI0HfVkjPPovT",
+          "name": "FireCrawl API DirkFury"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        200,
+        520
+      ],
+      "id": "eb3130a4-812c-4e19-9f30-3f6d6404446a",
+      "name": "FireCrawl List Tools",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "ehdSI0HfVkjPPovT",
+          "name": "FireCrawl API DirkFury"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        100,
+        300
+      ],
+      "id": "1bb8dc9b-4036-4701-9c51-1af7b973491f",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1220,
+        -20
+      ],
+      "id": "1022f147-de18-4178-a060-1db2ad0c77c9",
+      "name": "Wait",
+      "webhookId": "897ce9df-b40d-420f-8d55-6d1e289a6d71"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "feaf1912-a2a1-4ad9-b4df-f459a4be2c4e",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        0
+      ],
+      "id": "436fd9ae-6744-452d-9707-09587e598c62",
+      "name": "If"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FireCrawl Execute Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FireCrawl List Tools": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "AI Agent": [
+      {
+        "json": {
+          "output": "It appears that there is an issue with retrieving the job status using the tool. Unfortunately, I am unable to fetch the requested information at this time.\n\nI recommend trying again later or checking the crawl status through the relevant platform directly, if possible. If there's anything else you'd like to know or another way I can assist you, please let me know!",
+          "intermediateSteps": [
+            {
+              "action": {
+                "tool": "FireCrawl_Execute_Tool",
+                "toolInput": {
+                  "tool_name": "firecrawl_check_job_status",
+                  "Tool_Parameters": {
+                    "job_id": "98e548dd-5d21-4d92-b0b9-54cbd2090f0f"
+                  }
+                },
+                "toolCallId": "call_gO1wwmOGaHVawGlTqH2rYyRk",
+                "log": "Invoking \"FireCrawl_Execute_Tool\" with {\"tool_name\":\"firecrawl_check_job_status\",\"Tool_Parameters\":{\"job_id\":\"98e548dd-5d21-4d92-b0b9-54cbd2090f0f\"}}\n",
+                "messageLog": [
+                  {
+                    "lc": 1,
+                    "type": "constructor",
+                    "id": [
+                      "langchain_core",
+                      "messages",
+                      "AIMessageChunk"
+                    ],
+                    "kwargs": {
+                      "content": "",
+                      "additional_kwargs": {
+                        "tool_calls": [
+                          {
+                            "index": 0,
+                            "id": "call_gO1wwmOGaHVawGlTqH2rYyRk",
+                            "type": "function",
+                            "function": {
+                              "name": "FireCrawl_Execute_Tool",
+                              "arguments": "{\"tool_name\":\"firecrawl_check_job_status\",\"Tool_Parameters\":{\"job_id\":\"98e548dd-5d21-4d92-b0b9-54cbd2090f0f\"}}"
+                            }
+                          }
+                        ]
+                      },
+                      "response_metadata": {
+                        "prompt": 0,
+                        "completion": 0,
+                        "usage": {
+                          "prompt_tokens": 820,
+                          "completion_tokens": 58,
+                          "total_tokens": 878,
+                          "prompt_tokens_details": {
+                            "cached_tokens": 0,
+                            "audio_tokens": 0
+                          },
+                          "completion_tokens_details": {
+                            "reasoning_tokens": 0,
+                            "audio_tokens": 0,
+                            "accepted_prediction_tokens": 0,
+                            "rejected_prediction_tokens": 0
+                          }
+                        },
+                        "finish_reason": "tool_calls",
+                        "system_fingerprint": "fp_b376dfbbd5",
+                        "model_name": "gpt-4o-mini-2024-07-18"
+                      },
+                      "tool_call_chunks": [
+                        {
+                          "name": "FireCrawl_Execute_Tool",
+                          "args": "{\"tool_name\":\"firecrawl_check_job_status\",\"Tool_Parameters\":{\"job_id\":\"98e548dd-5d21-4d92-b0b9-54cbd2090f0f\"}}",
+                          "id": "call_gO1wwmOGaHVawGlTqH2rYyRk",
+                          "index": 0,
+                          "type": "tool_call_chunk"
+                        }
+                      ],
+                      "id": "chatcmpl-BFYGEUGripJuDm7C6uKSmiSWQWZ9D",
+                      "usage_metadata": {
+                        "input_tokens": 820,
+                        "output_tokens": 58,
+                        "total_tokens": 878,
+                        "input_token_details": {
+                          "audio": 0,
+                          "cache_read": 0
+                        },
+                        "output_token_details": {
+                          "audio": 0,
+                          "reasoning": 0
+                        }
+                      },
+                      "tool_calls": [
+                        {
+                          "name": "FireCrawl_Execute_Tool",
+                          "args": {
+                            "tool_name": "firecrawl_check_job_status",
+                            "Tool_Parameters": {
+                              "job_id": "98e548dd-5d21-4d92-b0b9-54cbd2090f0f"
+                            }
+                          },
+                          "id": "call_gO1wwmOGaHVawGlTqH2rYyRk",
+                          "type": "tool_call"
+                        }
+                      ],
+                      "invalid_tool_calls": []
+                    }
+                  }
+                ]
+              },
+              "observation": "Error during node execution: undefined"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "versionId": "ff95d54a-2d37-42bd-8ca1-2a5faf0492d9",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-26T21:52:47.214Z",
+      "updatedAt": "2025-03-26T21:52:47.214Z",
+      "role": "workflow:owner",
+      "workflowId": "TtbYzEsBK6jZqLZW",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

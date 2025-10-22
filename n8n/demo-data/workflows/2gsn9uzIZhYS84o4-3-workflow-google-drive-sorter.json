@@ -1,0 +1,734 @@
+{
+  "createdAt": "2025-06-06T14:34:53.449Z",
+  "updatedAt": "2025-06-06T17:33:51.001Z",
+  "id": "2gsn9uzIZhYS84o4",
+  "name": "3 Workflow Google Drive Sorter",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "7269ffe6-0067-4811-8543-050c76d4ba65",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "list"
+      },
+      "id": "565051a9-1cb1-4d0b-a9bc-58734e9c01dd",
+      "name": "List All Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "awL2eJhDnfZdJizr",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build complete folder hierarchy\nconst files = $input.all();\nconst allFiles = files.map(item => item.json);\n\n// Separate folders and files\nconst folders = allFiles.filter(f => f.mimeType === 'application/vnd.google-apps.folder');\nconst documents = allFiles.filter(f => f.mimeType !== 'application/vnd.google-apps.folder');\n\n// Create folder lookup\nconst folderLookup = {};\nfolders.forEach(folder => {\n  folderLookup[folder.id] = folder;\n});\n\n// Function to get folder path\nfunction getFolderPath(folderId, visited = new Set()) {\n  if (visited.has(folderId)) return 'Root'; // Prevent infinite loops\n  visited.add(folderId);\n  \n  const folder = folderLookup[folderId];\n  if (!folder || !folder.parents || folder.parents.length === 0) {\n    return 'Root';\n  }\n  \n  const parentPath = getFolderPath(folder.parents[0], visited);\n  return parentPath === 'Root' ? folder.name : `${parentPath}/${folder.name}`;\n}\n\n// Build structure analysis\nconst structure = {\n  totalFolders: folders.length,\n  totalFiles: documents.length,\n  folderHierarchy: {},\n  namingPatterns: {},\n  fileTypes: {},\n  organizationInsights: []\n};\n\n// Analyze folder structure\nfolders.forEach(folder => {\n  const path = getFolderPath(folder.id);\n  const filesInFolder = documents.filter(doc => \n    doc.parents && doc.parents.includes(folder.id)\n  );\n  \n  structure.folderHierarchy[path] = {\n    id: folder.id,\n    name: folder.name,\n    fileCount: filesInFolder.length,\n    fileTypes: {},\n    createdTime: folder.createdTime\n  };\n  \n  // Analyze file types in this folder\n  filesInFolder.forEach(file => {\n    const ext = file.name.split('.').pop()?.toLowerCase() || 'no-extension';\n    structure.folderHierarchy[path].fileTypes[ext] = \n      (structure.folderHierarchy[path].fileTypes[ext] || 0) + 1;\n    \n    structure.fileTypes[ext] = (structure.fileTypes[ext] || 0) + 1;\n  });\n});\n\n// Analyze naming patterns\nconst namingPatterns = {};\ndocuments.forEach(file => {\n  const name = file.name.toLowerCase();\n  \n  // Check for common patterns\n  if (name.includes('invoice')) namingPatterns.invoices = (namingPatterns.invoices || 0) + 1;\n  if (name.includes('receipt')) namingPatterns.receipts = (namingPatterns.receipts || 0) + 1;\n  if (name.includes('contract')) namingPatterns.contracts = (namingPatterns.contracts || 0) + 1;\n  if (name.includes('report')) namingPatterns.reports = (namingPatterns.reports || 0) + 1;\n  if (/\\d{4}-\\d{2}-\\d{2}/.test(name)) namingPatterns.dateFormatted = (namingPatterns.dateFormatted || 0) + 1;\n  if (/\\d{2}\\/\\d{2}\\/\\d{4}/.test(name)) namingPatterns.dateSlash = (namingPatterns.dateSlash || 0) + 1;\n});\n\nstructure.namingPatterns = namingPatterns;\n\n// Generate insights\nconst insights = [];\nif (namingPatterns.dateFormatted > 10) {\n  insights.push('Uses YYYY-MM-DD date format in filenames');\n}\nif (Object.keys(structure.fileTypes).includes('pdf') && structure.fileTypes.pdf > 50) {\n  insights.push('Heavy PDF document usage detected');\n}\nif (folders.length > 20) {\n  insights.push('Complex folder structure with deep hierarchy');\n}\n\nstructure.organizationInsights = insights;\n\nreturn [{ json: structure }];"
+      },
+      "id": "49951258-9111-4e66-91d7-2c71b4f59a00",
+      "name": "Analyze Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "a2648803-6dc5-432a-b074-5256fd278856",
+      "name": "AI Structure Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        660,
+        0
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI analysis and create structured rules\nconst aiAnalysis = $json.message.content;\nconst structureData = $('Analyze Structure').first().json;\n\n// Create comprehensive analysis result\nconst result = {\n  timestamp: new Date().toISOString(),\n  driveStructure: structureData,\n  aiAnalysis: aiAnalysis,\n  extractedRules: [],\n  recommendedActions: [],\n  status: 'completed'\n};\n\n// Try to parse AI response as JSON if possible\ntry {\n  const parsedAI = JSON.parse(aiAnalysis);\n  result.structuredAnalysis = parsedAI;\n} catch (e) {\n  result.structuredAnalysis = { rawText: aiAnalysis };\n}\n\n// Store this analysis for use in other workflows\nconsole.log('Structure analysis completed:', result);\n\nreturn [{ json: result }];"
+      },
+      "id": "b17832ea-03a9-46aa-b9a6-ff14b49fb249",
+      "name": "Process Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 1 - Drive Structure Analyzer\n### Analyzes the folder Structure for document classification\n\n",
+        "height": 360,
+        "width": 1200,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -140
+      ],
+      "id": "db6665cd-e5d7-4a0d-b4ba-bca673c88b04",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.rulesDocumentId || $('Manual Trigger').first().json.rulesDocumentId || 'YOUR_RULES_DOCUMENT_ID' }}",
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "txt"
+            }
+          }
+        }
+      },
+      "id": "cd723ee4-1787-48d1-ad92-6ba50afcfff5",
+      "name": "Download Rules Document",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -120,
+        500
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "95c52a66-ecf6-435a-872b-9ecc09fca42f",
+      "name": "Validate Document Content",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        100,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.1
+        },
+        "requestOptions": {}
+      },
+      "id": "ca94553e-ffd3-4972-b10b-fb49c6e3cc39",
+      "name": "Extract Rules with AI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        320,
+        440
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse extracted rules and prepare for vector storage\nconst aiResponse = $json.message?.content || $json.content || '';\nlet extractedRules;\n\n// Enhanced error handling for JSON parsing\ntry {\n  // Clean the response first\n  const cleanResponse = aiResponse.replace(/``````\\n?/g, '').trim();\n  extractedRules = JSON.parse(cleanResponse);\n  \n  // Validate structure\n  if (!extractedRules.rules || !Array.isArray(extractedRules.rules)) {\n    throw new Error('Invalid rules structure');\n  }\n} catch (e) {\n  console.error('JSON parsing failed:', e.message);\n  // Create fallback structure\n  extractedRules = {\n    rules: [{\n      id: 'fallback_rule_1',\n      name: 'Parsed Content',\n      description: aiResponse.substring(0, 500) + '...',\n      conditions: { keywords: [], fileTypes: [], contentPatterns: [] },\n      actions: { renamePattern: '', targetFolder: '', tags: [] },\n      priority: 1,\n      category: 'general'\n    }]\n  };\n}\n\n// Process each rule for vector storage with enhanced validation\nconst processedRules = [];\nconst timestamp = new Date().toISOString();\n\nif (extractedRules.rules && Array.isArray(extractedRules.rules)) {\n  extractedRules.rules.forEach((rule, index) => {\n    // Enhanced rule validation and processing\n    const processedRule = {\n      id: rule.id || `rule_${Date.now()}_${index + 1}`,\n      text: `${rule.name || 'Unnamed Rule'}: ${rule.description || 'No description'}`,\n      metadata: {\n        ruleId: rule.id || `rule_${Date.now()}_${index + 1}`,\n        name: rule.name || `Rule ${index + 1}`,\n        description: rule.description || '',\n        conditions: JSON.stringify(rule.conditions || {}),\n        actions: JSON.stringify(rule.actions || {}),\n        priority: Number(rule.priority) || 1,\n        category: rule.category || 'general',\n        keywords: Array.isArray(rule.conditions?.keywords) ? rule.conditions.keywords.join(', ') : '',\n        fileTypes: Array.isArray(rule.conditions?.fileTypes) ? rule.conditions.fileTypes.join(', ') : '',\n        targetFolder: rule.actions?.targetFolder || '',\n        renamePattern: rule.actions?.renamePattern || '',\n        tags: Array.isArray(rule.actions?.tags) ? rule.actions.tags.join(', ') : '',\n        createdAt: timestamp,\n        sourceDocument: $('Download Rules Document').first().json.name || 'Unknown'\n      }\n    };\n    \n    processedRules.push(processedRule);\n  });\n}\n\n// Return error if no rules processed\nif (processedRules.length === 0) {\n  throw new Error('No valid rules could be extracted from the document');\n}\n\nconsole.log(`Successfully processed ${processedRules.length} rules`);\nreturn processedRules.map(rule => ({ json: rule }));"
+      },
+      "id": "40adb306-22c5-4ad3-93e8-baea6e86d873",
+      "name": "Process Rules",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        440
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "id": "dba5894c-0e9d-4ca3-9a24-f8afefb56bed",
+      "name": "Create Embeddings",
+      "type": "n8n-nodes-base.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        780,
+        440
+      ],
+      "credentials": {},
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "id": "d5f6aaf3-fbba-486a-a4f5-079d813ee308",
+      "name": "Store in Vector DB",
+      "type": "n8n-nodes-base.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        980,
+        440
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log successful completion\nconst totalRules = $input.all().length;\nconst successfulStores = $input.all().filter(item => item.json.success !== false).length;\n\nreturn [{\n  json: {\n    status: 'completed',\n    totalRulesProcessed: totalRules,\n    successfullyStored: successfulStores,\n    timestamp: new Date().toISOString(),\n    summary: `Successfully processed and stored ${successfulStores} out of ${totalRules} rules in vector database`\n  }\n}];"
+      },
+      "id": "742d0f65-40cc-48f7-93e5-f7586487ab51",
+      "name": "Completion Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced error handling and logging\nconst errorNode = $json.error?.node || 'Unknown';\nconst errorMessage = $json.error?.message || $json.message || 'Unknown error';\nconst errorDetails = $json.error?.description || '';\n\nconst errorReport = {\n  status: 'error',\n  failedAt: errorNode,\n  errorMessage: errorMessage,\n  errorDetails: errorDetails,\n  timestamp: new Date().toISOString(),\n  inputData: $json\n};\n\nconsole.error('Workflow Error:', errorReport);\n\nreturn [{ json: errorReport }];"
+      },
+      "id": "0dc26eb2-211c-451f-b27d-04c0a0afc6bd",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.rulesDocumentId || 'YOUR_RULES_DOCUMENT_ID' }}",
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "txt"
+            }
+          }
+        }
+      },
+      "id": "ce5442bb-1684-4cd4-83ff-444be6187fb5",
+      "name": "Download Process Document",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        1020
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "awL2eJhDnfZdJizr",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.1
+        },
+        "requestOptions": {}
+      },
+      "id": "b8750dfe-c88c-4327-a02d-7ace14a58536",
+      "name": "Extract Process Rules",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        340,
+        1020
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced processing for knowledge base optimization\nconst aiResponse = $json.message?.content || $json.content || '';\nlet extractedData;\nconst timestamp = new Date().toISOString();\nconst sourceDocument = $('Download Process Document').first().json.name || 'Process Document';\n\n// Parse AI response with enhanced error handling\ntry {\n  const cleanResponse = aiResponse.replace(/``````\\n?/g, '').trim();\n  extractedData = JSON.parse(cleanResponse);\n} catch (e) {\n  console.error('JSON parsing failed:', e.message);\n  // Create structured fallback\n  extractedData = {\n    documentInfo: {\n      title: sourceDocument,\n      version: '1.0',\n      lastUpdated: timestamp,\n      department: 'Unknown'\n    },\n    rules: [{\n      id: 'fallback_content',\n      type: 'general',\n      title: 'Document Content',\n      description: aiResponse.substring(0, 1000),\n      conditions: { keywords: [], fileTypes: [], contentPatterns: [], metadata: [] },\n      actions: { namingPattern: '', targetFolder: '', tags: [], additionalActions: [] },\n      priority: 1,\n      category: 'general',\n      examples: [],\n      exceptions: []\n    }],\n    procedures: [],\n    glossary: []\n  };\n}\n\n// Process data for vector storage with optimized chunks\nconst processedItems = [];\nlet itemCounter = 1;\n\n// Process document info\nif (extractedData.documentInfo) {\n  processedItems.push({\n    id: `doc_info_${itemCounter++}`,\n    text: `Document: ${extractedData.documentInfo.title}. Version: ${extractedData.documentInfo.version || 'Unknown'}. Department: ${extractedData.documentInfo.department || 'Unknown'}. Last Updated: ${extractedData.documentInfo.lastUpdated || 'Unknown'}.`,\n    metadata: {\n      type: 'document_info',\n      title: extractedData.documentInfo.title || sourceDocument,\n      version: extractedData.documentInfo.version || '1.0',\n      department: extractedData.documentInfo.department || 'Unknown',\n      sourceDocument: sourceDocument,\n      createdAt: timestamp,\n      itemId: `doc_info_${itemCounter - 1}`\n    }\n  });\n}\n\n// Process rules with enhanced metadata\nif (extractedData.rules && Array.isArray(extractedData.rules)) {\n  extractedData.rules.forEach((rule, index) => {\n    const ruleText = `Rule: ${rule.title || `Rule ${index + 1}`}. Description: ${rule.description || 'No description'}. Type: ${rule.type || 'general'}. Category: ${rule.category || 'general'}. Keywords: ${(rule.conditions?.keywords || []).join(', ')}. File Types: ${(rule.conditions?.fileTypes || []).join(', ')}. Naming Pattern: ${rule.actions?.namingPattern || 'No pattern'}. Target Folder: ${rule.actions?.targetFolder || 'No folder'}. Examples: ${(rule.examples || []).join('; ')}. Exceptions: ${(rule.exceptions || []).join('; ')}.`;\n    \n    processedItems.push({\n      id: rule.id || `rule_${itemCounter++}`,\n      text: ruleText,\n      metadata: {\n        type: 'rule',\n        ruleType: rule.type || 'general',\n        title: rule.title || `Rule ${index + 1}`,\n        description: rule.description || '',\n        category: rule.category || 'general',\n        priority: Number(rule.priority) || 1,\n        keywords: (rule.conditions?.keywords || []).join(', '),\n        fileTypes: (rule.conditions?.fileTypes || []).join(', '),\n        contentPatterns: (rule.conditions?.contentPatterns || []).join('; '),\n        namingPattern: rule.actions?.namingPattern || '',\n        targetFolder: rule.actions?.targetFolder || '',\n        tags: (rule.actions?.tags || []).join(', '),\n        examples: (rule.examples || []).join('; '),\n        exceptions: (rule.exceptions || []).join('; '),\n        sourceDocument: sourceDocument,\n        createdAt: timestamp,\n        itemId: rule.id || `rule_${itemCounter - 1}`\n      }\n    });\n  });\n}\n\n// Process procedures\nif (extractedData.procedures && Array.isArray(extractedData.procedures)) {\n  extractedData.procedures.forEach((procedure, index) => {\n    const procedureText = `Procedure: ${procedure.name || `Procedure ${index + 1}`}. Steps: ${(procedure.steps || []).join(' -> ')}. Triggers: ${(procedure.triggers || []).join(', ')}. Required Tools: ${(procedure.tools || []).join(', ')}.`;\n    \n    processedItems.push({\n      id: procedure.id || `procedure_${itemCounter++}`,\n      text: procedureText,\n      metadata: {\n        type: 'procedure',\n        name: procedure.name || `Procedure ${index + 1}`,\n        steps: (procedure.steps || []).join(' -> '),\n        triggers: (procedure.triggers || []).join(', '),\n        tools: (procedure.tools || []).join(', '),\n        sourceDocument: sourceDocument,\n        createdAt: timestamp,\n        itemId: procedure.id || `procedure_${itemCounter - 1}`\n      }\n    });\n  });\n}\n\n// Process glossary\nif (extractedData.glossary && Array.isArray(extractedData.glossary)) {\n  extractedData.glossary.forEach((term, index) => {\n    const glossaryText = `Term: ${term.term}. Definition: ${term.definition}. Context: ${term.context || 'General usage'}.`;\n    \n    processedItems.push({\n      id: `glossary_${itemCounter++}`,\n      text: glossaryText,\n      metadata: {\n        type: 'glossary',\n        term: term.term,\n        definition: term.definition,\n        context: term.context || 'General usage',\n        sourceDocument: sourceDocument,\n        createdAt: timestamp,\n        itemId: `glossary_${itemCounter - 1}`\n      }\n    });\n  });\n}\n\nif (processedItems.length === 0) {\n  throw new Error('No valid content could be extracted from the process document');\n}\n\nconsole.log(`Successfully processed ${processedItems.length} knowledge base items`);\nreturn processedItems.map(item => ({ json: item }));"
+      },
+      "id": "89ee53dd-0c38-486a-bbee-308a3927da73",
+      "name": "Process Knowledge Base Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        1020
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "5b910210-e26e-4814-a97a-41c1388e4e38",
+      "name": "Create Knowledge Embeddings",
+      "type": "n8n-nodes-base.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        860,
+        860
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "id": "3a7ddf66-60a9-4736-a610-66953f76bb97",
+      "name": "Store in Knowledge Base",
+      "type": "n8n-nodes-base.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        1000
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate comprehensive knowledge base summary\nconst allItems = $input.all();\nconst successful = allItems.filter(item => item.json.success !== false);\n\n// Categorize items\nconst itemsByType = {\n  document_info: successful.filter(item => item.json.metadata?.type === 'document_info').length,\n  rule: successful.filter(item => item.json.metadata?.type === 'rule').length,\n  procedure: successful.filter(item => item.json.metadata?.type === 'procedure').length,\n  glossary: successful.filter(item => item.json.metadata?.type === 'glossary').length\n};\n\nconst summary = {\n  status: 'knowledge_base_created',\n  totalItems: allItems.length,\n  successfullyStored: successful.length,\n  failedItems: allItems.length - successful.length,\n  breakdown: itemsByType,\n  knowledgeBaseIndex: 'document-classification-kb',\n  namespace: 'process-rules',\n  timestamp: new Date().toISOString(),\n  readyForWorkflow3: successful.length > 0,\n  summary: `Knowledge base created with ${successful.length} items: ${itemsByType.rule} rules, ${itemsByType.procedure} procedures, ${itemsByType.glossary} glossary terms, and ${itemsByType.document_info} document info entries.`\n};\n\nconst knowledgeBaseConfig = {\n  pineconeIndex: 'document-classification-kb',\n  namespace: 'process-rules',\n  embeddingModel: 'text-embedding-3-large',\n  embeddingDimensions: 1536,\n  searchTopK: 10,\n  similarityThreshold: 0.7,\n  metadataFields: ['type', 'category', 'keywords', 'fileTypes', 'targetFolder', 'namingPattern']\n};\n\nreturn [{\n  json: {\n    ...summary,\n    knowledgeBaseConfig: knowledgeBaseConfig\n  }\n}];"
+      },
+      "id": "e4cb21f9-9bed-4df1-bffa-19016ae6f475",
+      "name": "Knowledge Base Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle validation failure\nconst errorInfo = {\n  status: 'validation_failed',\n  message: 'Document content is empty or too short',\n  requirement: 'Document must contain at least 50 characters of meaningful content',\n  timestamp: new Date().toISOString(),\n  suggestion: 'Check if the Google Drive file ID is correct and the document contains text'\n};\n\nreturn [{ json: errorInfo }];"
+      },
+      "id": "b4e6689b-4ba9-4c16-aa59-542c47652413",
+      "name": "Content Validation Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        1300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            },
+            {
+              "leftValue": "={{ $json.data.length }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d1d3a1bd-a77c-4404-8dbd-2c5ad2f8d947",
+      "name": "Validate Document Content1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        80,
+        1020
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 2 - Figure it out??\n",
+        "height": 660,
+        "width": 1840
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        780
+      ],
+      "typeVersion": 1,
+      "id": "772a2295-339f-4008-a119-2248f51f4c5f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        760,
+        1020
+      ],
+      "id": "954e8c2f-5809-4c9b-8312-daad8f0f3615",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        1260
+      ],
+      "id": "a43516d2-39bf-42f8-9b7e-e48c94cabe9c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        1260
+      ],
+      "id": "e306d822-fce3-499e-b76e-b3262195081a",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        1500
+      ],
+      "id": "736e1791-85f2-4689-8df1-2f93410ddb59",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        820,
+        1260
+      ],
+      "id": "af6372c2-91ac-45eb-9f0d-1fadf58ea19a",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "List All Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Files": {
+      "main": [
+        [
+          {
+            "node": "Analyze Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Structure": {
+      "main": [
+        [
+          {
+            "node": "AI Structure Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Structure Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Rules Document": {
+      "main": [
+        [
+          {
+            "node": "Validate Document Content",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Document Content": {
+      "main": [
+        [
+          {
+            "node": "Extract Rules with AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Rules with AI": {
+      "main": [
+        [
+          {
+            "node": "Process Rules",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Rules": {
+      "main": [
+        [
+          {
+            "node": "Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Process Document": {
+      "main": [
+        [
+          {
+            "node": "Validate Document Content1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Process Rules": {
+      "main": [
+        [
+          {
+            "node": "Process Knowledge Base Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Document Content1": {
+      "main": [
+        [
+          {
+            "node": "Extract Process Rules",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Content Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Knowledge Base Items": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "cccd490b-41eb-402f-a828-260e84284e94",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-06T14:34:53.449Z",
+      "updatedAt": "2025-06-06T14:34:53.449Z",
+      "role": "workflow:owner",
+      "workflowId": "2gsn9uzIZhYS84o4",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

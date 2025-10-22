@@ -1,0 +1,291 @@
+{
+  "createdAt": "2025-03-20T02:10:32.963Z",
+  "updatedAt": "2025-09-29T17:14:59.953Z",
+  "id": "dONS2DfMWgnPoinK",
+  "name": "Life Stages: Send Chat with Weather Report",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 10,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        -736
+      ],
+      "id": "e571af26-35de-44b2-bd26-2179f174abd4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -512
+      ],
+      "id": "0924d7b8-778f-4371-bdd7-431a6f188546",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant that sends daily meeting reminders to a Google Chat Space. Your primary task is to create engaging, weather-aware meeting notifications.\n\n## Core Responsibilities\n1. Send a chat message to remind everyone of the upcoming meeting at 11am EST\n2. Integrate weather information from the JSON weather report you'll receive\n3. Follow the specified message template format\n4. Maintain a friendly, professional tone\n5. Send a chat to another Google Chat Space (spaces/AAAAmHx01uc) if error is encountered, include the details of the error.\n\n## Weather Report Processing\n- You will receive weather data as a JSON string in a follow-up message\n- Parse the JSON data and extract relevant information (temperature, conditions, time, etc.)\n- Translate technical weather terms into everyday language\n- Focus on information that affects daily activities (temperature, precipitation, wind chill, etc.)\n- Use the weather data to customize the greeting appropriately\n\n## Message Formatting Requirements\n- Use emojis strategically to enhance readability and engagement\n- Format weather information to stand out visually (use bold, specific formatting)\n- Ensure proper user mentions: `<users/toreymorris@gmail.com>` and `<users/all>`\n- **CRITICAL**: Never modify the Zoom meeting link - use exactly as provided in template\n- Adapt the day of the week and weather descriptor in the greeting based on actual conditions\n\n## Message Template Structure\n```\n\ud83c\udf1e Good Morning and Happy {day_descriptor} {day_of_week}<users/toreymorris@gmail.com> and <users/all>!\ud83c\udf05\n\n\ud83c\udf21 As of {time_of_report}, It looks like Martinsville is {weather_description_with_details}\n\n\ud83d\udc49 Please be reminded of our *Start of Week Stand Up Session* later at \ud83d\udd5a*11am EST.*\n\n\ud83d\udccb Our meeting room will be *<https://us06web.zoom.us/j/89849926485?pwd=Wjc4flanZ5F1cglq0LTIr9E2xmmOAz.1|HERE>*. \n\n\u270f See you there! \ud83d\ude0e\n```\n\n## Variable Replacement Guidelines\n- `{day_descriptor}`: Choose appropriate adjective based on weather (rainy, sunny, cloudy, chilly, etc.)\n- `{day_of_week}`: Use actual day of the week\n- `{time_of_report}`: Extract timestamp from weather JSON\n- `{weather_description_with_details}`: Comprehensive weather summary including:\n  - Current conditions\n  - Temperature and \"feels like\" temperature\n  - Any relevant warnings or clothing suggestions\n  - Use appropriate emojis for weather conditions\n\n## Output Requirements\n- Generate only the final formatted message\n- Do not include explanations or meta-commentary\n- Ensure the message is ready to send directly to Google Chat\n- Double-check that the Zoom link remains unchanged",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        352,
+        -736
+      ],
+      "id": "979ccdbd-0d49-491e-ad49-4999b8216838",
+      "name": "Chat AI Assistant",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://weatherapi-com.p.rapidapi.com/current.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "36.6802312, -79.8526245"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "weatherapi-com.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "c3da232ed4mshd5f52feafbd6691p1f3b13jsn7a77a04e5d86"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        -736
+      ],
+      "id": "bdfdaa55-6466-43e2-94d5-dbbabe8dea00",
+      "name": "Get Weather Report"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this chat Tool to send a message to the user if you encounter any errors",
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAAAmHx01uc",
+        "jsonParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON_Parameters', ``, 'boolean') }}",
+        "messageUi": {},
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChatTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -512
+      ],
+      "id": "abde3902-d72d-49ff-b147-2efb54e26280",
+      "name": "Error Notify User",
+      "webhookId": "685428a7-e2cc-45b1-9395-3c4c06e304a0",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "bjkHgKY5mxD4IAVA",
+          "name": "Chat account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Schedule Trigger').item.json.timestamp }}",
+        "tableName": "lsi_chat_reminder_agent_chat",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        -512
+      ],
+      "id": "203bbe52-040e-4e5f-9b12-c45861825f29",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAAAYMdNbuU",
+        "messageUi": {
+          "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChatTool",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -512
+      ],
+      "id": "c9c6eeb8-1b80-415e-981c-3da0ed2771b6",
+      "name": "Send Chat with Weather Info",
+      "webhookId": "27736a3a-b1a5-43e5-871c-3d306350d0ba",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "bjkHgKY5mxD4IAVA",
+          "name": "Chat account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Weather Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chat AI Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weather Report": {
+      "main": [
+        [
+          {
+            "node": "Chat AI Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Notify User": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chat AI Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat AI Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Chat with Weather Info": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chat AI Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "856d9ff5-7394-4ca3-8c1c-a0c459ac83ec",
+  "triggerCount": 1,
+  "tags": [
+    {
+      "createdAt": "2025-03-13T18:00:47.318Z",
+      "updatedAt": "2025-03-13T18:00:47.318Z",
+      "id": "RT0FG5gDUQsf13qd",
+      "name": "VX AI Agent"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-03-20T02:10:32.963Z",
+      "updatedAt": "2025-03-20T02:10:32.963Z",
+      "role": "workflow:owner",
+      "workflowId": "dONS2DfMWgnPoinK",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

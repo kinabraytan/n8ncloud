@@ -1,0 +1,492 @@
+{
+  "createdAt": "2025-07-03T23:53:49.141Z",
+  "updatedAt": "2025-07-03T23:53:49.141Z",
+  "id": "W6pPueMJIQWavKFp",
+  "name": "Rename and Move Document Workflow",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        520,
+        20
+      ],
+      "id": "799168a4-900f-4073-8a83-3716e4d213c3",
+      "name": "Start"
+    },
+    {
+      "parameters": {
+        "content": "## Manual Trigger\n\nThis workflow starts manually. To process a document, you will need to manually set the Document ID or URL in the 'Set Document ID' node.",
+        "color": "#ffcc00"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        120
+      ],
+      "id": "a1e6a8b0-9d6b-4c17-8b1a-0a3b8e5c0f1e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://docs.google.com/document/d/113e9AioRpR-LwF7O8QNhDrXYmujDjqly2N_8QwDJl-E/edit?usp=sharing",
+        "operation": "download",
+        "fileId": "=URL.match(/\\/d\\/([^\\/]+)/)[1]",
+        "fileName": "renaming_guidelines.txt"
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 4,
+      "position": [
+        740,
+        20
+      ],
+      "id": "c7c79648-d9f6-43e4-941b-67c7c2370b65",
+      "name": "Read Renaming Guidelines",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Read Renaming Guidelines\n\nReads the content of the specified Google Doc. This content will be used by the AI to determine the new document name.",
+        "color": "#a18a58"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        740,
+        120
+      ],
+      "id": "d95519c7-d3e3-4e60-ac3c-908055689948",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "https://docs.google.com/spreadsheets/d/1df8gUDB5NB_VN21AZsWITDQJ03g-aV1t7gBMhJ2l8eE/edit?usp=sharing",
+        "operation": "getAll",
+        "documentId": "=URL.match(/\\/d\\/([^\\/]+)/)[1]",
+        "options": {
+          "outputFormat": "json"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        960,
+        20
+      ],
+      "id": "4a17611d-8c9a-46d4-944c-b1b88294df45",
+      "name": "Read Folder Structure",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Read Folder Structure\n\nReads the data from the specified Google Sheet. This data is expected to contain information about destination folders, likely mapping some document criteria to a folder ID.",
+        "color": "#8a96a1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        960,
+        120
+      ],
+      "id": "3276b30e-8a4b-4e0c-9f15-0691c08c2497",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "documentUrlOrId",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        520,
+        240
+      ],
+      "id": "6a735777-6f43-44f1-93cf-51c9e81f80b2",
+      "name": "Set Input Document ID"
+    },
+    {
+      "parameters": {
+        "content": "## Input Document Simulation\n\nManually set the Google Drive File ID or URL of the document you want to process in the 'Set Input Document ID' node above.",
+        "color": "#b18ea1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        340
+      ],
+      "id": "7b40a8e1-4f7b-42d7-a0a5-e10f7610211b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{$json.documentUrlOrId.match(/\\/d\\/([^\\/]+)/) ? $json.documentUrlOrId.match(/\\/d\\/([^\\/]+)/)[1] : $json.documentUrlOrId}}",
+        "fileName": "input_document_content.txt"
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 4,
+      "position": [
+        740,
+        240
+      ],
+      "id": "c8c0a057-f5c9-4a41-84c0-c2110056b715",
+      "name": "Get Input Document Content",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Get Input Document Content\n\nDownloads the content of the document specified in the 'Set Input Document ID' node. This content is needed for the AI renaming process.",
+        "color": "#ffcc00"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        740,
+        340
+      ],
+      "id": "313e05e2-3e9c-4f4f-98c8-41a3d5a54a25",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "aiInput",
+              "value": "Guidelines for renaming: {{$node[\"Read Renaming Guidelines\"].json[\"data\"].toString()}}\n\nDocument Content:\n{{$node[\"Get Input Document Content\"].json[\"data\"].toString()}}\n\nBased on the guidelines and document content, suggest a new concise filename (max 50 characters, no special characters or extensions). ONLY output the suggested filename."
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        960,
+        240
+      ],
+      "id": "2890c5b0-435a-44df-9c0b-fef48109052f",
+      "name": "Prepare AI Input"
+    },
+    {
+      "parameters": {
+        "content": "## Prepare AI Input\n\nCombines the renaming guidelines and the document content into a single string, formatted as a prompt for the AI.",
+        "color": "#a18a58"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        960,
+        340
+      ],
+      "id": "7a80c31f-1c26-48d8-b629-2c11c8184857",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "prompt": "={{$json.aiInput}}",
+        "model": "replace_with_your_model_name",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        240
+      ],
+      "id": "5a1b7464-b872-4a4b-bc67-34926d01a68b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate New Name (AI)\n\nUses an AI model (e.g., OpenRouter) to generate a new filename based on the guidelines and document content.",
+        "color": "#8a96a1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        340
+      ],
+      "id": "a9b32e19-8e34-43a4-8a62-20181a673f91",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": "={{$node[\"Set Input Document ID\"].json[\"documentUrlOrId\"].match(/\\/d\\/([^\\/]+)/) ? $node[\"Set Input Document ID\"].json[\"documentUrlOrId\"].match(/\\/d\\/([^\\/]+)/)[1] : $node[\"Set Input Document ID\"].json[\"documentUrlOrId\"]}}",
+        "updateParameters": {
+          "updateBy": "id",
+          "name": "={{$node[\"OpenRouter Chat Model\"].json[\"data\"].trim()}}",
+          "options": {}
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 4,
+      "position": [
+        1400,
+        240
+      ],
+      "id": "b784a62e-9c8e-4926-bc70-49b35e6037b3",
+      "name": "Rename Document",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Rename Document\n\nRenames the Google Drive file using the name generated by the AI model.",
+        "color": "#b18ea1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        340
+      ],
+      "id": "622e9717-b43b-4a02-ba1f-e222e3211ff4",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "functionCode": "/*\n  This code determines the destination folder ID based on the folder structure data and potentially the document content or new name.\n  \n  Input 1: Data from 'Read Folder Structure' (Google Sheet rows)\n  Input 2: Data from previous nodes (e.g., document content, new name)\n\n  Expected Output:\n  Return items with a 'destinationFolderId' property.\n\n  Example: Find a folder ID based on a value in the document content.\n*/\n\nconst folderStructure = $input.item[0].json; // Data from Google Sheet\nconst documentInfo = $input.item[1].json; // Data from AI or previous nodes\n\nlet destinationFolderId = 'replace_with_default_folder_id'; // Fallback folder ID\n\n// *** Replace this logic with your specific rules ***\n// Example: Assuming the Google Sheet has columns 'Keyword' and 'FolderId'\n// And you want to find a keyword in the document content.\n/*\nconst documentContent = documentInfo.data.toString();\n\nfor (const row of folderStructure) {\n  if (documentContent.includes(row.Keyword)) {\n    destinationFolderId = row.FolderId;\n    break;\n  }\n}\n*/\n\n// For this example, just return the default or a hardcoded ID\nreturn [{\n  json: {\n    destinationFolderId: destinationFolderId\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        240
+      ],
+      "id": "515e224e-8159-4918-b035-14716a0e0ac7",
+      "name": "Determine Destination Folder"
+    },
+    {
+      "parameters": {
+        "content": "## Determine Destination Folder\n\n**Requires Custom Code:** This node needs custom JavaScript code to look at the folder structure data (from Google Sheets) and the document content/new name to decide which folder the document should be moved to. It should output the target folder ID.",
+        "color": "#ffcc00"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        340
+      ],
+      "id": "422b57d9-2d62-477d-8b4e-531e30209b4d",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": "={{$node[\"Rename Document\"].json[\"id\"]}}",
+        "destinationFolderId": "={{$node[\"Determine Destination Folder\"].json[\"destinationFolderId\"]}}"
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 4,
+      "position": [
+        1840,
+        240
+      ],
+      "id": "a6b74318-002f-4f55-80df-9e1f9b7517a4",
+      "name": "Move Document",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "replace_with_your_credential_id",
+          "name": "replace_with_your_credential_name"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Move Document\n\nMoves the renamed document to the destination folder determined in the previous step.",
+        "color": "#a18a58"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        340
+      ],
+      "id": "d166e61f-c56b-464c-bb36-e356eb61ef98",
+      "name": "Sticky Note9"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Read Renaming Guidelines",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Input Document ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Folder Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Renaming Guidelines": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Folder Structure": {
+      "main": [
+        [
+          {
+            "node": "Determine Destination Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Input Document ID": {
+      "main": [
+        [
+          {
+            "node": "Get Input Document Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Input Document Content": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Prepare AI Input": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter Chat Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "main": [
+        [
+          {
+            "node": "Rename Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Document": {
+      "main": [
+        [
+          {
+            "node": "Determine Destination Folder",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Determine Destination Folder": {
+      "main": [
+        [
+          {
+            "node": "Move Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "errorWorkflow": "",
+    "timezone": "America/New_York"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "833cba72-ab2f-4413-916e-a7cd86b600fe",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-07-03T23:53:49.141Z",
+      "updatedAt": "2025-07-03T23:53:49.141Z",
+      "role": "workflow:owner",
+      "workflowId": "W6pPueMJIQWavKFp",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

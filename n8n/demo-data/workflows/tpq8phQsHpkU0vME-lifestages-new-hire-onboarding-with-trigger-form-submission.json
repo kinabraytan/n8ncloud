@@ -1,0 +1,445 @@
+{
+  "createdAt": "2025-06-14T17:35:17.582Z",
+  "updatedAt": "2025-07-21T20:18:07.344Z",
+  "id": "tpq8phQsHpkU0vME",
+  "name": "LifeStages New Hire Onboarding with Trigger Form Submission",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "=======================================\n            WORKFLOW ASSISTANCE\n=======================================\nFor any questions or support, please contact:\n    Yaron@nofluff.online\n\nExplore more tips and tutorials here:\n   - YouTube: https://www.youtube.com/@YaronBeen/videos\n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/\n=======================================\n\nAuthor:\nYaron Been\n![Yaron Been](https://1.gravatar.com/avatar/a4e4dcaa1f76ff5266bbf80e8df86d22efda890474c68f7796e72fd82e3f2375?size=512&d=initials)",
+        "height": 1200,
+        "width": 1120,
+        "color": 4
+      },
+      "id": "34355ba7-b509-414f-bae0-61af51afa264",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        -260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "e9f9fb1a-286e-4a38-8c14-67ebe3d8617c",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "position": [
+        -240,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "e5cba107-fc9a-4b87-b53c-be4fa93e2e71",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        1020,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "a97ceb7f-5c9c-4951-9ee0-79d95db802b7",
+      "name": "Execution Completed",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1020,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "d01b04e3-25ce-4344-b7c3-63ba2e3163e7",
+      "name": "Execution Failure",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1220,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c9c81e80-f2f2-436d-a6cf-48882b0f72ea",
+              "name": "=Checklist",
+              "type": "string",
+              "value": "=\"Checklist\": \"\n1. Account setup\n2. Welcome call scheduled\n3. Document collection\n4. Service configuration\n5. Onboarding session\n6. First milestone review"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "041309b1-c852-4ec6-9121-7e206c0b9820",
+      "name": "Client Checklist",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        380,
+        80
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "7adeed08-0868-4368-a225-208f6c4cf4ca",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        560,
+        520
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\ud83d\udccb Client Onboarding Automation  \nThis workflow triggers when a new row is added to a Google Sheet linked to a Google Form.  \nIt extracts client data, builds a checklist, uses Gemini to personalize it, and sends it via email.  \nIncludes error handling to notify if execution fails.\n",
+        "width": 540
+      },
+      "id": "e72dd467-e3a1-4f89-b6d2-1bb56d878d81",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\ud83d\udce4 Email the customized onboarding checklist  \nto the client using their submitted email address\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "03820bce-c0c4-44b2-a8ef-83845ecd9dfb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\u2705 Indicates successful end of execution\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "2106d405-95f2-4090-93ea-943960092cbb",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\ud83d\udea8 Handles errors from any node above  \nCan trigger notifications or log the failure\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "5bd98636-fbb1-488b-92e1-ed76e2f8eb07",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\u274c Catch any errors during execution  \nand take fallback or alerting action\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "a2a44a9e-1021-49d3-94ff-a323503413fb",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\ud83e\udde0 Send prompt to Gemini API to tailor checklist  \nbased on client name, company, and selected services\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "576cf64b-8992-45a4-8a7a-d5407ea6e89c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\ud83d\udccb Set the default onboarding checklist items\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "c32a653b-9e8f-4ab1-aaaa-3d472eddd91b",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\ud83e\uddcd Extract client details: name, email, company, services\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "dbf82d4d-2615-4a86-b7be-284b3a6add22",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "\u23f0 Trigger when a new row is added  \n(Google Form response stored in Google Sheet)\n",
+        "height": 100,
+        "width": 200
+      },
+      "id": "30793ee3-5ed1-49ff-998e-071cfb3093e0",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "19Hvti1sX6SvjP1Kj8dWFEiksiqn1FJVBoMToP2X6xBw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19Hvti1sX6SvjP1Kj8dWFEiksiqn1FJVBoMToP2X6xBw/edit?usp=drivesdk",
+          "cachedResultName": "Onboarding"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1635870855,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19Hvti1sX6SvjP1Kj8dWFEiksiqn1FJVBoMToP2X6xBw/edit#gid=1635870855",
+          "cachedResultName": "Form Responses 1"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "3b68ec34-e838-4e99-bb38-7eab1283a528",
+      "name": "Trigger on New Client Form Submission",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        -40,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c333d8f-04cd-4987-9c30-4c7bc26baecb",
+              "name": "fields",
+              "type": "string",
+              "value": "=Name:  {{ $json['Client name'] }} \nEmail:  {{ $json[' email '] }}\nCompany: {{ $json['  Company Name  '] }}\nService Needed: {{ $json['  Services Needed  '] }}\nOther info: {{ $json['  Any other onboarding info  '] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "09c87717-7b49-4620-be7d-d2eb807d75af",
+      "name": "Extract and Structure Client Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        160,
+        80
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me an onboarding check list for an email to the client, give me only email body and don't generate extra text like \"Okay, here's an email template ...\" and start and end on new lines\nstart with:\nHi {{ $('Trigger on New Client Form Submission').item.json['Client name'] }}, \nand end with \nBest regards,\nYour {{ $('Trigger on New Client Form Submission').item.json['  Company Name  '] }} Team\n\n:\nAlso use information from checklist and Fields below\n {{ $json.Checklist }}\n\nFields: {{ $('Extract and Structure Client Data').item.json.fields }}"
+      },
+      "id": "698b0970-d7d9-4d61-9c13-b97fd396a127",
+      "name": "Personalize Using Gemini",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        520,
+        80
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Trigger on New Client Form Submission').item.json[' email '] }}",
+        "subject": "=Welcome to Our Service,  {{ $('Trigger on New Client Form Submission').item.json['Client name'] }} ",
+        "message": "= {{ $json.text }}",
+        "options": {}
+      },
+      "id": "1042211e-ffbd-47f6-8fb6-613a0675d01a",
+      "name": "Send Email to Client",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        820,
+        80
+      ],
+      "webhookId": "2a07b507-23a6-4bfb-adff-997d30ea3dfa",
+      "typeVersion": 2.1
+    }
+  ],
+  "connections": {
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Execution Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client Checklist": {
+      "main": [
+        [
+          {
+            "node": "Personalize Using Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Personalize Using Gemini",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalize Using Gemini": {
+      "main": [
+        [
+          {
+            "node": "Send Email to Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execution Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract and Structure Client Data": {
+      "main": [
+        [
+          {
+            "node": "Client Checklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger on New Client Form Submission": {
+      "main": [
+        [
+          {
+            "node": "Extract and Structure Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "b1a8a77b-765c-468a-8ea0-1b99b438f0e1",
+  "triggerCount": 0,
+  "tags": [
+    {
+      "createdAt": "2025-07-21T20:18:01.180Z",
+      "updatedAt": "2025-07-21T20:18:01.180Z",
+      "id": "Jix5w5AZ1rSoh8x1",
+      "name": "LifeStages"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-06-14T17:35:17.582Z",
+      "updatedAt": "2025-06-14T17:35:17.582Z",
+      "role": "workflow:owner",
+      "workflowId": "tpq8phQsHpkU0vME",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

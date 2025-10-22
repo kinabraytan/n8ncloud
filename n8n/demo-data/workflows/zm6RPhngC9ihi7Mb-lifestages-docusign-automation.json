@@ -1,0 +1,56 @@
+{
+  "createdAt": "2025-07-29T17:28:59.600Z",
+  "updatedAt": "2025-07-29T17:29:19.481Z",
+  "id": "zm6RPhngC9ihi7Mb",
+  "name": "LifeStages Docusign Automation",
+  "active": false,
+  "isArchived": false,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "46d73ef3-4b14-43ab-a327-841a69170a12",
+  "triggerCount": 0,
+  "tags": [
+    {
+      "createdAt": "2025-07-24T02:19:27.098Z",
+      "updatedAt": "2025-07-24T02:19:27.098Z",
+      "id": "w1HteVpFLB5n2YoC",
+      "name": "Gmail"
+    },
+    {
+      "createdAt": "2025-07-21T20:18:01.180Z",
+      "updatedAt": "2025-07-21T20:18:01.180Z",
+      "id": "Jix5w5AZ1rSoh8x1",
+      "name": "LifeStages"
+    },
+    {
+      "createdAt": "2025-06-19T23:39:52.053Z",
+      "updatedAt": "2025-06-19T23:39:52.053Z",
+      "id": "hqGuRJJPzE8JK1K2",
+      "name": "Google Drive"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-07-29T17:28:59.600Z",
+      "updatedAt": "2025-07-29T17:28:59.600Z",
+      "role": "workflow:owner",
+      "workflowId": "zm6RPhngC9ihi7Mb",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,288 @@
+{
+  "createdAt": "2025-09-29T15:55:18.137Z",
+  "updatedAt": "2025-09-29T16:24:23.186Z",
+  "id": "Ie6X1AIVculyZxnj",
+  "name": "Workflow Error Logging and Notif",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1bmjO6JHuAg5sEQW4xh385z_UPqVzWFkVRCD_MqeBXXU",
+          "mode": "list",
+          "cachedResultName": "n8n Workflow Error Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bmjO6JHuAg5sEQW4xh385z_UPqVzWFkVRCD_MqeBXXU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JprCxz5IRZzuiYs-NNkYLffQIkeTiC0sd-3CyrcOKV4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "value": {
+            "Log": "={{ $json.execution.error.stack }}",
+            "Node ID": "={{ $json.execution.id }}",
+            "Node Name": "={{ $json.execution.lastNodeExecuted }}",
+            "Timestamp": "={{ new Date($json.execution.error.timestamp).toISOString() }}\n",
+            "Workflow ID": "={{ $json.workflow.id }}",
+            "Execution Url": "={{ $json.execution.url }}",
+            "Workflow Name": "={{ $json.workflow.name }}"
+          },
+          "schema": [
+            {
+              "id": "Workflow ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Workflow ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Workflow Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Node Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Node Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Node ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Node ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Execution Url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Execution Url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Log",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Log",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "d976a355-76d6-4a02-bf39-4f1dba37049c",
+      "name": "Google Sheets - Create Error Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1136,
+        272
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSs1ml1fZncktfP5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "jnebria@outlook.com",
+        "subject": "=\ud83d\udea8 n8n Error in Workflow \"{{ $json.workflow.name }}\" (Node: {{ $json.execution.error.context.nodeCause }})",
+        "message": "=\ud83d\udea8 n8n Workflow Error Alert\n\n\u2022 Workflow Name: {{ $json.workflow.name }}\n\u2022 Node: {{ $json.execution.error.context.nodeCause }}\n\u2022 Error Type: {{ $json.execution.error.name }}\n\u2022 Message: {{ $json.execution.error.description }}\n\u2022 Execution ID: {{ $json.execution.id }}\n\u2022 View Execution: {{ $json.execution.url }}",
+        "options": {}
+      },
+      "id": "505b26b0-f5fc-42b0-8629-d28b0a702ba3",
+      "name": "Gmail - Send Notification",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1136,
+        480
+      ],
+      "webhookId": "65520aeb-1e34-46cc-8b09-637061212c81",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xqOTurRpHtoW4yz8",
+          "name": "JVX Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## SETUP REQUIRED\n\nWorkflow Configurations:\n- **Copy the Google Sheets structure: [Google Sheets template](https://docs.google.com/spreadsheets/d/11-vLBAKolEvaL0qQDjckHmvC1S6_hxHbgSP8CLyngSs/edit?gid=0#gid=0)**(https://docs.google.com/spreadsheets/d/11-vLBAKolEvaL0qQDjckHmvC1S6_hxHbgSP8CLyngSs/edit?gid=0#gid=0)\n- Update the Google Sheets document ID to point to your own error logging spreadsheet\n- Adjust the Gmail notification recipient email address from \"n8n_log_template@yopmail.com\" to your preferred address\n- Customize the email subject and message format according to your notification preferences\n\nRequired Credentials:\n- Google Sheets OAuth2 API Credential\n- Gmail OAuth2 Credential",
+        "height": 420,
+        "width": 440,
+        "color": 4
+      },
+      "id": "914a92de-d844-4d82-9f58-d3aef4507bb9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udea8 n8n Error Logging to Google Sheets with Gmail Alerts\n\nWhat This Template Does:\n\n- Automatically triggers whenever any workflow in your n8n instance encounters an error\n- Captures comprehensive error details including workflow information, node details, and execution context\n- Logs all error information to a centralized Google Sheets document for tracking and analysis\n- Sends immediate email notifications to alert you of workflow failures\n- Provides direct links to failed executions for quick troubleshooting and resolution\n- Maintains a persistent error history for pattern analysis and system monitoring",
+        "height": 300,
+        "width": 780,
+        "color": 4
+      },
+      "id": "0d8f68bf-3293-4638-8850-0249d073b1d0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udccb WORKFLOW PROCESS OVERVIEW\n\nStep 1: \ud83d\udd34 Error Trigger automatically activates when any workflow in the n8n instance fails or encounters an error\nStep 2: \ud83d\udcca Google Sheets - Create Error Log captures and stores error details in a spreadsheet with columns for:\n - Workflow ID and Name\n - Failed Node Name and ID  \n - Error Timestamp\n - Execution URL for direct access\n - Full error stack trace for debugging\nStep 3: \ud83d\udce7 Gmail - Send Notification dispatches an immediate email alert containing:\n - Workflow name and failed node information\n - Error type and description\n - Execution ID and direct link to view the failed execution\n - Formatted for quick identification and response",
+        "height": 380,
+        "width": 780,
+        "color": 4
+      },
+      "id": "ca3ee63a-7b38-4b79-93b7-1c3245b41c7d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        1088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAQAMkyYuCU",
+        "messageUi": {
+          "text": "=Hey n8n Admin,\n\nThe Workflow {{ $('Error Trigger').item.json.execution.id }} or {{ $('Error Trigger').item.json.execution.url }} resulted in an error. \n\n\nThe error message:\n{{ $('Error Trigger').item.json.execution.error.message }} \n\nI logged the error here:\nhttps://docs.google.com/spreadsheets/d/1bmjO6JHuAg5sEQW4xh385z_UPqVzWFkVRCD_MqeBXXU/edit?gid=0#gid=0\n\nKindly review this accordingly. Thanks!"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        480
+      ],
+      "id": "870fe428-040d-486f-b764-449baf1ae959",
+      "name": "Create a message",
+      "webhookId": "0482dac3-77eb-43fe-9e21-77e5d3a6dd58",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "bjkHgKY5mxD4IAVA",
+          "name": "Chat account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        944,
+        368
+      ],
+      "id": "50d04ca7-c867-4e92-9456-ab0d3b109851",
+      "name": "Error Trigger"
+    }
+  ],
+  "connections": {
+    "Gmail - Send Notification": {
+      "main": [
+        [
+          {
+            "node": "Create a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Create Error Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail - Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "templateId": "7876",
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f337fcc2-95a5-417c-9ac4-0124003bb195",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-09-29T15:55:18.137Z",
+      "updatedAt": "2025-09-29T15:55:18.137Z",
+      "role": "workflow:owner",
+      "workflowId": "Ie6X1AIVculyZxnj",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

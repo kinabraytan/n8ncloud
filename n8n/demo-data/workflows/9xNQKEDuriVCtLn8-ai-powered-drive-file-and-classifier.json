@@ -1,0 +1,274 @@
+{
+  "createdAt": "2025-06-06T12:29:59.722Z",
+  "updatedAt": "2025-06-06T14:30:05.100Z",
+  "id": "9xNQKEDuriVCtLn8",
+  "name": "AI Powered Drive File and Classifier",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Environment variable validation\nconst requiredVars = [\n  'MCP_SERVER_HOST',\n  'MCP_SERVER_PORT', \n  'MCP_SERVER_TOKEN',\n  'REVIEW_FOLDER_ID',\n  'LOG_SPREADSHEET_ID',\n  'POSTGRES_HOST',\n  'POSTGRES_PORT',\n  'POSTGRES_DB',\n  'POSTGRES_USER',\n  'POSTGRES_PASSWORD'\n];\n\nconst missingVars = requiredVars.filter(varName => !$env[varName]);\n\nif (missingVars.length > 0) {\n  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);\n}\n\nconst requiredVars2 = [\n  {name: 'MCP_SERVER_HOST', type: 'string'},\n  {name: 'MCP_SERVER_PORT', type: 'number'},\n  {name: 'MCP_SERVER_TOKEN', type: 'string'},\n  {name: 'REVIEW_FOLDER_ID', type: 'string'},\n  {name: 'LOG_SPREADSHEET_ID', type: 'string'},\n  {name: 'POSTGRES_HOST', type: 'string'},\n  {name: 'POSTGRES_PORT', type: 'number'},\n  {name: 'POSTGRES_DB', type: 'string'},\n  {name: 'POSTGRES_USER', type: 'string'},\n  {name: 'POSTGRES_PASSWORD', type: 'string'}\n];\n\nconst errors = [];\nfor (const {name, type} of requiredVars2) {\n  if (!$env[name]) {\n    errors.push(`Missing ${name}`);\n  } else if (type === 'number' && isNaN(Number($env[name]))) {\n    errors.push(`${name} must be a number`);\n  }\n}\n\nif (errors.length > 0) {\n  throw new Error(`Environment variable errors: ${errors.join(', ')}`);\n}\n\nreturn [{json: {message: 'Environment variables validated successfully'}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -120
+      ],
+      "id": "72ca961f-1ace-447c-88aa-8d75d384456f",
+      "name": "Environment Variable Validation"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS file_classification_history (\n  id SERIAL PRIMARY KEY,\n  file_id VARCHAR(255),\n  original_name TEXT,\n  new_name TEXT,\n  classification TEXT,\n  confidence FLOAT,\n  folder_path TEXT,\n  processed_at TIMESTAMP,\n  embedding VECTOR(1536),\n  metadata JSONB\n);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        400,
+        -120
+      ],
+      "id": "fc676b6c-fff6-4806-9a39-35e49c076161",
+      "name": "Setup PostgreSQL Tables",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -220,
+        220
+      ],
+      "id": "60cb9b9d-00e5-416f-b69f-df4049df9048",
+      "name": "Download File Content",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "awL2eJhDnfZdJizr",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "list",
+          "cachedResultName": "AI Sorter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13cawol0keib58mS--h23xWgid31el-Ub"
+        },
+        "event": "folderUpdated"
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        220
+      ],
+      "id": "3d9c9ac9-5c63-46d0-be5f-830ca929b9e3",
+      "name": "Google Drive File Monitor",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "awL2eJhDnfZdJizr",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract text content from file for classification\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  let textContent = '';\n  let fileType = '';\n  \n  // Get file metadata\n  const fileName = item.json.name || 'unknown';\n  const mimeType = item.json.mimeType || '';\n  \n  // Determine file type for classification context\n  if (mimeType.includes('pdf')) {\n    fileType = 'PDF Document';\n  } else if (mimeType.includes('image')) {\n    fileType = 'Image File';\n  } else if (mimeType.includes('text') || mimeType.includes('document')) {\n    fileType = 'Text Document';\n  } else {\n    fileType = 'Other File';\n  }\n  \n  // Extract text content if available\n  if (item.binary && item.binary.data) {\n    try {\n      // For text files, convert binary to text\n      if (mimeType.includes('text')) {\n        const buffer = Buffer.from(item.binary.data.data, 'base64');\n        textContent = buffer.toString('utf8').substring(0, 2000); // Limit text length\n      }\n    } catch (error) {\n      console.log('Error extracting text:', error.message);\n    }\n  }\n  \n  // Prepare classification input\n  const classificationInput = {\n    fileName: fileName,\n    fileType: fileType,\n    mimeType: mimeType,\n    textContent: textContent || fileName, // Use filename if no text content\n    originalData: item.json\n  };\n  \n  processedItems.push({\n    json: classificationInput,\n    binary: item.binary\n  });\n}\n\nreturn processedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        220
+      ],
+      "id": "6efbd6f9-1218-445c-a1e0-988a485e3b73",
+      "name": "Extract File Content"
+    },
+    {
+      "parameters": {
+        "inputText": "= ={{ $json.fileName + ' - ' + $json.fileType + ': ' + $json.textContent }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "invoices",
+              "description": "=Financial invoices, bills, and payment documents"
+            },
+            {
+              "category": "contracts",
+              "description": "Legal contracts, agreements, and terms of service"
+            },
+            {
+              "category": "resumes",
+              "description": "CVs, resumes, and professional profiles"
+            },
+            {
+              "category": "reports",
+              "description": "Business reports, analysis documents, and presentations"
+            },
+            {
+              "category": "marketing\t",
+              "description": "Marketing materials, brochures, and promotional content"
+            },
+            {
+              "category": "personal",
+              "description": "Personal documents, photos, and private files"
+            },
+            {
+              "category": "technical",
+              "description": "Technical documentation, manuals, and specifications"
+            },
+            {
+              "category": "legal",
+              "description": "Legal documents, compliance materials, and regulatory filings"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert document classifier. Analyze the following content and classify it into one of the provided categories: {categories}. Consider the filename, file type, and content when making your decision. Be precise and confident in your classification."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        220,
+        220
+      ],
+      "id": "b0e8c9e2-bfc6-43ab-b649-e4ec359dd0fa",
+      "name": "Primary Text Classifier"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        180,
+        420
+      ],
+      "id": "9f82ae15-8f75-4ede-9fb0-531945b4c72a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Environment Variable Validation": {
+      "main": [
+        [
+          {
+            "node": "Setup PostgreSQL Tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive File Monitor": {
+      "main": [
+        [
+          {
+            "node": "Download File Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File Content": {
+      "main": [
+        [
+          {
+            "node": "Extract File Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File Content": {
+      "main": [
+        [
+          {
+            "node": "Primary Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Primary Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "fb56057f-4228-4fb0-9d13-29b6abf341b0",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-06T12:29:59.722Z",
+      "updatedAt": "2025-06-06T12:29:59.722Z",
+      "role": "workflow:owner",
+      "workflowId": "9xNQKEDuriVCtLn8",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

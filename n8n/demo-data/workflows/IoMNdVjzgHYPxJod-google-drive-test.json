@@ -1,0 +1,2335 @@
+{
+  "createdAt": "2025-05-10T12:04:07.430Z",
+  "updatedAt": "2025-06-23T21:43:34.106Z",
+  "id": "IoMNdVjzgHYPxJod",
+  "name": "Google Drive Test]",
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2100,
+        -40
+      ],
+      "id": "a9538f6e-224a-45f4-9e64-eb95d76d13a3",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "=*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "=15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "5d27d351-67ac-49ea-a991-00461a9895ea",
+      "name": "Scan Top Level Folders1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -720,
+        -580
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize folder structure mapping\nconst parentFolderId = '15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF';\n\nconst topLevelFolders = [\n  '01 Client Services',\n  '02 Programs and Services', \n  '03 Human Resources',\n  '04 Operations and IT',\n  '05 Administration',\n  '06 Marketing and Outreach',\n  '07 Finance and Billing',\n  '08 Resources and Templates',\n  '09 Personal Folders',\n  '99 Archive'\n];\n\n// Process input items and create folder analysis data\nconst folderData = [];\n\nconsole.log('Starting folder processing...');\nconsole.log('Total input items:', $input.all().length);\n\nfor (const item of $input.all()) {\n  const folderName = item.json.name;\n  console.log('Processing folder:', folderName);\n  \n  // Check if this is one of our target folders\n  const matchedFolder = topLevelFolders.find(folder => \n    folderName.includes(folder) || folder.includes(folderName)\n  );\n  \n  if (matchedFolder) {\n    console.log('Matched folder:', folderName, 'as', matchedFolder);\n    folderData.push({\n      folderId: item.json.id,\n      folderName: folderName,\n      standardName: matchedFolder,\n      level: 1,\n      parentId: parentFolderId,\n      path: folderName\n    });\n  } else {\n    console.log('No match for folder:', folderName);\n  }\n}\n\nconsole.log('Total matched folders:', folderData.length);\n\nreturn folderData.map(folder => ({ json: folder }));\n"
+      },
+      "id": "0ebe9473-fd61-44a2-a5f3-482140c7a8de",
+      "name": "Process Top Level Folders1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        -580
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "970787ca-feb2-4078-b3a6-84461d191447",
+      "name": "Scan Level 2 Subfolders1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -60,
+        -720
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 2 folders and prepare for Level 3 scanning\nconst level2Data = [];\nconst parentData = $('Process Top Level Folders1').all();\n\nconsole.log('Processing Level 2 folders...');\nconsole.log('Total input items:', $input.all().length);\n\nfor (const item of $input.all()) {\n  console.log('Processing item:', item.json);\n  \n  if (item.json.id && item.json.name) {\n    // Get the current folder being processed from Loop Over Items\n    const currentLoopItem = $('Loop Over Items1').item.json;\n    \n    level2Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 2,\n      parentId: currentLoopItem.folderId,\n      parentName: currentLoopItem.folderName,\n      path: `${currentLoopItem.folderName}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log('Total Level 2 folders found:', level2Data.length);\nreturn level2Data.map(folder => ({ json: folder }));"
+      },
+      "id": "a95df3ff-6a52-4c1b-b011-36324a810a04",
+      "name": "Process Level 2 Folders1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "126a5389-6827-4550-bbdf-a71dfe7ea2df",
+      "name": "Scan Level 3 Subfolders1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        380,
+        -800
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 3 folders \nconst level3Data = [];\n\n// Add Level 1 data from Loop Over Items\nconst level1Item = $('Loop Over Items1').item.json;\nlevel3Data.push(level1Item);\n\nfor (const item of $input.all()) {\n  if (item.json.id && item.json.name) {\n    // Get parent info from the current Level 2 item being processed\n    const currentLevel2Item = $('Process Level 2 Folders1').item.json;\n    \n    level3Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 3,\n      parentId: currentLevel2Item.folderId,\n      parentName: currentLevel2Item.folderName,\n      path: `${currentLevel2Item.path}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log('Total Level 3 folders found:', level3Data.length);\nreturn level3Data.map(folder => ({ json: folder }));\n"
+      },
+      "id": "7627920f-88f5-4ac8-a05a-07c7e77e4fe4",
+      "name": "Process Level 3 Folders1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Debug what's received from Loop Over Items\nconst allFolders = $input.all();\nconsole.log('Compile received items:', allFolders.length);\nconsole.log('Full data dump:', JSON.stringify(allFolders, null, 2));\n\nlet combinedFolders = [];\n\nif (allFolders.length === 0) {\n  console.log('No data received from Loop Over Items - using direct node access');\n  \n  // Alternative approach - get data directly from nodes\n  try {\n    const level1Data = $('Process Top Level Folders1').all();\n    const level2Data = $('Process Level 2 Folders1').all();\n    const level3Data = $('Process Level 3 Folders1').all();\n    \n    console.log('Direct access - Level 1 items:', level1Data.length);\n    console.log('Direct access - Level 2 items:', level2Data.length);\n    console.log('Direct access - Level 3 items:', level3Data.length);\n    \n    // Combine all data\n    combinedFolders = [...level1Data, ...level2Data, ...level3Data];\n    console.log('Combined data length:', combinedFolders.length);\n  } catch (error) {\n    console.log('Error accessing direct node data:', error.message);\n    // Return empty structure if all else fails\n    return [{ json: { \n      folderStructure: {}, \n      timestamp: new Date().toISOString(),\n      error: 'No data could be retrieved from any source'\n    }}];\n  }\n} else {\n  combinedFolders = allFolders;\n  console.log('Using Loop Over Items data');\n}\n\n// Initialize folder structure\nconst folderStructure = {};\n\nconsole.log('Starting folder structure compilation...');\n\n// Group folders by top-level parent\nfor (const item of combinedFolders) {\n  const folder = item.json;\n  console.log('Processing folder:', folder);\n  \n  if (!folder || !folder.path) {\n    console.log('Skipping folder without path:', folder);\n    continue;\n  }\n  \n  const topLevelMatch = folder.path.split('/')[0];\n  \n  if (!folderStructure[topLevelMatch]) {\n    folderStructure[topLevelMatch] = {\n      name: topLevelMatch,\n      subfolders: [],\n      level2: {},\n      level3: {}\n    };\n  }\n  \n  // Process Level 1 folders\n  if (folder.level === 1) {\n    // Level 1 folders are already represented by the top-level structure\n    console.log('Level 1 folder processed:', folder.folderName);\n  }\n  \n  // Process Level 2 folders\n  else if (folder.level === 2) {\n    folderStructure[topLevelMatch].level2[folder.folderName] = {\n      name: folder.folderName,\n      path: folder.path,\n      subfolders: []\n    };\n    console.log('Level 2 folder added:', folder.folderName);\n  }\n  \n  // Process Level 3 folders\n  else if (folder.level === 3) {\n    const level2Parent = folder.path.split('/')[1];\n    if (folderStructure[topLevelMatch].level2[level2Parent]) {\n      folderStructure[topLevelMatch].level2[level2Parent].subfolders.push({\n        name: folder.folderName,\n        path: folder.path\n      });\n      console.log('Level 3 folder added:', folder.folderName, 'to parent:', level2Parent);\n    } else {\n      console.log('Warning: Level 3 folder parent not found:', level2Parent, 'for folder:', folder.folderName);\n    }\n  }\n}\n\nconsole.log('Final structure keys:', Object.keys(folderStructure));\nconsole.log('Total top-level folders:', Object.keys(folderStructure).length);\n\n// Count total folders for summary\nlet totalLevel2 = 0;\nlet totalLevel3 = 0;\n\nfor (const topLevel of Object.values(folderStructure)) {\n  totalLevel2 += Object.keys(topLevel.level2).length;\n  for (const level2 of Object.values(topLevel.level2)) {\n    totalLevel3 += level2.subfolders.length;\n  }\n}\n\nconsole.log('Summary - Level 2 folders:', totalLevel2, 'Level 3 folders:', totalLevel3);\n\nreturn [{ \n  json: { \n    folderStructure: folderStructure, \n    timestamp: new Date().toISOString(),\n    summary: {\n      topLevelFolders: Object.keys(folderStructure).length,\n      level2Folders: totalLevel2,\n      level3Folders: totalLevel3,\n      totalProcessed: combinedFolders.length\n    }\n  }\n}];\n"
+      },
+      "id": "58bd1dc4-d920-4221-8dae-7cad3ff12f19",
+      "name": "Compile Folder Structure1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -580
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. (mental health, housing, transportation, etc.)\n3. Standard business practices\n4. The naming conventions document provided\n\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\nFormat your response as a structured document that can be used as a reference guide."
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\\n- Mental health services and therapy- \n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "8655e37d-616f-4bbf-9582-cbec763ef6c0",
+      "name": "AI Folder Analysis1",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        -580
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process AI response and structure the definitions\nconst aiResponse = $json.choices[0].message.content;\nconst timestamp = new Date().toISOString();\n\n// Create structured output for document creation\nconst documentContent = {\n  title: \"Life Stages Folder Structure Definitions\",\n  version: \"1.0\",\n  generatedDate: timestamp,\n  aiAnalysis: aiResponse,\n  metadata: {\n    workflowRun: timestamp,\n    folderCount: Object.keys($('compile-structure').first().json.folderStructure).length\n  }\n};\n\nreturn [{ json: documentContent }];"
+      },
+      "id": "3002917d-3129-4550-b4f6-8e1b1c3424cf",
+      "name": "Structure AI Output1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Definitions_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('process-top-folders').item(7).json.folderId }}"
+        },
+        "options": {}
+      },
+      "id": "8d8878ab-9db9-4bd0-9e8e-ef0ecc3fcb19",
+      "name": "Save Folder Definitions1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2080,
+        -680
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Naming_Guide_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": "={{ $('process-top-folders').item(7).json.folderId }}",
+        "options": {}
+      },
+      "id": "fb579c65-dde6-4dd5-9787-a9fe75c10221",
+      "name": "Save Folder-Specific Naming Guide1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2080,
+        -480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Final workflow summary\nconst summary = {\n  workflowComplete: true,\n  timestamp: new Date().toISOString(),\n  documentsCreated: [\n    'Life_Stages_Folder_Definitions',\n    'Life_Stages_Folder_Naming_Guide'\n  ],\n  foldersAnalyzed: Object.keys($('compile-structure').first().json.folderStructure).length,\n  status: 'SUCCESS - Folder analysis and documentation complete'\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "2d05429a-3353-431c-90c7-10a15e953aa4",
+      "name": "Workflow Summary1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. as a mental health wellness and recovery facility\n3. Standard business practices\n4. The {{Naming Conventions}} document provided\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\n\nFormat your response as a structured document that can be used as a reference guide.",
+              "role": "system"
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\nMental health services\n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1700,
+        -480
+      ],
+      "id": "5b0533b4-f161-41e7-b083-97c724f80e9c",
+      "name": "Create Folder-Specific Naming Guide",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -280,
+        -660
+      ],
+      "id": "4b2591cb-19e5-4dfa-ba19-bc76e76306bf",
+      "name": "Loop Over Items1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        820,
+        -600
+      ],
+      "id": "2288c77f-d7b3-4bc1-b651-5da3e80533da",
+      "name": "Merge",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "=*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "=15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "af47bc51-8471-43be-91d3-2c3024f65839",
+      "name": "Scan Top Level Folders",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2540,
+        1160
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize folder structure mapping\nconst parentFolderId = '15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF';\n\nconst topLevelFolders = [\n  '01 Client Services',\n  '02 Programs and Services', \n  '03 Human Resources',\n  '04 Operations and IT',\n  '05 Administration',\n  '06 Marketing and Outreach',\n  '07 Finance and Billing',\n  '08 Resources and Templates',\n  '09 Personal Folders',\n  '99 Archive'\n];\n\n// Process input items and create folder analysis data\nconst folderData = [];\n\nconsole.log('Starting folder processing...');\nconsole.log('Total input items:', $input.all().length);\n\nfor (const item of $input.all()) {\n  const folderName = item.json.name;\n  console.log('Processing folder:', folderName);\n  \n  // Check if this is one of our target folders\n  const matchedFolder = topLevelFolders.find(folder => \n    folderName.includes(folder) || folder.includes(folderName)\n  );\n  \n  if (matchedFolder) {\n    console.log('Matched folder:', folderName, 'as', matchedFolder);\n    folderData.push({\n      folderId: item.json.id,\n      folderName: folderName,\n      standardName: matchedFolder,\n      level: 1,\n      parentId: parentFolderId,\n      path: folderName\n    });\n  } else {\n    console.log('No match for folder:', folderName);\n  }\n}\n\nconsole.log('Total matched folders:', folderData.length);\n\nreturn folderData.map(folder => ({ json: folder }));\n"
+      },
+      "id": "937ae7cc-5efc-46fe-b0f2-1855848ea684",
+      "name": "Process Top Level Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        1160
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "a32d2263-16f3-4e62-af30-e64f00163965",
+      "name": "Scan Level 2 Subfolders",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1880,
+        1000
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 2 folders and prepare for Level 3 scanning\nconst level2Data = [];\n\n// Get the current item from the input (what the GoogleDrive node returned)\nconst subfolders = $input.all();\n\n// Get the parent item that's currently in the loop\nconst currentLoopItem = $('Loop Over Items').item.json;\nconsole.log('Processing level 2 folders for parent:', currentLoopItem.folderName);\n\nfor (const item of subfolders) {\n  if (item.json && item.json.id && item.json.name) {\n    level2Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 2,\n      parentId: currentLoopItem.folderId,\n      parentName: currentLoopItem.folderName,\n      path: `${currentLoopItem.folderName}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log(`Found ${level2Data.length} level 2 folders for ${currentLoopItem.folderName}`);\nreturn level2Data.map(folder => ({ json: folder }));"
+      },
+      "id": "8d991184-dcb7-4442-890b-cbb7635170cb",
+      "name": "Process Level 2 Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1660,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "eacd676e-3936-402c-935c-3dd816df2644",
+      "name": "Scan Level 3 Subfolders",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1440,
+        920
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 3 folders \nconst level3Data = [];\n\n// Get the current level 2 folder from Loop Over Items (the parent loop)\nconst currentLevel2Item = $('Process Level 2 Folders').item.json;\nconsole.log('Processing level 3 folders for parent:', currentLevel2Item.folderName);\n\n// Get the subfolders from the Scan Level 3 Subfolders node\nconst subfolders = $input.all();\n\nfor (const item of subfolders) {\n  if (item.json && item.json.id && item.json.name) {\n    level3Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 3,\n      parentId: currentLevel2Item.folderId,\n      parentName: currentLevel2Item.folderName,\n      path: `${currentLevel2Item.path}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log(`Found ${level3Data.length} level 3 folders for ${currentLevel2Item.folderName}`);\nreturn level3Data.map(folder => ({ json: folder }));\n"
+      },
+      "id": "2221e040-19cc-4589-afa5-d150a0cf9ee1",
+      "name": "Process Level 3 Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1220,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Debug what's received from Loop Over Items\nconst allFolders = $input.all();\nconsole.log('Compile received items:', allFolders.length);\nconsole.log('Full data dump:', JSON.stringify(allFolders, null, 2));\n\nlet combinedFolders = [];\n\nif (allFolders.length === 0) {\n  console.log('No data received from Loop Over Items - using direct node access');\n  \n  // Alternative approach - get data directly from nodes\n  try {\n    const level1Data = $('Process Top Level Folders').all();\n    const level2Data = $('Process Level 2 Folders').all();\n    const level3Data = $('Process Level 3 Folders').all();\n    \n    console.log('Direct access - Level 1 items:', level1Data.length);\n    console.log('Direct access - Level 2 items:', level2Data.length);\n    console.log('Direct access - Level 3 items:', level3Data.length);\n    \n    // Combine all data\n    combinedFolders = [...level1Data, ...level2Data, ...level3Data];\n    console.log('Combined data length:', combinedFolders.length);\n  } catch (error) {\n    console.log('Error accessing direct node data:', error.message);\n    // Return empty structure if all else fails\n    return [{ json: { \n      folderStructure: {}, \n      timestamp: new Date().toISOString(),\n      error: 'No data could be retrieved from any source'\n    }}];\n  }\n} else {\n  combinedFolders = allFolders;\n  console.log('Using Loop Over Items data');\n}\n\n// Initialize folder structure\nconst folderStructure = {};\n\nconsole.log('Starting folder structure compilation...');\n\n// Group folders by top-level parent\nfor (const item of combinedFolders) {\n  const folder = item.json;\n  console.log('Processing folder:', folder);\n  \n  if (!folder || !folder.path) {\n    console.log('Skipping folder without path:', folder);\n    continue;\n  }\n  \n  const topLevelMatch = folder.path.split('/')[0];\n  \n  if (!folderStructure[topLevelMatch]) {\n    folderStructure[topLevelMatch] = {\n      name: topLevelMatch,\n      subfolders: [],\n      level2: {},\n      level3: {}\n    };\n  }\n  \n  // Process Level 1 folders\n  if (folder.level === 1) {\n    // Level 1 folders are already represented by the top-level structure\n    console.log('Level 1 folder processed:', folder.folderName);\n  }\n  \n  // Process Level 2 folders\n  else if (folder.level === 2) {\n    folderStructure[topLevelMatch].level2[folder.folderName] = {\n      name: folder.folderName,\n      path: folder.path,\n      subfolders: []\n    };\n    console.log('Level 2 folder added:', folder.folderName);\n  }\n  \n  // Process Level 3 folders\n  else if (folder.level === 3) {\n    const level2Parent = folder.path.split('/')[1];\n    if (folderStructure[topLevelMatch].level2[level2Parent]) {\n      folderStructure[topLevelMatch].level2[level2Parent].subfolders.push({\n        name: folder.folderName,\n        path: folder.path\n      });\n      console.log('Level 3 folder added:', folder.folderName, 'to parent:', level2Parent);\n    } else {\n      console.log('Warning: Level 3 folder parent not found:', level2Parent, 'for folder:', folder.folderName);\n    }\n  }\n}\n\nconsole.log('Final structure keys:', Object.keys(folderStructure));\nconsole.log('Total top-level folders:', Object.keys(folderStructure).length);\n\n// Count total folders for summary\nlet totalLevel2 = 0;\nlet totalLevel3 = 0;\n\nfor (const topLevel of Object.values(folderStructure)) {\n  totalLevel2 += Object.keys(topLevel.level2).length;\n  for (const level2 of Object.values(topLevel.level2)) {\n    totalLevel3 += level2.subfolders.length;\n  }\n}\n\nconsole.log('Summary - Level 2 folders:', totalLevel2, 'Level 3 folders:', totalLevel3);\n\nreturn [{ \n  json: { \n    folderStructure: folderStructure, \n    timestamp: new Date().toISOString(),\n    summary: {\n      topLevelFolders: Object.keys(folderStructure).length,\n      level2Folders: totalLevel2,\n      level3Folders: totalLevel3,\n      totalProcessed: combinedFolders.length\n    }\n  }\n}];\n"
+      },
+      "id": "265422e0-81a1-46cd-9c66-4f358f05b51f",
+      "name": "Compile Folder Structure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        1160
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. (mental health, housing, transportation, etc.)\n3. Standard business practices\n4. The naming conventions document provided\n\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\nFormat your response as a structured document that can be used as a reference guide."
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\\n- Mental health services and therapy- \n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "6e9a8298-eeb5-47b9-907a-904208cfb410",
+      "name": "AI Folder Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        1160
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process AI response and structure the definitions\nconst aiResponse = $json.choices[0].message.content;\nconst timestamp = new Date().toISOString();\n\n// Create structured output for document creation\nconst documentContent = {\n  title: \"Life Stages Folder Structure Definitions\",\n  version: \"1.0\",\n  generatedDate: timestamp,\n  aiAnalysis: aiResponse,\n  metadata: {\n    workflowRun: timestamp,\n    folderCount: Object.keys($('compile-structure').first().json.folderStructure).length\n  }\n};\n\nreturn [{ json: documentContent }];"
+      },
+      "id": "52b5c161-2957-4bfc-a622-a2761bfc5a33",
+      "name": "Structure AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Definitions_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('process-top-folders').item(7).json.folderId }}"
+        },
+        "options": {}
+      },
+      "id": "d954be16-e9df-4c64-a2b8-1fbec67abd3c",
+      "name": "Save Folder Definitions",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        260,
+        1060
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Naming_Guide_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": "={{ $('process-top-folders').item(7).json.folderId }}",
+        "options": {}
+      },
+      "id": "4a8cfade-84bd-4a69-ab1c-5cde03eec9c8",
+      "name": "Save Folder-Specific Naming Guide",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        260,
+        1260
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Final workflow summary\nconst summary = {\n  workflowComplete: true,\n  timestamp: new Date().toISOString(),\n  documentsCreated: [\n    'Life_Stages_Folder_Definitions',\n    'Life_Stages_Folder_Naming_Guide'\n  ],\n  foldersAnalyzed: Object.keys($('compile-structure').first().json.folderStructure).length,\n  status: 'SUCCESS - Folder analysis and documentation complete'\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "e3a1d903-e47d-47a4-ab1b-911d4d017850",
+      "name": "Workflow Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. as a mental health wellness and recovery facility\n3. Standard business practices\n4. The {{Naming Conventions}} document provided\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\n\nFormat your response as a structured document that can be used as a reference guide.",
+              "role": "system"
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\nMental health services\n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -120,
+        1260
+      ],
+      "id": "5b9f8110-8791-454f-a007-802f61b45690",
+      "name": "Create Folder-Specific Naming Guide1",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2100,
+        1080
+      ],
+      "id": "f0733208-afeb-4cc5-b30d-07c07b8569a2",
+      "name": "Loop Over Items",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1000,
+        1140
+      ],
+      "id": "f11a7c4c-cb8f-4b2f-8617-b19e0e210fde",
+      "name": "Merge1",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "=*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "=15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "812eac0e-e029-48dd-a9eb-d259c9ba17de",
+      "name": "Scan Top Level Folders2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2360,
+        660
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize folder structure mapping\nconst parentFolderId = '15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF';\n\nconst topLevelFolders = [\n  '01 Client Services',\n  '02 Programs and Services', \n  '03 Human Resources',\n  '04 Operations and IT',\n  '05 Administration',\n  '06 Marketing and Outreach',\n  '07 Finance and Billing',\n  '08 Resources and Templates',\n  '09 Personal Folders',\n  '99 Archive'\n];\n\n// Process input items and create folder analysis data\nconst folderData = [];\n\nconsole.log('Starting folder processing...');\nconsole.log('Total input items:', $input.all().length);\n\nfor (const item of $input.all()) {\n  const folderName = item.json.name;\n  console.log('Processing folder:', folderName);\n  \n  // Check if this is one of our target folders\n  const matchedFolder = topLevelFolders.find(folder => \n    folderName.includes(folder) || folder.includes(folderName)\n  );\n  \n  if (matchedFolder) {\n    console.log('Matched folder:', folderName, 'as', matchedFolder);\n    folderData.push({\n      folderId: item.json.id,\n      folderName: folderName,\n      standardName: matchedFolder,\n      level: 1,\n      parentId: parentFolderId,\n      path: folderName\n    });\n  } else {\n    console.log('No match for folder:', folderName);\n  }\n}\n\nconsole.log('Total matched folders:', folderData.length);\n\nreturn folderData.map(folder => ({ json: folder }));\n"
+      },
+      "id": "a2fba741-ab8c-49eb-b17e-30903b124bc1",
+      "name": "Process Top Level Folders2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2140,
+        660
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "6f572550-82aa-43ba-ad17-514dd066f878",
+      "name": "Scan Level 2 Subfolders2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1700,
+        500
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 2 folders \nconst level2Data = [];\n\n// Get the current item from the input (what the GoogleDrive node returned)\nconst subfolders = $input.all();\n\n// Get the parent item that's currently in the loop\nconst currentLoopItem = $('Loop Over Items2').item.json;\nconsole.log('Processing level 2 folders for parent:', currentLoopItem.folderName);\n\nfor (const item of subfolders) {\n  if (item.json && item.json.id && item.json.name) {\n    level2Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 2,\n      parentId: currentLoopItem.folderId,\n      parentName: currentLoopItem.folderName,\n      path: `${currentLoopItem.folderName}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log(`Found ${level2Data.length} level 2 folders for ${currentLoopItem.folderName}`);\nreturn level2Data.map(folder => ({ json: folder }));"
+      },
+      "id": "3110295b-bf75-4c61-a067-794bb54bd85a",
+      "name": "Process Level 2 Folders2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1480,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.folderId }}",
+            "mode": "id"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "0f51620d-5df3-4397-b990-245cb94c3b3c",
+      "name": "Scan Level 3 Subfolders2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1260,
+        420
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Level 3 folders \nconst level3Data = [];\n\n// Get the current level 2 folder from Loop Over Items (the parent loop)\nconst currentLevel2Item = $('Process Level 2 Folders2').item.json;\nconsole.log('Processing level 3 folders for parent:', currentLevel2Item.folderName);\n\n// Get the subfolders from the Scan Level 3 Subfolders node\nconst subfolders = $input.all();\n\nfor (const item of subfolders) {\n  if (item.json && item.json.id && item.json.name) {\n    level3Data.push({\n      folderId: item.json.id,\n      folderName: item.json.name,\n      level: 3,\n      parentId: currentLevel2Item.folderId,\n      parentName: currentLevel2Item.folderName,\n      path: `${currentLevel2Item.path}/${item.json.name}`\n    });\n  }\n}\n\nconsole.log(`Found ${level3Data.length} level 3 folders for ${currentLevel2Item.folderName}`);\nreturn level3Data.map(folder => ({ json: folder }));\n"
+      },
+      "id": "97cb4e56-47af-47c1-8fec-0e625017a63e",
+      "name": "Process Level 3 Folders2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Debug what's received from Loop Over Items\nconst allFolders = $input.all();\nconsole.log('Compile received items:', allFolders.length);\nconsole.log('Full data dump:', JSON.stringify(allFolders, null, 2));\n\nlet combinedFolders = [];\n\nif (allFolders.length === 0) {\n  console.log('No data received from Loop Over Items - using direct node access');\n  \n  // Alternative approach - get data directly from nodes\n  try {\n    const level1Data = $('Process Top Level Folders2').all();\n    const level2Data = $('Process Level 2 Folders2').all();\n    const level3Data = $('Process Level 3 Folders2').all();\n    \n    console.log('Direct access - Level 1 items:', level1Data.length);\n    console.log('Direct access - Level 2 items:', level2Data.length);\n    console.log('Direct access - Level 3 items:', level3Data.length);\n    \n    // Combine all data\n    combinedFolders = [...level1Data, ...level2Data, ...level3Data];\n    console.log('Combined data length:', combinedFolders.length);\n  } catch (error) {\n    console.log('Error accessing direct node data:', error.message);\n    // Return empty structure if all else fails\n    return [{ json: { \n      folderStructure: {}, \n      timestamp: new Date().toISOString(),\n      error: 'No data could be retrieved from any source'\n    }}];\n  }\n} else {\n  combinedFolders = allFolders;\n  console.log('Using Loop Over Items data');\n}\n\n// Initialize folder structure\nconst folderStructure = {};\n\nconsole.log('Starting folder structure compilation...');\n\n// Group folders by top-level parent\nfor (const item of combinedFolders) {\n  const folder = item.json;\n  console.log('Processing folder:', folder);\n  \n  if (!folder || !folder.path) {\n    console.log('Skipping folder without path:', folder);\n    continue;\n  }\n  \n  const topLevelMatch = folder.path.split('/')[0];\n  \n  if (!folderStructure[topLevelMatch]) {\n    folderStructure[topLevelMatch] = {\n      name: topLevelMatch,\n      subfolders: [],\n      level2: {},\n      level3: {}\n    };\n  }\n  \n  // Process Level 1 folders\n  if (folder.level === 1) {\n    // Level 1 folders are already represented by the top-level structure\n    console.log('Level 1 folder processed:', folder.folderName);\n  }\n  \n  // Process Level 2 folders\n  else if (folder.level === 2) {\n    folderStructure[topLevelMatch].level2[folder.folderName] = {\n      name: folder.folderName,\n      path: folder.path,\n      subfolders: []\n    };\n    console.log('Level 2 folder added:', folder.folderName);\n  }\n  \n  // Process Level 3 folders\n  else if (folder.level === 3) {\n    const level2Parent = folder.path.split('/')[1];\n    if (folderStructure[topLevelMatch].level2[level2Parent]) {\n      folderStructure[topLevelMatch].level2[level2Parent].subfolders.push({\n        name: folder.folderName,\n        path: folder.path\n      });\n      console.log('Level 3 folder added:', folder.folderName, 'to parent:', level2Parent);\n    } else {\n      console.log('Warning: Level 3 folder parent not found:', level2Parent, 'for folder:', folder.folderName);\n    }\n  }\n}\n\nconsole.log('Final structure keys:', Object.keys(folderStructure));\nconsole.log('Total top-level folders:', Object.keys(folderStructure).length);\n\n// Count total folders for summary\nlet totalLevel2 = 0;\nlet totalLevel3 = 0;\n\nfor (const topLevel of Object.values(folderStructure)) {\n  totalLevel2 += Object.keys(topLevel.level2).length;\n  for (const level2 of Object.values(topLevel.level2)) {\n    totalLevel3 += level2.subfolders.length;\n  }\n}\n\nconsole.log('Summary - Level 2 folders:', totalLevel2, 'Level 3 folders:', totalLevel3);\n\nreturn [{ \n  json: { \n    folderStructure: folderStructure, \n    timestamp: new Date().toISOString(),\n    summary: {\n      topLevelFolders: Object.keys(folderStructure).length,\n      level2Folders: totalLevel2,\n      level3Folders: totalLevel3,\n      totalProcessed: combinedFolders.length\n    }\n  }\n}];\n"
+      },
+      "id": "e9800adc-9da7-41a3-9e66-52a9ea716fd2",
+      "name": "Compile Folder Structure2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        660
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. (mental health, housing, transportation, etc.)\n3. Standard business practices\n4. The naming conventions document provided\n\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\nFormat your response as a structured document that can be used as a reference guide."
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\\n- Mental health services and therapy- \n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "baee23de-b24b-4547-985a-ea9fc8753d0a",
+      "name": "AI Folder Analysis2",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        660
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process AI response and structure the definitions\nconst aiResponse = $json.choices[0].message.content;\nconst timestamp = new Date().toISOString();\n\n// Create structured output for document creation\nconst documentContent = {\n  title: \"Life Stages Folder Structure Definitions\",\n  version: \"1.0\",\n  generatedDate: timestamp,\n  aiAnalysis: aiResponse,\n  metadata: {\n    workflowRun: timestamp,\n    folderCount: Object.keys($('compile-structure').first().json.folderStructure).length\n  }\n};\n\nreturn [{ json: documentContent }];"
+      },
+      "id": "e8ea0330-14b1-4a9d-9c10-4cbdf2629b42",
+      "name": "Structure AI Output2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Definitions_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('process-top-folders').item(7).json.folderId }}"
+        },
+        "options": {}
+      },
+      "id": "a65924f4-0a16-42c2-b4f9-effd10633352",
+      "name": "Save Folder Definitions2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        440,
+        560
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Life_Stages_Folder_Naming_Guide_{{ DateTime.now().format('yyyyMMdd_HHmmss') }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared"
+        },
+        "folderId": "={{ $('process-top-folders').item(7).json.folderId }}",
+        "options": {}
+      },
+      "id": "064d0887-1a38-4dbb-b7e3-3a21f129777b",
+      "name": "Save Folder-Specific Naming Guide2",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        440,
+        760
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Final workflow summary\nconst summary = {\n  workflowComplete: true,\n  timestamp: new Date().toISOString(),\n  documentsCreated: [\n    'Life_Stages_Folder_Definitions',\n    'Life_Stages_Folder_Naming_Guide'\n  ],\n  foldersAnalyzed: Object.keys($('compile-structure').first().json.folderStructure).length,\n  status: 'SUCCESS - Folder analysis and documentation complete'\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "c66b85bd-940d-43f7-98d2-c5f062a7ce3e",
+      "name": "Workflow Summary2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an AI assistant specialized in analyzing organizational folder structures for Life Stages Inc., a mental health services company. Your task is to analyze folder structures and create comprehensive definitions for each folder's purpose based on:\n1. The folder names and hierarchy\n2. The business context of Life Stages Inc. as a mental health wellness and recovery facility\n3. Standard business practices\n4. The {{Naming Conventions}} document provided\nFor each folder, provide:\n- Purpose: What this folder is intended to contain\n- Document Types: Specific types of documents that belong here\n- Naming Patterns: How documents should be named in this folder\n- Access Level: Who should have access (if determinable)\n- Retention Notes: Any special considerations for document retention\n\n\nFormat your response as a structured document that can be used as a reference guide.",
+              "role": "system"
+            },
+            {
+              "content": "=Please analyze this folder structure and create definitions:\n\n{{ JSON.stringify($json.folderStructure, null, 2) }}\n\nBase your analysis on Life Stages Inc.'s business model which includes:\nMental health services\n\nProvide comprehensive definitions for each folder down to the 3rd level, explaining what documents belong in each location and how they should be organized."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        60,
+        760
+      ],
+      "id": "026b0e4d-4604-4d4e-901b-11f823e3e87e",
+      "name": "Create Folder-Specific Naming Guide2",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1920,
+        580
+      ],
+      "id": "bd85ca02-0500-498c-9359-3c6c6f691af2",
+      "name": "Loop Over Items2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -820,
+        640
+      ],
+      "id": "9f376980-a18c-4e6a-bb6f-a7435526357f",
+      "name": "Merge2",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Scan Top Level Folders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Top Level Folders1": {
+      "main": [
+        [
+          {
+            "node": "Process Top Level Folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Top Level Folders1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Level 2 Subfolders1": {
+      "main": [
+        [
+          {
+            "node": "Process Level 2 Folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 2 Folders1": {
+      "main": [
+        [
+          {
+            "node": "Scan Level 3 Subfolders1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scan Level 3 Subfolders1": {
+      "main": [
+        [
+          {
+            "node": "Process Level 3 Folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 3 Folders1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Compile Folder Structure1": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analysis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Folder Analysis1": {
+      "main": [
+        [
+          {
+            "node": "Structure AI Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure AI Output1": {
+      "main": [
+        [
+          {
+            "node": "Save Folder Definitions1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Folder-Specific Naming Guide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder Definitions1": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder-Specific Naming Guide1": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder-Specific Naming Guide": {
+      "main": [
+        [
+          {
+            "node": "Save Folder-Specific Naming Guide1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Scan Level 2 Subfolders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Compile Folder Structure1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Top Level Folders": {
+      "main": [
+        [
+          {
+            "node": "Process Top Level Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Top Level Folders": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Level 2 Subfolders": {
+      "main": [
+        [
+          {
+            "node": "Process Level 2 Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 2 Folders": {
+      "main": [
+        [
+          {
+            "node": "Scan Level 3 Subfolders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scan Level 3 Subfolders": {
+      "main": [
+        [
+          {
+            "node": "Process Level 3 Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 3 Folders": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Compile Folder Structure": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Folder Analysis": {
+      "main": [
+        [
+          {
+            "node": "Structure AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure AI Output": {
+      "main": [
+        [
+          {
+            "node": "Save Folder Definitions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Folder-Specific Naming Guide1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder Definitions": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder-Specific Naming Guide": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder-Specific Naming Guide1": {
+      "main": [
+        [
+          {
+            "node": "Save Folder-Specific Naming Guide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Scan Level 2 Subfolders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Compile Folder Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Top Level Folders2": {
+      "main": [
+        [
+          {
+            "node": "Process Top Level Folders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Top Level Folders2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Level 2 Subfolders2": {
+      "main": [
+        [
+          {
+            "node": "Process Level 2 Folders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 2 Folders2": {
+      "main": [
+        [
+          {
+            "node": "Scan Level 3 Subfolders2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scan Level 3 Subfolders2": {
+      "main": [
+        [
+          {
+            "node": "Process Level 3 Folders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Level 3 Folders2": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Compile Folder Structure2": {
+      "main": [
+        [
+          {
+            "node": "AI Folder Analysis2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Folder Analysis2": {
+      "main": [
+        [
+          {
+            "node": "Structure AI Output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure AI Output2": {
+      "main": [
+        [
+          {
+            "node": "Save Folder Definitions2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Folder-Specific Naming Guide2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder Definitions2": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Folder-Specific Naming Guide2": {
+      "main": [
+        [
+          {
+            "node": "Workflow Summary2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder-Specific Naming Guide2": {
+      "main": [
+        [
+          {
+            "node": "Save Folder-Specific Naming Guide2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Scan Level 2 Subfolders2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Compile Folder Structure2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Scan Top Level Folders1": [
+      {
+        "json": {
+          "id": "1iOujudP7TEDdGGJBRqsu8KsZY5yxKK13",
+          "name": "05 Administration"
+        }
+      },
+      {
+        "json": {
+          "id": "1VieR3Zru0PkrR851rc1gF_2S19WRSS1l",
+          "name": "00 Inbound Unsorted"
+        }
+      },
+      {
+        "json": {
+          "id": "1LKa8VcRSyqvLitsxXK-m-2-D7VUFqZeT",
+          "name": "01 Client Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1IypgPO6Q33BJR4S6scSm2y7838ReV8De",
+          "name": "07 Finance and Billing"
+        }
+      },
+      {
+        "json": {
+          "id": "1PNeKYK2ysOFUOXFEKdkpK0BJ20AgBm3v",
+          "name": "02 Programs and Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1OK0jA5Afgmobj98PdhTtiVNX1YClcqMv",
+          "name": "04 Operations and IT"
+        }
+      },
+      {
+        "json": {
+          "id": "1RDf2g-iZYI4ClxtbfGXCGhEYdwigAJP0",
+          "name": "08 Resources and Templates"
+        }
+      },
+      {
+        "json": {
+          "id": "1-TY9tiOVR-P5FYPmvSgJHv89J21RjQyL",
+          "name": "09 Personal Folders"
+        }
+      },
+      {
+        "json": {
+          "id": "1p_5d5AzTudykfgWfwpcWeWBv8ayvDGUH",
+          "name": "11 Everything About BestNotes"
+        }
+      },
+      {
+        "json": {
+          "id": "1A-1_Pul0y-JdP98DJgLAqXiax6uckNhH",
+          "name": "99 Archive"
+        }
+      },
+      {
+        "json": {
+          "id": "1riU9BRUk7g3R_g1EXASMF7N7cHClNPmg",
+          "name": "06 Marketing and Outreach"
+        }
+      },
+      {
+        "json": {
+          "id": "1OGcv1na7J72PnYSQRl0LjvoyGbKyMh7k",
+          "name": "03 Human Resources"
+        }
+      }
+    ],
+    "Compile Folder Structure1": [
+      {
+        "json": {
+          "folderStructure": {
+            "05 Administration": {
+              "name": "05 Administration",
+              "subfolders": [],
+              "level2": {
+                "08 Docs for Upload to Best Notes": {
+                  "name": "08 Docs for Upload to Best Notes",
+                  "path": "05 Administration/08 Docs for Upload to Best Notes",
+                  "subfolders": []
+                },
+                "05 DMAS Memos": {
+                  "name": "05 DMAS Memos",
+                  "path": "05 Administration/05 DMAS Memos",
+                  "subfolders": []
+                },
+                "07 Quality Assurance": {
+                  "name": "07 Quality Assurance",
+                  "path": "05 Administration/07 Quality Assurance",
+                  "subfolders": [
+                    {
+                      "name": "QUALITY ASSURANCE (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/QUALITY ASSURANCE (scanned)"
+                    },
+                    {
+                      "name": "Life Stages, Inc Corrective Action Plan",
+                      "path": "05 Administration/07 Quality Assurance/Life Stages, Inc Corrective Action Plan"
+                    },
+                    {
+                      "name": "Home Care Organization",
+                      "path": "05 Administration/07 Quality Assurance/Home Care Organization"
+                    },
+                    {
+                      "name": "DME",
+                      "path": "05 Administration/07 Quality Assurance/DME"
+                    },
+                    {
+                      "name": "Policies and Procedures - Additional",
+                      "path": "05 Administration/07 Quality Assurance/Policies and Procedures - Additional"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO) (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO) (scanned)"
+                    },
+                    {
+                      "name": "Audit File - Optum",
+                      "path": "05 Administration/07 Quality Assurance/Audit File - Optum"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO)"
+                    },
+                    {
+                      "name": "05 Serious Incident Reviews",
+                      "path": "05 Administration/07 Quality Assurance/05 Serious Incident Reviews"
+                    },
+                    {
+                      "name": "02 Regulatory Documents",
+                      "path": "05 Administration/07 Quality Assurance/02 Regulatory Documents"
+                    },
+                    {
+                      "name": "03 License and Certificates",
+                      "path": "05 Administration/07 Quality Assurance/03 License and Certificates"
+                    },
+                    {
+                      "name": "01 Contracts",
+                      "path": "05 Administration/07 Quality Assurance/01 Contracts"
+                    },
+                    {
+                      "name": "EMERGENCY DRILL FORMS",
+                      "path": "05 Administration/07 Quality Assurance/EMERGENCY DRILL FORMS"
+                    },
+                    {
+                      "name": "Meeting Minutes",
+                      "path": "05 Administration/07 Quality Assurance/Meeting Minutes"
+                    },
+                    {
+                      "name": "General Correspondence",
+                      "path": "05 Administration/07 Quality Assurance/General Correspondence"
+                    },
+                    {
+                      "name": "Policies & Procedures",
+                      "path": "05 Administration/07 Quality Assurance/Policies & Procedures"
+                    }
+                  ]
+                },
+                "04 Accreditation": {
+                  "name": "04 Accreditation",
+                  "path": "05 Administration/04 Accreditation",
+                  "subfolders": []
+                },
+                "03 Insurance Information": {
+                  "name": "03 Insurance Information",
+                  "path": "05 Administration/03 Insurance Information",
+                  "subfolders": []
+                },
+                "02 Legal and Compliance": {
+                  "name": "02 Legal and Compliance",
+                  "path": "05 Administration/02 Legal and Compliance",
+                  "subfolders": []
+                },
+                "01 General Office Management": {
+                  "name": "01 General Office Management",
+                  "path": "05 Administration/01 General Office Management",
+                  "subfolders": []
+                },
+                "06 Tax Returns": {
+                  "name": "06 Tax Returns",
+                  "path": "05 Administration/06 Tax Returns",
+                  "subfolders": []
+                }
+              },
+              "level3": {}
+            },
+            "01 Client Services": {
+              "name": "01 Client Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "07 Finance and Billing": {
+              "name": "07 Finance and Billing",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "02 Programs and Services": {
+              "name": "02 Programs and Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "04 Operations and IT": {
+              "name": "04 Operations and IT",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "08 Resources and Templates": {
+              "name": "08 Resources and Templates",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "09 Personal Folders": {
+              "name": "09 Personal Folders",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "99 Archive": {
+              "name": "99 Archive",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "06 Marketing and Outreach": {
+              "name": "06 Marketing and Outreach",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "03 Human Resources": {
+              "name": "03 Human Resources",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            }
+          },
+          "timestamp": "2025-06-16T06:17:54.732Z",
+          "summary": {
+            "topLevelFolders": 10,
+            "level2Folders": 8,
+            "level3Folders": 16,
+            "totalProcessed": 35
+          }
+        }
+      }
+    ],
+    "Scan Top Level Folders": [
+      {
+        "json": {
+          "id": "1iOujudP7TEDdGGJBRqsu8KsZY5yxKK13",
+          "name": "05 Administration"
+        }
+      },
+      {
+        "json": {
+          "id": "1VieR3Zru0PkrR851rc1gF_2S19WRSS1l",
+          "name": "00 Inbound Unsorted"
+        }
+      },
+      {
+        "json": {
+          "id": "1LKa8VcRSyqvLitsxXK-m-2-D7VUFqZeT",
+          "name": "01 Client Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1IypgPO6Q33BJR4S6scSm2y7838ReV8De",
+          "name": "07 Finance and Billing"
+        }
+      },
+      {
+        "json": {
+          "id": "1PNeKYK2ysOFUOXFEKdkpK0BJ20AgBm3v",
+          "name": "02 Programs and Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1OK0jA5Afgmobj98PdhTtiVNX1YClcqMv",
+          "name": "04 Operations and IT"
+        }
+      },
+      {
+        "json": {
+          "id": "1RDf2g-iZYI4ClxtbfGXCGhEYdwigAJP0",
+          "name": "08 Resources and Templates"
+        }
+      },
+      {
+        "json": {
+          "id": "1-TY9tiOVR-P5FYPmvSgJHv89J21RjQyL",
+          "name": "09 Personal Folders"
+        }
+      },
+      {
+        "json": {
+          "id": "1p_5d5AzTudykfgWfwpcWeWBv8ayvDGUH",
+          "name": "11 Everything About BestNotes"
+        }
+      },
+      {
+        "json": {
+          "id": "1A-1_Pul0y-JdP98DJgLAqXiax6uckNhH",
+          "name": "99 Archive"
+        }
+      },
+      {
+        "json": {
+          "id": "1riU9BRUk7g3R_g1EXASMF7N7cHClNPmg",
+          "name": "06 Marketing and Outreach"
+        }
+      },
+      {
+        "json": {
+          "id": "1OGcv1na7J72PnYSQRl0LjvoyGbKyMh7k",
+          "name": "03 Human Resources"
+        }
+      }
+    ],
+    "Compile Folder Structure": [
+      {
+        "json": {
+          "folderStructure": {
+            "05 Administration": {
+              "name": "05 Administration",
+              "subfolders": [],
+              "level2": {
+                "08 Docs for Upload to Best Notes": {
+                  "name": "08 Docs for Upload to Best Notes",
+                  "path": "05 Administration/08 Docs for Upload to Best Notes",
+                  "subfolders": []
+                },
+                "05 DMAS Memos": {
+                  "name": "05 DMAS Memos",
+                  "path": "05 Administration/05 DMAS Memos",
+                  "subfolders": []
+                },
+                "07 Quality Assurance": {
+                  "name": "07 Quality Assurance",
+                  "path": "05 Administration/07 Quality Assurance",
+                  "subfolders": [
+                    {
+                      "name": "QUALITY ASSURANCE (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/QUALITY ASSURANCE (scanned)"
+                    },
+                    {
+                      "name": "Life Stages, Inc Corrective Action Plan",
+                      "path": "05 Administration/07 Quality Assurance/Life Stages, Inc Corrective Action Plan"
+                    },
+                    {
+                      "name": "Home Care Organization",
+                      "path": "05 Administration/07 Quality Assurance/Home Care Organization"
+                    },
+                    {
+                      "name": "DME",
+                      "path": "05 Administration/07 Quality Assurance/DME"
+                    },
+                    {
+                      "name": "Policies and Procedures - Additional",
+                      "path": "05 Administration/07 Quality Assurance/Policies and Procedures - Additional"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO) (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO) (scanned)"
+                    },
+                    {
+                      "name": "Audit File - Optum",
+                      "path": "05 Administration/07 Quality Assurance/Audit File - Optum"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO)"
+                    },
+                    {
+                      "name": "05 Serious Incident Reviews",
+                      "path": "05 Administration/07 Quality Assurance/05 Serious Incident Reviews"
+                    },
+                    {
+                      "name": "02 Regulatory Documents",
+                      "path": "05 Administration/07 Quality Assurance/02 Regulatory Documents"
+                    },
+                    {
+                      "name": "03 License and Certificates",
+                      "path": "05 Administration/07 Quality Assurance/03 License and Certificates"
+                    },
+                    {
+                      "name": "01 Contracts",
+                      "path": "05 Administration/07 Quality Assurance/01 Contracts"
+                    },
+                    {
+                      "name": "EMERGENCY DRILL FORMS",
+                      "path": "05 Administration/07 Quality Assurance/EMERGENCY DRILL FORMS"
+                    },
+                    {
+                      "name": "Meeting Minutes",
+                      "path": "05 Administration/07 Quality Assurance/Meeting Minutes"
+                    },
+                    {
+                      "name": "General Correspondence",
+                      "path": "05 Administration/07 Quality Assurance/General Correspondence"
+                    },
+                    {
+                      "name": "Policies & Procedures",
+                      "path": "05 Administration/07 Quality Assurance/Policies & Procedures"
+                    }
+                  ]
+                },
+                "04 Accreditation": {
+                  "name": "04 Accreditation",
+                  "path": "05 Administration/04 Accreditation",
+                  "subfolders": []
+                },
+                "03 Insurance Information": {
+                  "name": "03 Insurance Information",
+                  "path": "05 Administration/03 Insurance Information",
+                  "subfolders": []
+                },
+                "02 Legal and Compliance": {
+                  "name": "02 Legal and Compliance",
+                  "path": "05 Administration/02 Legal and Compliance",
+                  "subfolders": []
+                },
+                "01 General Office Management": {
+                  "name": "01 General Office Management",
+                  "path": "05 Administration/01 General Office Management",
+                  "subfolders": []
+                },
+                "06 Tax Returns": {
+                  "name": "06 Tax Returns",
+                  "path": "05 Administration/06 Tax Returns",
+                  "subfolders": []
+                }
+              },
+              "level3": {}
+            },
+            "01 Client Services": {
+              "name": "01 Client Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "07 Finance and Billing": {
+              "name": "07 Finance and Billing",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "02 Programs and Services": {
+              "name": "02 Programs and Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "04 Operations and IT": {
+              "name": "04 Operations and IT",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "08 Resources and Templates": {
+              "name": "08 Resources and Templates",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "09 Personal Folders": {
+              "name": "09 Personal Folders",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "99 Archive": {
+              "name": "99 Archive",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "06 Marketing and Outreach": {
+              "name": "06 Marketing and Outreach",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "03 Human Resources": {
+              "name": "03 Human Resources",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            }
+          },
+          "timestamp": "2025-06-16T06:17:54.732Z",
+          "summary": {
+            "topLevelFolders": 10,
+            "level2Folders": 8,
+            "level3Folders": 16,
+            "totalProcessed": 35
+          }
+        }
+      }
+    ],
+    "Scan Top Level Folders2": [
+      {
+        "json": {
+          "id": "1iOujudP7TEDdGGJBRqsu8KsZY5yxKK13",
+          "name": "05 Administration"
+        }
+      },
+      {
+        "json": {
+          "id": "1VieR3Zru0PkrR851rc1gF_2S19WRSS1l",
+          "name": "00 Inbound Unsorted"
+        }
+      },
+      {
+        "json": {
+          "id": "1LKa8VcRSyqvLitsxXK-m-2-D7VUFqZeT",
+          "name": "01 Client Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1IypgPO6Q33BJR4S6scSm2y7838ReV8De",
+          "name": "07 Finance and Billing"
+        }
+      },
+      {
+        "json": {
+          "id": "1PNeKYK2ysOFUOXFEKdkpK0BJ20AgBm3v",
+          "name": "02 Programs and Services"
+        }
+      },
+      {
+        "json": {
+          "id": "1OK0jA5Afgmobj98PdhTtiVNX1YClcqMv",
+          "name": "04 Operations and IT"
+        }
+      },
+      {
+        "json": {
+          "id": "1RDf2g-iZYI4ClxtbfGXCGhEYdwigAJP0",
+          "name": "08 Resources and Templates"
+        }
+      },
+      {
+        "json": {
+          "id": "1-TY9tiOVR-P5FYPmvSgJHv89J21RjQyL",
+          "name": "09 Personal Folders"
+        }
+      },
+      {
+        "json": {
+          "id": "1p_5d5AzTudykfgWfwpcWeWBv8ayvDGUH",
+          "name": "11 Everything About BestNotes"
+        }
+      },
+      {
+        "json": {
+          "id": "1A-1_Pul0y-JdP98DJgLAqXiax6uckNhH",
+          "name": "99 Archive"
+        }
+      },
+      {
+        "json": {
+          "id": "1riU9BRUk7g3R_g1EXASMF7N7cHClNPmg",
+          "name": "06 Marketing and Outreach"
+        }
+      },
+      {
+        "json": {
+          "id": "1OGcv1na7J72PnYSQRl0LjvoyGbKyMh7k",
+          "name": "03 Human Resources"
+        }
+      }
+    ],
+    "Compile Folder Structure2": [
+      {
+        "json": {
+          "folderStructure": {
+            "05 Administration": {
+              "name": "05 Administration",
+              "subfolders": [],
+              "level2": {
+                "08 Docs for Upload to Best Notes": {
+                  "name": "08 Docs for Upload to Best Notes",
+                  "path": "05 Administration/08 Docs for Upload to Best Notes",
+                  "subfolders": []
+                },
+                "05 DMAS Memos": {
+                  "name": "05 DMAS Memos",
+                  "path": "05 Administration/05 DMAS Memos",
+                  "subfolders": []
+                },
+                "07 Quality Assurance": {
+                  "name": "07 Quality Assurance",
+                  "path": "05 Administration/07 Quality Assurance",
+                  "subfolders": [
+                    {
+                      "name": "QUALITY ASSURANCE (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/QUALITY ASSURANCE (scanned)"
+                    },
+                    {
+                      "name": "Life Stages, Inc Corrective Action Plan",
+                      "path": "05 Administration/07 Quality Assurance/Life Stages, Inc Corrective Action Plan"
+                    },
+                    {
+                      "name": "Home Care Organization",
+                      "path": "05 Administration/07 Quality Assurance/Home Care Organization"
+                    },
+                    {
+                      "name": "DME",
+                      "path": "05 Administration/07 Quality Assurance/DME"
+                    },
+                    {
+                      "name": "Policies and Procedures - Additional",
+                      "path": "05 Administration/07 Quality Assurance/Policies and Procedures - Additional"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO) (scanned)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO) (scanned)"
+                    },
+                    {
+                      "name": "Audit File - Optum",
+                      "path": "05 Administration/07 Quality Assurance/Audit File - Optum"
+                    },
+                    {
+                      "name": "MANAGED CARE ORGANIZATION (MCO)",
+                      "path": "05 Administration/07 Quality Assurance/MANAGED CARE ORGANIZATION (MCO)"
+                    },
+                    {
+                      "name": "05 Serious Incident Reviews",
+                      "path": "05 Administration/07 Quality Assurance/05 Serious Incident Reviews"
+                    },
+                    {
+                      "name": "02 Regulatory Documents",
+                      "path": "05 Administration/07 Quality Assurance/02 Regulatory Documents"
+                    },
+                    {
+                      "name": "03 License and Certificates",
+                      "path": "05 Administration/07 Quality Assurance/03 License and Certificates"
+                    },
+                    {
+                      "name": "01 Contracts",
+                      "path": "05 Administration/07 Quality Assurance/01 Contracts"
+                    },
+                    {
+                      "name": "EMERGENCY DRILL FORMS",
+                      "path": "05 Administration/07 Quality Assurance/EMERGENCY DRILL FORMS"
+                    },
+                    {
+                      "name": "Meeting Minutes",
+                      "path": "05 Administration/07 Quality Assurance/Meeting Minutes"
+                    },
+                    {
+                      "name": "General Correspondence",
+                      "path": "05 Administration/07 Quality Assurance/General Correspondence"
+                    },
+                    {
+                      "name": "Policies & Procedures",
+                      "path": "05 Administration/07 Quality Assurance/Policies & Procedures"
+                    }
+                  ]
+                },
+                "04 Accreditation": {
+                  "name": "04 Accreditation",
+                  "path": "05 Administration/04 Accreditation",
+                  "subfolders": []
+                },
+                "03 Insurance Information": {
+                  "name": "03 Insurance Information",
+                  "path": "05 Administration/03 Insurance Information",
+                  "subfolders": []
+                },
+                "02 Legal and Compliance": {
+                  "name": "02 Legal and Compliance",
+                  "path": "05 Administration/02 Legal and Compliance",
+                  "subfolders": []
+                },
+                "01 General Office Management": {
+                  "name": "01 General Office Management",
+                  "path": "05 Administration/01 General Office Management",
+                  "subfolders": []
+                },
+                "06 Tax Returns": {
+                  "name": "06 Tax Returns",
+                  "path": "05 Administration/06 Tax Returns",
+                  "subfolders": []
+                }
+              },
+              "level3": {}
+            },
+            "01 Client Services": {
+              "name": "01 Client Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "07 Finance and Billing": {
+              "name": "07 Finance and Billing",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "02 Programs and Services": {
+              "name": "02 Programs and Services",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "04 Operations and IT": {
+              "name": "04 Operations and IT",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "08 Resources and Templates": {
+              "name": "08 Resources and Templates",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "09 Personal Folders": {
+              "name": "09 Personal Folders",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "99 Archive": {
+              "name": "99 Archive",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "06 Marketing and Outreach": {
+              "name": "06 Marketing and Outreach",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            },
+            "03 Human Resources": {
+              "name": "03 Human Resources",
+              "subfolders": [],
+              "level2": {},
+              "level3": {}
+            }
+          },
+          "timestamp": "2025-06-16T06:17:54.732Z",
+          "summary": {
+            "topLevelFolders": 10,
+            "level2Folders": 8,
+            "level3Folders": 16,
+            "totalProcessed": 35
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "5963af14-bde4-47ed-ab21-fa1210b43c47",
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-05-10T12:04:07.430Z",
+      "updatedAt": "2025-05-10T12:04:07.430Z",
+      "role": "workflow:owner",
+      "workflowId": "IoMNdVjzgHYPxJod",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

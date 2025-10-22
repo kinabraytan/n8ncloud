@@ -1,0 +1,2007 @@
+{
+  "createdAt": "2025-07-24T04:29:47.525Z",
+  "updatedAt": "2025-07-24T04:29:47.525Z",
+  "id": "nEgmWBCzTUWP3P8u",
+  "name": "FIXED GDrive MCP Server +Client",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. MCP Server Trigger\n",
+        "height": 640,
+        "width": 1120,
+        "color": 6
+      },
+      "id": "32e1ba00-2e98-4715-a5e9-72cd19d44ee4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        620
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "folderId"
+            },
+            {
+              "name": "fileId"
+            }
+          ]
+        }
+      },
+      "id": "68301c26-7c8e-4d7f-970c-d32a429d28b2",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -180,
+        1700
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "## 2. Handle Multiple Binary Formats via Conversion and AI\n[Read more about the PostgreSQL Node](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.postgres/)\n\nMCP clients (or rather, the AI agents) still expect and require text responses from our MCP server.\nN8N can provide the right conversion tools to parse most text formats such as PDF, CSV and XML.\nFor images, audio and video, consider using multimodal LLMs to describe or transcribe the file instead.",
+        "height": 1000,
+        "width": 1660,
+        "color": 5
+      },
+      "id": "adc34888-2d5e-456e-b801-d1d25e8686ba",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        1260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7b6958ce-d553-4379-a5d6-743f39b342d0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "application/pdf"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d0816a37-ac06-49e3-8d63-17fcd061e33f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "text/csv"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "csv"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "589540e1-1439-41e3-ba89-b27f5e936190",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{\n['image/jpeg','image/jpg','image/png','image/gif']\n.some(mimeType => $binary.data.mimeType === mimeType)\n}}",
+                    "rightValue": ""
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b8fc61a1-6057-4db3-960e-b8ddcbdd0f31",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "audio"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "959d65a6-372f-4978-b2d1-f28aa1e372c6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "video"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "eb7c41bd-e879-4561-9ecc-79c0be145b60",
+                    "leftValue": "={{ $binary.data.mimeType }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d191262a-807a-485f-8c15-3e5a089d98e0",
+      "name": "FileType",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        260,
+        1620
+      ],
+      "typeVersion": 3.2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {
+          "encoding": "utf-8",
+          "relaxQuotes": true,
+          "headerRow": false,
+          "includeEmptyCells": true
+        }
+      },
+      "id": "29d19c3e-3022-4d00-bc74-500344dfb1b5",
+      "name": "Extract from CSV",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        480,
+        1500
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "name": "ReadFile",
+        "description": "Call this tool to download and read the contents of a file within google drive.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fileId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fileId', `This the file ID of the document to read`, 'string') }}",
+            "folderId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('folderId', `This is the folder ID containing the file to read`, 'string') }}",
+            "operation": "readFile"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "operation",
+              "displayName": "operation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "folderId",
+              "displayName": "folderId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "fileId",
+              "displayName": "fileId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "6f039359-bdd7-4ee1-9b6d-2104dfce4eab",
+      "name": "Read File From GDrive",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        100,
+        460
+      ],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "inputType": "base64",
+        "options": {}
+      },
+      "id": "f7b2e902-2e32-403b-a8e7-fa76f356b34c",
+      "name": "Analyse Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        480,
+        1700
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "e31ecee0-8835-40ac-b459-6ee63ade8992",
+      "name": "Transcribe Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        480,
+        1900
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}\n\n{{ $json.files\n    ? 'Files supplied for this run:\\n' +\n      $json.files\n        .map(f => `\u2022 ${f.filename} (${f.type}, ${f.size} bytes)`)\n        .join('\\n')\n    : '' }}\n\n",
+        "options": {
+          "systemMessage": "=## V2 System Prompt\n\nYou are the Lifestages, Inc. **Document Analysis Agent**, a sophisticated AI assistant responsible for the first stage of document processing: **Analysis and Planning**.\n\n### **Primary Objective**\n\nYour SOLE mission is to analyze an incoming file, consult the knowledge base for existing rules, and formulate a detailed **Execution Plan**. You do **NOT** execute file operations (like moving or renaming). Your only output is a plan that requires human approval.\n\n### **CRITICAL: Knowledge Base Rules**\n\n1.  **Source of Truth:** Your **only** source for rules is the document retrieved via the `KnowledgeBase` tool.\n2.  **Strict Adherence:** You must base your plan on the rules found.\n\n### **Available Tools & Usage**\n\n* **`KnowledgeBase`**: Your first step for every file to retrieve the \"Naming & Folder Conventions\" document.\n* **`GDrive_MCP_Client (Read-Only)`**: You can use `Read_File_From_GDrive` to analyze file content and `Search_for_destination_folder` to verify that a proposed folder location already exists. **You are forbidden from using tools that modify files (Move, Rename, Create).**\n* **`Request_Approval_from_User`**: This is your final step. You will use this to present your findings and plan to a human for approval.\n\n---\n\n### **Workflow 1: Standard File Plan**\n\nIf a file's content clearly matches a rule in the `KnowledgeBase`:\n\n1.  **Analyze Content & Retrieve Policy**: Use `Read_File_From_GDrive` and `KnowledgeBase`.\n2.  **Formulate Execution Plan**: Create a precise plan detailing the proposed new filename and the exact destination folder path.\n3.  **Verify Destination**: Use `Search_for_destination_folder` to confirm the target folder exists.\n4.  **Request Approval**: Send the complete plan for human approval.\n    * **Example Message**: *\"I have analyzed '[Original_Filename]'. Based on our policies, I propose the following actions:\\n\\n* **Rename to:** `[Proposed_Filename]`\\n* **Move to:** `[Proposed_Folder_Path]`\\n\\nDo you approve this plan?\"*\n\n### **Workflow 2: New Rule Proposal**\n\nIf a file does **not** match any existing rule:\n\n1.  **Analyze Content & Retrieve Policy**: Use `Read_File_From_GDrive` and `KnowledgeBase`.\n2.  **Identify Anomaly**: Conclude that no specific rule applies.\n3.  **Propose New Rule**: Formulate a logical new rule (including format, example, and folder location).\n4.  **Request Approval to Update Policy**: Present your findings and the proposed new rule for human approval.\n    * **Example Message**: *\"I've analyzed 'acme_bill_inv#583.pdf'. It appears to be a vendor invoice, but no specific rule exists. I recommend adding this rule to the knowledge base:\\n\\n* **Document Type:** VendorInvoice\\n* **Format:** `Invoice_[VendorName]_[Invoice#]_[YYYY-MM-DD]`\\n* **Folder:** `/04 Finance & Billing/01 Invoices/`\\n\\n**Do you approve adding this new rule?** Once approved, a new plan will be created to process the original file.\"*"
+        }
+      },
+      "id": "1f13fcb3-cb4a-45ae-bb70-4db84b638418",
+      "name": "Document Analysis Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        60,
+        140
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "options": {},
+        "path": "34dd2803-f684-4ab1-8d8a-6cc9fd642dc2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        300
+      ],
+      "id": "2ba600e6-43a8-416a-962b-43fc1e186614",
+      "name": "When chat message received",
+      "webhookId": "34dd2803-f684-4ab1-8d8a-6cc9fd642dc2"
+    },
+    {
+      "parameters": {
+        "content": "## MCP Client + Console AI = Document Analysis AI\n",
+        "height": 600,
+        "width": 1120,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        20
+      ],
+      "typeVersion": 1,
+      "id": "76e8455e-94d1-4e6e-9156-e6ce1d1fba3d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://n8n.virtualxperiencellc.com/mcp/vxlifestages/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        220,
+        460
+      ],
+      "id": "cc6c383d-458d-4fb0-9203-1fdeab016808",
+      "name": "GDrive MCP Client"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        580,
+        140
+      ],
+      "id": "cdc23a06-15ed-4fc3-84b3-d81609885560",
+      "name": "Execution Data"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "73c3b578-1bde-4e77-9795-6c7524945968",
+      "name": "Create Mistral URL (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        700,
+        1300
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8fe589e7-6e3c-425a-b919-b165d0c0f23e",
+      "name": "Mistral Upload (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        1300
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"include_image_base64\": true\n}",
+        "options": {}
+      },
+      "id": "c30d805b-3ee9-4f43-a0ce-19f26a2333a6",
+      "name": "Mistral DOC OCR (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        920,
+        1300
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a481cde3-b8ec-4d97-aa13-4668bd66c24d",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.pages }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f8e8d24b-e8d3-4f35-a051-07fc07ff024f",
+      "name": "Get PDF Response6",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1140,
+        1300
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour",
+              "minute": 15
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "list",
+          "cachedResultName": "AI Sorter",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13cawol0keib58mS--h23xWgid31el-Ub"
+        },
+        "event": "fileCreated",
+        "options": {
+          "fileType": "all"
+        }
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        100
+      ],
+      "id": "6e3e91b3-d48f-4e0d-86d5-6e6057c77bdf",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "spaceId": "spaces/AAQAMkyYuCU",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `These are the Files that I will be renaming and where I would move them:\n{{Initial File Name}} - {{Updated File Name }} - {{ Folder path to move to }}\n\nRenaming Logic: {{Reason}}\nMovement Logic: {{Reason}}`, 'string') }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 30,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        },
+        "path": "c184813f-7210-41d4-ab26-8298f6acae22"
+      },
+      "type": "n8n-nodes-base.googleChatTool",
+      "typeVersion": 1,
+      "position": [
+        340,
+        460
+      ],
+      "id": "c2be6c9c-a841-462a-a6d8-36c9907a31e6",
+      "name": "Request Approval from User",
+      "webhookId": "c184813f-7210-41d4-ab26-8298f6acae22",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "bjkHgKY5mxD4IAVA",
+          "name": "Chat account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        480,
+        2100
+      ],
+      "id": "7beebe33-46b4-4140-bca7-547877ee6565",
+      "name": "Extract from File",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a481cde3-b8ec-4d97-aa13-4668bd66c24d",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.pages }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89a9cb66-cb48-4682-8d50-3a42c5958902",
+      "name": "Get Text Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        800,
+        2080
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to log the executions done per file. Append or update row in sheet in Google Sheets. Add the Original File Name, Updated File Name, Folder Path it is moved to, and the logic behind each decision. List the link to the file in the appropriate column. ",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1df8gUDB5NB_VN21AZsWITDQJ03g-aV1t7gBMhJ2l8eE",
+          "mode": "list",
+          "cachedResultName": "Drive Map",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1df8gUDB5NB_VN21AZsWITDQJ03g-aV1t7gBMhJ2l8eE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 286480436,
+          "mode": "list",
+          "cachedResultName": "File Renaming and Movement Map",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1df8gUDB5NB_VN21AZsWITDQJ03g-aV1t7gBMhJ2l8eE/edit#gid=286480436"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Original File Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Original_File_Name__using_to_match_', `The File Name before Renaming it`, 'string') }}",
+            "Updated File Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Updated_File_Name', `The New File Name According to Guidelines`, 'string') }}",
+            "Folder Path to Move to": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Folder_Path_to_Move_to', `The Folder where the file is moved to`, 'string') }}",
+            "Link to File": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Link_to_File', `The link to the file after renaming and movement`, 'string') }}",
+            "Renaming Logic": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Renaming_Logic', `Reason for Renaming`, 'string') }}",
+            "Movement Logic": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Movement_Logic', `Reason for moving the file to the designated folder`, 'string') }}"
+          },
+          "matchingColumns": [
+            "Original File Name"
+          ],
+          "schema": [
+            {
+              "id": "Original File Name",
+              "displayName": "Original File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Updated File Name",
+              "displayName": "Updated File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Folder Path to Move to",
+              "displayName": "Folder Path to Move to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link to File",
+              "displayName": "Link to File",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Renaming Logic",
+              "displayName": "Renaming Logic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Movement Logic",
+              "displayName": "Movement Logic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        460,
+        460
+      ],
+      "id": "d9fe88d1-0c08-4944-9698-515e89c88684",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSs1ml1fZncktfP5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId || 'doc-management-' + $execution.id }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        460
+      ],
+      "id": "d33c4cc2-6475-4b8d-9c47-0e8dea88f048",
+      "name": "Document Memory",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a481cde3-b8ec-4d97-aa13-4668bd66c24d",
+              "name": "response",
+              "type": "string",
+              "value": "={{\n$input.all()\n.map(item => item.json.row.map(cell => `\"${cell}\"`).join(','))\n.join('\\n')\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2bc14cea-e576-4967-8b5a-9df2af5e65ee",
+      "name": "Get CSV Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        700,
+        1500
+      ],
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "archive_folder_id",
+          "cachedResultName": "Archive"
+        }
+      },
+      "id": "9c05bb7f-5098-4ecd-894c-d9afaea225f3",
+      "name": "Archive Old Files",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        -140,
+        980
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Archives files older than specified threshold to maintain clean workspace"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "value": "0AAS-C0K9GIBpUk9PVA",
+          "mode": "list",
+          "cachedResultName": "Life Stages Workspace",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AAS-C0K9GIBpUk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/15LvrXfueB700JTEvPJV3Gxb4m9s7PIVF",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "24a7762f-208f-48f1-b5e0-9d7f2b99ba62",
+      "name": "Drive upload",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        -20,
+        980
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "0AAS-C0K9GIBpUk9PVA",
+          "mode": "list",
+          "cachedResultName": "Life Stages Workspace",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AAS-C0K9GIBpUk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Parent_Folder', ``, 'string') }}",
+          "mode": "id"
+        }
+      },
+      "id": "c60eccdd-ed3f-4396-84c0-4e867bddb83f",
+      "name": "Move to Appropriate Folder",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        100,
+        980
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Moves processed files to organized folder structure"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File', ``, 'string') }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "7dfbf988-ae99-4024-8a1a-b5132dfbb19a",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        220,
+        980
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_to_Update', ``, 'string') }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('New_Updated_File_Name', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "40d56394-7300-4c8e-978b-911ca09dfbc0",
+      "name": "Rename File1.2",
+      "type": "n8n-nodes-base.googleDriveTool",
+      "position": [
+        340,
+        980
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      },
+      "notes": "Creates timestamped backup copy in dedicated Backups folder before any modifications"
+    },
+    {
+      "parameters": {
+        "content": "## V1 System Prompt ##\nYou are an expert document management assistant with dual capabilities:\\n\\n**PRIMARY ROLE: File Processing & Organization**\\n- Process files that come through the Google Drive trigger\\n- Apply organizational naming conventions and folder structures\\n- Use the Policy Knowledge Retrieval tool to reference current policies\\n- Rename files according to established guidelines\\n- Move files to appropriate folders based on content and type\\n\\n**SECONDARY ROLE: Policy Management**\\n- One-time setup to store organizational policies\\n- Update policy knowledge base when new policies are available\\n- Maintain policy references for consistent decision-making\\n\\n**Decision Logic:**\\n1. If files are present in the trigger data \u2192 Process files\\n2. If user explicitly requests policy storage \u2192 Handle policy management\\n3. If user asks for help \u2192 Provide guidance on available functions\\n\\n**Tools Available:**\\n- GDrive MCP Client: Browse, read, rename, and move files in Google Drive\\n- Policy Knowledge Retrieval: Get current organizational policies\\n- Policy Knowledge Update: Store new policies (used sparingly)\\n\\nAlways explain your reasoning and cite relevant policies when making file organization decisions.\n\nCRITICAL: You have access to multiple tools, but you must ONLY use tools that are directly relevant to the user's specific request.\n\nPOLICY UPDATE REQUESTS: If user asks to \"update policies\" or \"store policies\":\n- Use the Policy Storage Tool, Gdrive MCP Client for Reading and Searching files and folders ONLY, if needed.\n- Do NOT use GDrive MCP Client for any other functions, Google Sheets, or other tools\n- Complete the policy storage task and confirm success\n\nFILE PROCESSING REQUESTS: If files need processing:\n- Use GDrive MCP Client for file operations\n- Use Policy Knowledge Retrieval for naming guidelines\n- Use other tools only as specifically needed for file management\n\nDecision Logic:\n- If the event source = chat \u2192 run Policy Management unless the user\u2019s first message contains the word process-files.\n\n- If the event source = google-drive-trigger \u2192 run File Processing & Organisation.\n\n- Never mix both workflows in the same run.",
+        "height": 680,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        20
+      ],
+      "typeVersion": 1,
+      "id": "248aa881-aa81-4dc2-b84c-4f3a74a90c05",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "path": "85bc52d6-3904-41f1-bda9-9a147a8b47a3"
+      },
+      "id": "f15b8091-3485-4996-8577-00aad84a7802",
+      "name": "MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        20,
+        760
+      ],
+      "webhookId": "85bc52d6-3904-41f1-bda9-9a147a8b47a3",
+      "typeVersion": 1.1,
+      "notes": "Entry point for the workflow - triggers when MCP server receives a request"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        460
+      ],
+      "id": "ec3e7a38-3911-4893-aaad-cf607cd84ddc",
+      "name": "o4-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/text-embedding-004"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        2920
+      ],
+      "id": "f855941d-1b07-4752-87f7-962b4daa0c2b",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "lsi_gdrive_policies",
+          "mode": "list",
+          "cachedResultName": "lsi_gdrive_policies"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        40,
+        2780
+      ],
+      "id": "4d2d00ad-4875-4f4f-b6f0-c8db1a66f1c9",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "LSI_Gdrive_Policies",
+        "options": {}
+      },
+      "id": "ad6cac08-f2d1-42c3-bf5d-6615ce1d3cfc",
+      "name": "Save to KnowledgeBase",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "position": [
+        1380,
+        2700
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "filename",
+                "value": "={{ $('Download File1').item.json.name }}"
+              },
+              {
+                "name": "id",
+                "value": "={{ $('Download File1').item.json.id }}"
+              },
+              {
+                "name": "gold",
+                "value": "false"
+              }
+            ]
+          }
+        }
+      },
+      "id": "7a8aa093-cdc4-46fe-883c-c6f8928038a8",
+      "name": "Load Data",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1480,
+        2920
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "id": "8472bbcd-dad0-48cd-a6e3-f7761a7c8443",
+      "name": "Extract from JSON",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1140,
+        2820
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "b4e5cdb0-8db4-49fe-8519-c953d1dd8f74",
+      "name": "Extract from Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1140,
+        2620
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "db8e8f83-e162-4f4e-96fe-041c94215f01",
+      "name": "Extract from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1140,
+        2420
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7b4e792b-ab6d-4b9b-88a1-d8e51bea6853",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$binary[\"data\"].mimeType}}",
+                    "rightValue": "application/pdf"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "09b7d7c5-5353-4719-b4e2-072e4da39948",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$binary[\"data\"].mimeType}}",
+                    "rightValue": "text/plain"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "d2763a45-a592-47c8-868f-59dfcd17a71c",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$binary[\"data\"].mimeType}}",
+                    "rightValue": "application/json"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "json"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d83199e2-9057-4c74-9566-ae4988424e15",
+                    "leftValue": "={{$binary[\"data\"].mimeType}}",
+                    "rightValue": "application/vnd.google-apps.spreadsheet",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "google sheet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ce9ae248-ab30-4cab-8445-8c12765d0850",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        920,
+        2600
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "=*",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1dW3CHV2DbQyR3E7DOJ25tyB7T4uLNvmg",
+            "mode": "list",
+            "cachedResultName": "AI Policy and Reference Documents",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1dW3CHV2DbQyR3E7DOJ25tyB7T4uLNvmg"
+          },
+          "whatToSearch": "files"
+        },
+        "options": {
+          "fields": [
+            "name",
+            "id"
+          ]
+        }
+      },
+      "id": "d17df6ba-80d2-43bb-8778-997f7039df0f",
+      "name": "Search Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        260,
+        2780
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9c656036-0615-4e03-928e-c09fae7de267",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        480,
+        2780
+      ],
+      "typeVersion": 3,
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "notes": "Should Loop all items in the specified folder"
+    },
+    {
+      "parameters": {},
+      "id": "ee21fdc4-e58b-43f3-8311-dec3a6c59ac3",
+      "name": "When clicking \u2018Test workflow\u2019",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -180,
+        2780
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 50,
+        "options": {}
+      },
+      "id": "c1b0b526-0635-4311-9d20-004fa94998f4",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1580,
+        3120
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "id": "614ec6d0-fca8-478b-a1a0-9684d6b0e161",
+      "name": "Download File1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        700,
+        2620
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Manual Policy Update/Upload ##\n**Policies and References are stored in this  [*Google Drive FOLDER*](https://drive.google.com/drive/u/0/folders/1dW3CHV2DbQyR3E7DOJ25tyB7T4uLNvmg)**",
+        "height": 980,
+        "width": 2080
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        2280
+      ],
+      "typeVersion": 1,
+      "id": "47325d6a-9d89-402d-82c9-5081e6173fc0",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Access this tool to retrieve Guidelines for Renaming Files and Moving files to appropriate Folders",
+        "tableName": "lsi_gdrive_policies",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        340
+      ],
+      "id": "ae612e22-70c4-4075-b274-9d826da2a149",
+      "name": "KnowledgeBase",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/text-embedding-004"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        600,
+        460
+      ],
+      "id": "c37d0632-a22f-4f49-a2cc-6e01faf52694",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## V2 System Prompt\n\nYou are the Lifestages, Inc. **Document Analysis Agent**, a sophisticated AI assistant responsible for the first stage of document processing: **Analysis and Planning**.\n\n### **Primary Objective**\n\nYour SOLE mission is to analyze an incoming file, consult the knowledge base for existing rules, and formulate a detailed **Execution Plan**. You do **NOT** execute file operations (like moving or renaming). Your only output is a plan that requires human approval.\n\n### **CRITICAL: Knowledge Base Rules**\n\n1.  **Source of Truth:** Your **only** source for rules is the document retrieved via the `KnowledgeBase` tool.\n2.  **Strict Adherence:** You must base your plan on the rules found.\n\n### **Available Tools & Usage**\n\n* **`KnowledgeBase`**: Your first step for every file to retrieve the \"Naming & Folder Conventions\" document.\n* **`GDrive_MCP_Client (Read-Only)`**: You can use `Read_File_From_GDrive` to analyze file content and `Search_for_destination_folder` to verify that a proposed folder location already exists. **You are forbidden from using tools that modify files (Move, Rename, Create).**\n* **`Request_Approval_from_User`**: This is your final step. You will use this to present your findings and plan to a human for approval.\n\n---\n\n### **Workflow 1: Standard File Plan**\n\nIf a file's content clearly matches a rule in the `KnowledgeBase`:\n\n1.  **Analyze Content & Retrieve Policy**: Use `Read_File_From_GDrive` and `KnowledgeBase`.\n2.  **Formulate Execution Plan**: Create a precise plan detailing the proposed new filename and the exact destination folder path.\n3.  **Verify Destination**: Use `Search_for_destination_folder` to confirm the target folder exists.\n4.  **Request Approval**: Send the complete plan for human approval.\n    * **Example Message**: *\"I have analyzed '[Original_Filename]'. Based on our policies, I propose the following actions:\\n\\n* **Rename to:** `[Proposed_Filename]`\\n* **Move to:** `[Proposed_Folder_Path]`\\n\\nDo you approve this plan?\"*\n\n### **Workflow 2: New Rule Proposal**\n\nIf a file does **not** match any existing rule:\n\n1.  **Analyze Content & Retrieve Policy**: Use `Read_File_From_GDrive` and `KnowledgeBase`.\n2.  **Identify Anomaly**: Conclude that no specific rule applies.\n3.  **Propose New Rule**: Formulate a logical new rule (including format, example, and folder location).\n4.  **Request Approval to Update Policy**: Present your findings and the proposed new rule for human approval.\n    * **Example Message**: *\"I've analyzed 'acme_bill_inv#583.pdf'. It appears to be a vendor invoice, but no specific rule exists. I recommend adding this rule to the knowledge base:\\n\\n* **Document Type:** VendorInvoice\\n* **Format:** `Invoice_[VendorName]_[Invoice#]_[YYYY-MM-DD]`\\n* **Folder:** `/04 Finance & Billing/01 Invoices/`\\n\\n**Do you approve adding this new rule?** Once approved, a new plan will be created to process the original file.\"*",
+        "height": 1160,
+        "width": 880,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        700
+      ],
+      "typeVersion": 1,
+      "id": "a4bfd704-f5da-4a6e-a6e5-69a4fd865b8b",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        40,
+        1700
+      ],
+      "id": "3f443d80-a21b-4995-83fd-6f3edae40a7f",
+      "name": "download/readfile",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "FileType": {
+      "main": [
+        [
+          {
+            "node": "Mistral Upload (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyse Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from CSV": {
+      "main": [
+        [
+          {
+            "node": "Get CSV Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read File From GDrive": {
+      "ai_tool": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "download/readfile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GDrive MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Analysis Agent": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Mistral URL (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Upload (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Create Mistral URL (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Get PDF Response6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Approval from User": {
+      "ai_tool": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Get Text Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Old Files": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive upload": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Appropriate Folder": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename File1.2": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "o4-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Save to KnowledgeBase",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Search Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to KnowledgeBase": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Data": {
+      "ai_document": [
+        [
+          {
+            "node": "Save to KnowledgeBase",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from JSON": {
+      "main": [
+        [
+          {
+            "node": "Save to KnowledgeBase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Text": {
+      "main": [
+        [
+          {
+            "node": "Save to KnowledgeBase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "Save to KnowledgeBase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Folder": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Download File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Test workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Load Data",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KnowledgeBase": {
+      "ai_tool": [
+        [
+          {
+            "node": "Document Analysis Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "KnowledgeBase",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download/readfile": {
+      "main": [
+        [
+          {
+            "node": "FileType",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Google Drive Trigger": {
+      "lastTimeChecked": "2025-07-24T04:29:14Z"
+    },
+    "node:Google Drive Trigger1": {
+      "lastTimeChecked": "2025-07-24T03:36:59Z"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "76b850f5-0d91-4cd9-8b31-9363e031f398",
+  "triggerCount": 3,
+  "tags": [
+    {
+      "createdAt": "2025-07-21T20:18:01.180Z",
+      "updatedAt": "2025-07-21T20:18:01.180Z",
+      "id": "Jix5w5AZ1rSoh8x1",
+      "name": "LifeStages"
+    },
+    {
+      "createdAt": "2025-06-19T23:39:52.053Z",
+      "updatedAt": "2025-06-19T23:39:52.053Z",
+      "id": "hqGuRJJPzE8JK1K2",
+      "name": "Google Drive"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-07-24T04:29:47.525Z",
+      "updatedAt": "2025-07-24T04:29:47.525Z",
+      "role": "workflow:owner",
+      "workflowId": "nEgmWBCzTUWP3P8u",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

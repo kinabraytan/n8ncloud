@@ -1,0 +1,226 @@
+{
+  "createdAt": "2025-06-14T19:27:47.913Z",
+  "updatedAt": "2025-06-14T19:27:47.913Z",
+  "id": "2ZmeknAWccfa0DFn",
+  "name": "Template: Random Quotes Fetch",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Beginner friendly workflow on how to work with API and format the data into your desire output",
+        "height": 200,
+        "width": 280,
+        "color": 4
+      },
+      "id": "2846b5c9-07aa-4d1b-a6c0-3752c61370f6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "count",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2bfa3dd-ba26-44ea-9d05-b6957cc4fd81",
+      "name": "Get Random Quote from ZenQuotes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        180
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "path": "c376e35b-80f3-4086-abec-d2c5a4501fb3",
+        "options": {}
+      },
+      "id": "cd1f302b-200d-4cca-b0dd-1d30d70bffa5",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        20,
+        180
+      ],
+      "webhookId": "c376e35b-80f3-4086-abec-d2c5a4501fb3",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"quote\": \"{{ $json.quotes }}\"\n}",
+        "options": {}
+      },
+      "id": "24ac733c-2d78-4083-a511-a288dcf04afa",
+      "name": "Send response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        960,
+        180
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "### Receives incoming requests",
+        "height": 180,
+        "width": 260
+      },
+      "id": "1099cbaf-7534-417f-9ed8-e290b673682f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Fetches random quotes",
+        "height": 220,
+        "width": 300,
+        "color": 2
+      },
+      "id": "e007f2fd-d79d-4225-8497-6df3bd9d7f35",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Formats into \u2018quote \u2013 author\u2019 strings",
+        "height": 200,
+        "width": 260,
+        "color": 3
+      },
+      "id": "4a4aa776-eae6-4ac0-a312-af5a6b0bbbc2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b646b1c-914b-437e-ba5e-5a1fbfebbde9",
+              "name": "quotes",
+              "type": "string",
+              "value": "=\"{{ $json.q }}\" - {{ $json.a }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "752a4077-ca06-4e61-a656-40159d7a992f",
+      "name": "Format data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        660,
+        180
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "### Sends back JSON array",
+        "height": 200,
+        "width": 260
+      },
+      "id": "ce5e8c28-d04c-4551-be8d-c7be0a7907d7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        140
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Random Quote from ZenQuotes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format data": {
+      "main": [
+        [
+          {
+            "node": "Send response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Random Quote from ZenQuotes": {
+      "main": [
+        [
+          {
+            "node": "Format data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "c3fbfdfe-06ef-49c5-83bc-9af02de8cfd0",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-14T19:27:47.913Z",
+      "updatedAt": "2025-06-14T19:27:47.913Z",
+      "role": "workflow:owner",
+      "workflowId": "2ZmeknAWccfa0DFn",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

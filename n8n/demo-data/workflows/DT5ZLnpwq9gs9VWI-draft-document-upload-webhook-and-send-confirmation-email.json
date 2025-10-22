@@ -1,0 +1,226 @@
+{
+  "createdAt": "2025-06-14T18:58:12.650Z",
+  "updatedAt": "2025-06-14T18:58:41.967Z",
+  "id": "DT5ZLnpwq9gs9VWI",
+  "name": "Draft: Document Upload Webhook and Send Confirmation Email",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "document-upload",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "9708be3d-1276-4c76-a145-460b48c0668b",
+      "name": "Document Upload Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        40
+      ],
+      "webhookId": "3e9ec144-c363-4763-89d3-2c5868a7a3d5"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "employee_id",
+              "value": "={{ $json.employee_id }}"
+            },
+            {
+              "name": "document_type",
+              "value": "={{ $json.document_type }}"
+            },
+            {
+              "name": "file_name",
+              "value": "={{ $json.file_name }}"
+            },
+            {
+              "name": "upload_timestamp",
+              "value": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8be0474-8ecb-4ee4-ac68-ffe928877354",
+      "name": "Extract Document Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.document_type }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.employee_id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "0f18898c-ff3a-4ac8-84d3-cf22e1dc6991",
+      "name": "Validate Document",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        80,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "d24c2a62-c4fa-4373-8ed1-f9b8e04c02a4",
+      "name": "Save to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        300,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": "life-stages-compliance-tracker",
+        "sheetName": "Document_Status",
+        "options": {}
+      },
+      "id": "e4fbad66-d11b-437e-af55-f08dbf4e8dae",
+      "name": "Update Compliance Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        520,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hr@lifestagesinc.com",
+        "toEmail": "={{ $json.employee_email }}",
+        "subject": "Document Received - {{ $json.document_type }}",
+        "options": {}
+      },
+      "id": "825e0ac6-8bf7-45a2-8d37-f0b662aac456",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        740,
+        40
+      ],
+      "webhookId": "d1d92cbb-a5cb-424b-9905-226cb0f4ea60"
+    }
+  ],
+  "connections": {
+    "Document Upload Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Document Data": {
+      "main": [
+        [
+          {
+            "node": "Validate Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Document": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Update Compliance Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Compliance Tracker": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "5f6e1a4a-71f6-4996-bed8-c14bcf81cff2",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-14T18:58:12.650Z",
+      "updatedAt": "2025-06-14T18:58:12.650Z",
+      "role": "workflow:owner",
+      "workflowId": "DT5ZLnpwq9gs9VWI",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

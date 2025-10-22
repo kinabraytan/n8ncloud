@@ -1,0 +1,663 @@
+{
+  "createdAt": "2025-03-27T04:46:14.131Z",
+  "updatedAt": "2025-03-27T06:29:40.621Z",
+  "id": "XN96ynWaMZmfuKbp",
+  "name": "Json Sanitation",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "dc2dd84e-4d4b-4390-9741-9718b8920a7e",
+      "name": "On new manual Chat Message",
+      "type": "@n8n/n8n-nodes-langchain.manualChatTrigger",
+      "position": [
+        -3740,
+        1080
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4-1106-preview",
+        "options": {
+          "frequencyPenalty": 0.3,
+          "temperature": 0.7,
+          "timeout": 300000
+        }
+      },
+      "id": "0f1652e9-eee3-4e13-82c6-b4e472dbfc81",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -3680,
+        1280
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ encodeURI($json.query.url) }}",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "1bb56e92-cc66-45e6-8b5e-132a82d0da3f",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3140,
+        1600
+      ],
+      "typeVersion": 4.1,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "HTML",
+              "stringValue": "={{ $json?.data.match(/<body[^>]*>([\\s\\S]*?)<\\/body>/i)[1] }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "includeFields": "HTML",
+        "options": {}
+      },
+      "id": "b9ea9eb7-60b5-45f6-b2e4-a5b39eba6cb9",
+      "name": "Exctract HTML Body",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2720,
+        1880
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasOwnProperty('error') }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "f7f717b9-771a-4d99-a355-51572ae5c22a",
+      "name": "Is error?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2940,
+        1600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "page_content",
+              "stringValue": "={{ $('QUERY_PARAMS').first()?.json?.query?.url == null ? \"INVALID action_input. This should be an HTTP query string like this: \\\"?url=VALIDURL&method=SELECTEDMETHOD\\\". Only a simple string value is accepted. JSON object as an action_input is NOT supported!\" : JSON.stringify($json.error) }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "includeFields": "HTML",
+        "options": {}
+      },
+      "id": "1244b1a5-f7f2-4e2e-b6b2-c340ac331952",
+      "name": "Stringify error message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2720,
+        1380
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {},
+      "id": "127970e4-8a13-4863-9875-f0ca91f2b92a",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -3740,
+        1600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "HTML",
+              "stringValue": "={{ ($json.HTML || \"HTML BODY CONTENT FOR THIS SEARCH RESULT IS NOT AVAILABLE\").replace(/<script[^>]*>([\\s\\S]*?)<\\/script>|<style[^>]*>([\\s\\S]*?)<\\/style>|<noscript[^>]*>([\\s\\S]*?)<\\/noscript>|<!--[\\s\\S]*?-->|<iframe[^>]*>([\\s\\S]*?)<\\/iframe>|<object[^>]*>([\\s\\S]*?)<\\/object>|<embed[^>]*>([\\s\\S]*?)<\\/embed>|<video[^>]*>([\\s\\S]*?)<\\/video>|<audio[^>]*>([\\s\\S]*?)<\\/audio>|<svg[^>]*>([\\s\\S]*?)<\\/svg>/ig, '')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7591188-3d10-4631-a91d-6c13cb0d5fc8",
+      "name": "Remove extra tags",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2520,
+        1880
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "HTML",
+              "stringValue": "={{ $json.HTML.replace(/href\\s*=\\s*\"(.+?)\"/gi, 'href=\"NOURL\"').replace(/src\\s*=\\s*\"(.+?)\"/gi, 'src=\"NOIMG\"')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1bcf247f-f2d8-4753-9ed7-e0c706af93d2",
+      "name": "Simplify output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2140,
+        1780
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.2,
+      "notes": "remove links and image URLs"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('CONFIG').first()?.json?.query?.method }}",
+              "operation": "contains",
+              "value2": "simplif"
+            }
+          ]
+        }
+      },
+      "id": "497e31f2-6e1b-4ad1-b3a2-99762dc99519",
+      "name": "Simplify?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2320,
+        1880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "query",
+              "type": "objectValue",
+              "objectValue": "={{ $json.query.substring($json.query.indexOf('?') + 1).split('&').reduce((result, item) => (result[item.split('=')[0]] = decodeURIComponent(item.split('=')[1]), result), {}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "faefdff5-4e08-4455-944c-debd0322a394",
+      "name": "QUERY_PARAMS",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3540,
+        1600
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "query.maxlimit",
+              "type": "numberValue",
+              "numberValue": "={{ $json?.query?.maxlimit == null ? 70000 : Number($json?.query?.maxlimit) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6acbb64-3ce1-42cd-af7b-625ba426e37a",
+      "name": "CONFIG",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3340,
+        1600
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "content": "### Convert the query string into JSON, apply the limit for a page length",
+        "height": 235.79999999999995,
+        "width": 556.25
+      },
+      "id": "c3b9979f-6ba0-4be4-ad85-b6ccaa679909",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3780,
+        1540
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Send an error message:\n1. If query param was incorrect, return the instruction. AI Agent should pick up on this and adapt the query on the next iteration.\n2. If the query is OK and an error was during the HTTP Request, then send back the original error message.",
+        "height": 285.7,
+        "width": 491
+      },
+      "id": "4ed1519b-f7e0-40be-a118-f9ef6c509f8e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2780,
+        1240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Post-processing of the HTML page:\n1. Keep only <BODY> content\n2. Remove inline <SCRIPT> tag entirely, as well as: NOSCRIPT, IFRAME, OBJECT, EMBED, VIDEO, AUDIO, SVG, and HTML comments.\n3. In case query parameter method=simplified, replace all page URLs (a href) and IMG (src) with NOURL / NOIMG - this may save up to 20% of the page length\n4. Convert the remaining HTML to Markdown. This step further reduces the length of the page: long HTML tags and styles are eliminated, but the markdown syntax keeps some page structure. This gives much better results compared to just a blank text.\n5. Finally, check the page length. If it's too long, send an \"ERROR: PAGE CONTENT TOO LONG\" instead of the actual page. Of course, you could split the page content in chunks, but sometimes long pages just don't have a needed content, so it makes little sense to burn tokens on them.",
+        "height": 472.5,
+        "width": 1200
+      },
+      "id": "e88193c0-59b4-493c-ba64-2387bc3f1bb9",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2780,
+        1560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Example ReAct AI Agent\n1. Agent Prompt is default\n2. Check the description of the HTTP_Request_Tool, it guides the agent to provide a query string with several parameters instead of a JSON object",
+        "height": 483.0226244343891,
+        "width": 616.8597285067872
+      },
+      "id": "770c70cd-b8d1-4216-8f23-fcc567211f0b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3780,
+        940
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "agent": "reActAgent",
+        "options": {
+          "humanMessageTemplate": "{input}\n\n{agent_scratchpad}",
+          "prefix": "Answer the following questions as best you can. You have access to the following tools:",
+          "suffixChat": "Begin! Reminder to always use the exact characters `Final Answer` when responding.",
+          "suffix": "Begin!\n\n\tQuestion: {input}\n\tThought:{agent_scratchpad}"
+        }
+      },
+      "id": "18463235-a18b-4827-b6a0-cde2e1b8e8c1",
+      "name": "ReAct AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -3520,
+        1080
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.HTML }}",
+        "destinationKey": "page_content",
+        "options": {}
+      },
+      "id": "0e8c1b51-d270-4faf-84f6-d93b475e2a97",
+      "name": "Convert to Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        -1960,
+        1880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "page_content",
+              "stringValue": "={{ $json.page_content.length < $('CONFIG').first()?.json?.query?.maxlimit ? $json.page_content : \"ERROR: PAGE CONTENT TOO LONG\" }}"
+            },
+            {
+              "name": "page_length",
+              "type": "numberValue",
+              "numberValue": "={{ $json.page_content.length }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "options": {}
+      },
+      "id": "b367f309-13e2-4935-a886-1b9fa4c80306",
+      "name": "Send Page Content",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1760,
+        1880
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "name": "HTTP_Request_Tool",
+        "description": "Call this tool to fetch a webpage content. The input should be a stringified HTTP query parameter like this: \"?url=VALIDURL&method=SELECTEDMETHOD\". \"url\" parameter should contain the valid URL string. \"method\" key can be either \"full\" or \"simplified\". method=full will fetch the whole webpage content in the Markdown format, including page links and image links. method=simplified will return the Markdown content of the page but remove urls and image links from the page content for simplicity. Before calling this tool, think strategically which \"method\" to call. Best of all to use method=simplified. However, if you anticipate that the page request is not final or if you need to extract links from the page, pick method=full.",
+        "workflowId": "={{ $workflow.id }}",
+        "responsePropertyName": "page_content"
+      },
+      "id": "e15a16b1-e083-415d-9a0c-76ebf0ebe1cc",
+      "name": "HTTP_Request_Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -3460,
+        1300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "3fded504-2f70-4f7b-afbc-826ff89ce655",
+      "name": "ScrapeNinja",
+      "type": "CUSTOM.scrapeNinja",
+      "position": [
+        780,
+        2140
+      ],
+      "typeVersion": 1,
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-exp-1206",
+        "options": {}
+      },
+      "id": "47489399-a32d-4210-9f94-4a3e15eeac3c",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1260,
+        2420
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "d7c6450c-d80f-4441-bb69-47a118876d1f",
+      "name": "Generate custom web scraper",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        580,
+        2140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "939941bb-9a60-4df5-b5d9-7ba9a736e166",
+      "name": "Cleanup HTML",
+      "type": "CUSTOM.scrapeNinja",
+      "position": [
+        1000,
+        2140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=write cheerio.js function to news items. your response MUST start with:\n\nfunction extract(html, cheerioInstance) {\n// use cheerio to load html...\n\nreturn [{ url: \"item1\", \"title\": \"xxx\", \"score\": \"5\", comments: 6 }, ... ]\n}\ndo not use new URL() because this wont work in my env.\nhtml:\n{{ $json.html }}"
+      },
+      "id": "1dd3e6fd-c4df-4ea3-a574-f42463729789",
+      "name": "Generate JS eval code via LLM",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1220,
+        2140
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {},
+      "id": "d5669f3f-1949-47e8-9b46-205191984a96",
+      "name": "Eval generated code to extract data",
+      "type": "CUSTOM.scrapeNinja",
+      "position": [
+        1580,
+        2140
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "CONFIG": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is error?": {
+      "main": [
+        [
+          {
+            "node": "Stringify error message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exctract HTML Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify?": {
+      "main": [
+        [
+          {
+            "node": "Simplify output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Is error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QUERY_PARAMS": {
+      "main": [
+        [
+          {
+            "node": "CONFIG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify output": {
+      "main": [
+        [
+          {
+            "node": "Convert to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP_Request_Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "ReAct AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ReAct AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove extra tags": {
+      "main": [
+        [
+          {
+            "node": "Simplify?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exctract HTML Body": {
+      "main": [
+        [
+          {
+            "node": "Remove extra tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Markdown": {
+      "main": [
+        [
+          {
+            "node": "Send Page Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "QUERY_PARAMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On new manual Chat Message": {
+      "main": [
+        [
+          {
+            "node": "ReAct AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate JS eval code via LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "06746aa5-3bff-4362-b97f-3822197a6f7c",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-27T04:46:14.131Z",
+      "updatedAt": "2025-03-27T04:46:14.131Z",
+      "role": "workflow:owner",
+      "workflowId": "XN96ynWaMZmfuKbp",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

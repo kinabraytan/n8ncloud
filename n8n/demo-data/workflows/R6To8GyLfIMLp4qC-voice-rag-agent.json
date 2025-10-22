@@ -1,0 +1,297 @@
+{
+  "createdAt": "2025-03-17T18:06:52.938Z",
+  "updatedAt": "2025-03-19T22:42:52.130Z",
+  "id": "R6To8GyLfIMLp4qC",
+  "name": "Voice RAG Agent",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "50d7e2a8-47e0-4a0c-8fca-5a3f85ec92a7",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        160,
+        180
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5a87c855-c4bd-4c82-8cf7-4a67f117d321",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        500,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d81062d5-729b-42a8-ac35-75326e4e12df",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3f2bcc5b-f17b-4bd7-bbb2-51c199dd03fa",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "name": "projects",
+        "description": "Retrieves information about our projects"
+      },
+      "id": "a81544d1-b0af-46e5-856f-8de70c3b5fc8",
+      "name": "projects",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        560,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.question }}",
+        "options": {}
+      },
+      "id": "0d6cbd61-f796-4251-9de8-499c579c78e7",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        180,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "49722672-55e9-4d87-895f-ba9b1d540315",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "30275450-4678-4f15-a3ec-c089eb940636",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "49722672-55e9-4d87-895f-ba9b1d540315"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sample",
+          "mode": "list",
+          "cachedResultName": "sample"
+        },
+        "options": {
+          "pineconeNamespace": "projects"
+        }
+      },
+      "id": "8a1de3e4-01da-476c-b710-3922d8d83653",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        100,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -120,
+        -140
+      ],
+      "id": "db0c782b-877b-45b7-8b7d-b4e5c3b97408",
+      "name": "When chat message received",
+      "webhookId": "a7b15be0-97e5-4422-aa52-651a7e74967c"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -280,
+        380
+      ],
+      "id": "793c0e72-39ba-4dd2-b4d9-26ae93c0f9ca",
+      "name": "Gmail",
+      "webhookId": "07fe1499-2143-490b-b9c9-fcd727539d8b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zp9caBloX9fEF0DV",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "projects",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "projects": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "projects",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "44fe75e9-1f0a-46fa-81a0-f55eadb957a7",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-17T18:06:52.938Z",
+      "updatedAt": "2025-03-17T18:06:52.938Z",
+      "role": "workflow:owner",
+      "workflowId": "R6To8GyLfIMLp4qC",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

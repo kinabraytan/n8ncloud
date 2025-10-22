@@ -1,0 +1,118 @@
+{
+  "createdAt": "2025-06-11T15:08:40.625Z",
+  "updatedAt": "2025-06-14T13:59:35.219Z",
+  "id": "V8KQ2PDcYM9k5whH",
+  "name": "Forward Twilio SMS to Google Chat",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "22dad586-52cf-4a13-9854-b41df435eba7",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        -80
+      ],
+      "id": "6e4141c7-1d14-480d-b482-292f3099e124",
+      "name": "Webhook",
+      "webhookId": "22dad586-52cf-4a13-9854-b41df435eba7"
+    },
+    {
+      "parameters": {
+        "from": "+15402344999",
+        "to": "+639083546606",
+        "toWhatsapp": true,
+        "message": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -160
+      ],
+      "id": "c593be40-7e1c-4a19-a4c8-36d448fa79d7",
+      "name": "Twilio",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "spaceId": "spaces/AAAAmHx01uc",
+        "messageUi": {
+          "text": "={{ $json }}"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleChat",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "f63b0427-c7d0-4cac-8dfc-634519b05ec7",
+      "name": "Google Chat",
+      "webhookId": "ef273f98-640f-475e-a6c7-653b2fe43648",
+      "credentials": {
+        "googleChatOAuth2Api": {
+          "id": "bjkHgKY5mxD4IAVA",
+          "name": "Chat account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "502c5057-a249-4e0e-9714-2fcd213b9c87",
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-11T15:08:40.625Z",
+      "updatedAt": "2025-06-11T15:08:40.625Z",
+      "role": "workflow:owner",
+      "workflowId": "V8KQ2PDcYM9k5whH",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

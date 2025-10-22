@@ -1,0 +1,823 @@
+{
+  "createdAt": "2025-03-12T12:30:00.641Z",
+  "updatedAt": "2025-03-13T17:45:05.632Z",
+  "id": "5zfELJ5mHLV8s1qw",
+  "name": "AI-Powered Social Media Content Generator & Publisher",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "\ud83d\udcf1\ud83e\udd16 Syncbricks -  Social Media Content AI Agent",
+        "formDescription": "=This is syncbricks AI-driven assistant designed to simplify and accelerate your social media content creation process. This intelligent agent generates engaging and platform-optimized post descriptions based on your inputs, such as a brief topic or title and an uploaded image. Whether you're a marketer, business owner, or influencer, the AI streamlines content creation, saving time and ensuring professional-quality posts tailored to your audience.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Post Title/Topic",
+              "placeholder": "Write a brief and clear title or main topic for the post (e.g., \"New Product Launch,\" \"Exciting Company Update\"). This will help the AI understand the core subject of your post.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Optional (Keywords or Hashtags)",
+              "placeholder": "Add any specific keywords or hashtags you want the AI to include in the post. This will ensure the generated content aligns with your branding or campaign needs."
+            },
+            {
+              "fieldLabel": "Optional Link",
+              "placeholder": "http:// link of any product, service, formt, support etc"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "buttonLabel": "Continue to Image Upload"
+        }
+      },
+      "id": "8034d082-f50e-4f6b-8a79-ce7f86012d72",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        1540,
+        340
+      ],
+      "webhookId": "syncbricks-social-posting-ai-agent",
+      "typeVersion": 2.2,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "pAvXOYlFwibhvyTh",
+          "name": "user1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content creation AI for Syncbricks, a leading IT-focused platform that delivers insightful articles, tech news, and industry trends in Enterprise IT, Open Source, Software, Hardware, Cloud Computing, Cybersecurity, and Emerging Technologies.\n\nYour goal is to craft engaging and informative content for LinkedIn, Instagram, Facebook, Twitter (X), and YouTube, ensuring that each post aligns with the platform's audience, tone, and style. The content should reflect Syncbricks\u2019 expertise in IT, providing value-driven insights, tutorials, reviews, and discussions that resonate with tech professionals, enthusiasts, and businesses.\n\nEach post should be optimized for engagement, using platform-specific hashtags to enhance reach and SEO. Maintain a professional yet approachable tone that fosters trust and authority in the tech space.\n\nGeneral Tech Hashtags: #Syncbricks #TechNews #CloudComputing #Cybersecurity #AI #ITSolutions #TechTrends #Innovation #EnterpriseIT #OpenSource #FutureOfTech\n\nBest Practices for Syncbricks' Content Creation:\nPost Optimization: Adjust content format, style, and hashtags to suit each social media platform\u2019s algorithm and audience engagement patterns.\nSEO & Hashtags: Use a balanced mix of general tech hashtags and platform-specific trending hashtags to maximize reach.\nEngagement-Driven Content: Focus on tech tutorials, IT industry updates, comparisons, reviews, and insightful discussions that spark engagement.\nConsistency: Maintain a consistent tone and visual identity across all platforms while tailoring content for each audience type.\nData-Backed Trends: Regularly analyze post-performance and adapt hashtag strategy to reflect trending discussions in Enterprise IT and Tech Innovation.\n\ud83d\ude80 Syncbricks' content should establish itself as a thought leader in the IT space by providing high-quality, relevant, and engaging posts that attract professionals, businesses, and tech enthusiasts.\n\n### Platform-Specific Requirements:\n1. **LinkedIn**:\n   - Style: Professional and informative.\n   - Tone: Focus on business achievements, employee gratitude, and community impact.\n   - Content Length: 3-4 sentences, detailed and insightful.\n   - Hashtags : #Innovation #Technology #DigitalMarketing #Management #Startups #Futurism #Creativity #Marketing #SocialMedia #SocialNetworking\n   - Call to Action: Engage businesses and professionals by encouraging comments or visits to Al Ansari\u2019s website.\n\n2. **Instagram**:\n   - Style: Visual storytelling.\n   - Tone: Inspirational and engaging.\n   - Content Length: 2-3 sentences, paired with creative captions and emojis.\n   - Visuals: Highlight events, gifts, and milestones (e.g., 50th-anniversary keychains, eco-friendly tote bags).\n   - Call to Action: Use phrases like \"Swipe to see more,\" \"Tag your colleagues,\" or \"Celebrate with us!\"\n - hashtags : #Tech #Innovation #TechLife #Gadgets #TechAddict #TechNews #Programming #Engineering #Science #Software\n- Link : If the link is provided add the link before the hashtags otherwise add visit our website : https://syncbricks.com\n\n3. **Facebook**:\n   - Style: Friendly and relatable.\n   - Tone: Community-focused, sharing employee stories, achievements, or event updates.\n   - Content Length: 2-3 sentences, slightly casual but still reflective of the company\u2019s values.\n   - hashtags: #SmallBusiness #Entrepreneur #DigitalMarketing #SocialMedia #Leadership #Startup #BusinessTips #Innovation #Technology #Marketing\n   - Call to Action: Encourage likes, shares, and comments from families and communities connected to Al Ansari\n\n4. **Twitter (X)**:\n   - Style: Concise and impactful.\n   - Tone: Crisp, engaging, and attention-grabbing.\n   - Content Length: 150 characters or less, including hashtags.\n  - Hashtags : #Tech #Innovation #AI #Cybersecurity #CloudComputing #BigData #IoT #MachineLearning #DataScience #TechTrends\n   - Call to Action: Focus on quick engagement through retweets, likes, and replies.\n\n\nWith this guidance, generate posts for all platforms for below given inputs;\n\n#### Event Highlight:\n- Topic / about the post:{{ $json['Post Title/Topic'] }}\n- some keywords: {{ $json.formMode }}\n- Visit Link :  : {{ $('On form submission').item.json['Optional Link'] }}\n\nNote that if visit link is blank then provide the link https://alansariglobal.com\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "e38a74d5-a733-4f5c-a97b-2c761b46919b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1800,
+        840
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-pro-latest",
+        "options": {}
+      },
+      "id": "ca0a8aef-0251-45ed-bc9b-05ee977febf9",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1600,
+        1100
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"event_name\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"event_description\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"platform_posts\": {\n\t\t\t\"type\": \"object\",\n\t\t\t\"properties\": {\n\t\t\t\t\"LinkedIn\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Instagram\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"caption\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"emojis\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Facebook\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Twitter\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"character_limit\": {\n\t\t\t\t\t\t\t\"type\": \"integer\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t\"additional_notes\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}\n"
+      },
+      "id": "31e88059-94ca-4d4e-a673-e0f8cd1ac96e",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1920,
+        1100
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "include": "selected",
+        "includeFields": "output.platform_posts.LinkedIn.post",
+        "options": {}
+      },
+      "id": "ffda1c79-faa4-4cc8-8655-6f7fc14b7e2d",
+      "name": "Split Form Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1880,
+        340
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "image",
+              "fieldType": "file",
+              "acceptFileTypes": ".jpg",
+              "requiredField": "={{ true }}"
+            }
+          ]
+        },
+        "options": {
+          "formTitle": "Review the Text",
+          "formDescription": "=Please review the text, I will be Publishing this on Social Media, note that to generate the text I am using tokents.\nNote below Text : \n\nLinkedin : \n{{ $json.data[0].output.platform_posts.LinkedIn.post }}\n\nFacebook : \n{{ $json.data[0].output.platform_posts.Facebook.post }}\n\nTwitter : \n{{ $json.data[0].output.platform_posts.Twitter.post }}",
+          "buttonLabel": "Proceed to Next Step"
+        }
+      },
+      "id": "37e443e1-6925-44a1-a07e-9eb1120e55a9",
+      "name": "Upload Image",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        940,
+        1480
+      ],
+      "webhookId": "0dc811ef-b2e0-4213-a0c9-e9b5fb9fcbf1",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "include": "selected",
+        "includeFields": "output.platform_posts.LinkedIn.post",
+        "options": {}
+      },
+      "id": "265068ce-22fc-4c41-9ed2-93eadc0ce25f",
+      "name": "Split Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2180,
+        340
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d35062b-5f6d-44ba-bc52-54b0e841c31a",
+              "name": "Post Title/Topic",
+              "type": "string",
+              "value": "={{ $('On form submission').item.json['Post Title/Topic'] }}"
+            },
+            {
+              "id": "400ed7a9-d839-4fe7-b8a0-deb7d89e264a",
+              "name": "formMode",
+              "type": "string",
+              "value": "={{ $('On form submission').item.json.formMode }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8470879-413e-4901-bf39-23a19beaee5f",
+      "name": "Data for AI",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2500,
+        340
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "eef02dcb-7c7f-4d6c-a1fd-039c8b30f10d",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2300,
+        1080
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Thanks",
+        "completionMessage": "=Your post has successfully been submitted LinkeedIn, X and Facbeook.\n\nHere is Link : \n\nhttps://x.com/syncbricks/status/{{ $('X').item.json.id }}\nhttps://facebook.com/{{ $('Publish to Facebook').item.json.post_id }}\nhttps://www.linkedin.com/feed/update/{{ $('Publish to LinkedIn').item.json.urn }}\nhttps://instagram.com/syncbricks_com\n\nThanks \n\nAI Agent\nSyncbricks",
+        "options": {
+          "formTitle": "Al Ansari AI Agent (Job Done)"
+        }
+      },
+      "id": "097e7724-4dc0-4cc9-b12c-2dbdae4e024f",
+      "name": "Form",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2440,
+        2280
+      ],
+      "webhookId": "e84b9492-038c-4701-a367-c68237ddebf6",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2fb3fd91-c13d-45ce-a7ec-612319a008fc",
+              "name": "metaTop",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {
+          "includeBinary": true
+        }
+      },
+      "id": "7b1d64fc-02ad-4b8f-ad1e-be8894abd932",
+      "name": "Nest Top Meta",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1560,
+        1480
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "$input.item.binary.top = $input.item.binary.data;\ndelete $input.item.binary.data;\nreturn $input.item;"
+      },
+      "id": "11ddcfe8-1978-4f5a-8c29-67e72920431a",
+      "name": "Rename Image Binary Top Image",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        2280
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v20.0",
+        "node": "110638833706072",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "image",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('Aggregate').item.json.data[0].output.platform_posts.Facebook.post }}\n\n{{ $('Aggregate').item.json.data[0].output.platform_posts.Facebook.call_to_action }}\n"
+              },
+              {
+                "name": "link",
+                "value": "={{ $('Aggregate').item.json.data[0].output.platform_posts.Facebook.call_to_action }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "19892590-5ddf-47ac-b544-7a72a68bd45e",
+      "name": "Publish to Facebook",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1060,
+        2400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "30253904",
+        "text": "={{ $('AI Agent').item.json.output.platform_posts.LinkedIn.post }}\n{{ $('Aggregate').item.json.data[0].output.platform_posts.LinkedIn.call_to_action }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "=image",
+        "additionalFields": {
+          "title": ""
+        }
+      },
+      "id": "b3b0068b-c75a-427c-bb2d-77b21bc6ff16",
+      "name": "Publish to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        1040,
+        2160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Get the Data for Social Media Post using the Web Form \n",
+        "height": 400,
+        "width": 1220
+      },
+      "id": "ed5fe0c2-a07a-45f1-90cb-65f21d416a1a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Aggregate').item.json.data[0].output.platform_posts.Twitter.post }}\n",
+        "additionalFields": {}
+      },
+      "id": "c4a2e59d-165a-49cc-8074-9868ee4e0d6c",
+      "name": "X",
+      "type": "n8n-nodes-base.twitter",
+      "position": [
+        1060,
+        1920
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "# AI Agent will do its Job to generate relevant Posts for Socail Media\n",
+        "height": 580,
+        "width": 1200,
+        "color": 6
+      },
+      "id": "66ba98a9-24c0-4128-9ad9-792a0d400aae",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        660
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Get Impage to Be Publshed\n",
+        "height": 500,
+        "width": 2340,
+        "color": 5
+      },
+      "id": "02fafdc7-0272-4f34-9b66-dfbe8e16e70d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        1280
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Publish on Social Media\n",
+        "height": 1160,
+        "width": 1840
+      },
+      "id": "21d945c3-446c-4bb9-8696-a70034801485",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        1800
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Confirmation that post is Published\n",
+        "height": 1140,
+        "width": 500,
+        "color": 4
+      },
+      "id": "c9efdc38-94c6-494e-a932-45b75312bb54",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        1800
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3dfdc22a-5f69-4d5e-9fc0-f637695c46f9",
+              "name": "edit_history_tweet_ids",
+              "type": "array",
+              "value": "={{ $json.edit_history_tweet_ids }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "93632f4f-9182-4b76-bbe0-e6d5dd230452",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1420,
+        1920
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v20.0/17841472318439506/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $json.data.url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('AI Agent').item.json.output.platform_posts.Instagram.caption }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89f22cf8-9499-4b7f-872d-97099c5d1e50",
+      "name": "Image for Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1360,
+        2600
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v20.0",
+        "node": "17841472318439506",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('AI Agent').item.json.output.platform_posts.Instagram.caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "c415eeb9-f916-4c08-afb1-baed3f3280cc",
+      "name": "Publish to Instagram",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1680,
+        2600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "id": "1c8f6ba6-c28b-45a8-ba0d-3f2f21ccbfa0",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2000,
+        2260
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload?expiration=600&key=your-api-key",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d9cfdcd1-18db-4d0d-9b6a-66897600e496",
+      "name": "Upload Image to imgbb.com",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1060,
+        2600
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "## Developed by Amjid Ali\n\nThank you for using this workflow template. It has taken me countless hours of hard work, research, and dedication to develop, and I sincerely hope it adds value to your work.\n\nIf you find this template helpful, I kindly ask you to consider supporting my efforts. Your support will help me continue improving and creating more valuable resources.\n\nYou can contribute via PayPal here:\n\nhttp://paypal.me/pmptraining\n\nFor Full Course about ERPNext or Automation using AI follow below link\n\nhttp://lms.syncbricks.com\n\nAdditionally, when sharing this template, I would greatly appreciate it if you include my original information to ensure proper credit is given.\n\nThank you for your generosity and support!\nEmail : amjid@amjidali.com\nhttps://linkedin.com/in/amjidali\nhttps://syncbricks.com\nhttps://youtube.com/@syncbricks",
+        "height": 1016,
+        "width": 1075,
+        "color": 4
+      },
+      "id": "f7e5b1b1-aeaa-4851-be04-53e8255fa343",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        240
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "X": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Upload Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Data": {
+      "main": [
+        [
+          {
+            "node": "Data for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data for AI": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image": {
+      "main": [
+        [
+          {
+            "node": "Nest Top Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nest Top Meta": {
+      "main": [
+        [
+          {
+            "node": "Rename Image Binary Top Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Form Input": {
+      "main": [
+        [
+          {
+            "node": "Split Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Split Form Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image for Instagram": {
+      "main": [
+        [
+          {
+            "node": "Publish to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to Facebook": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Publish to LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Publish to Instagram": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to imgbb.com": {
+      "main": [
+        [
+          {
+            "node": "Image for Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Image Binary Top Image": {
+      "main": [
+        [
+          {
+            "node": "X",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Publish to LinkedIn",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Publish to Facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload Image to imgbb.com",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "2950"
+  },
+  "pinData": {
+    "Publish to LinkedIn": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "versionId": "937b6b7b-9354-4c5d-b93d-5774363d2c64",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-12T12:30:00.641Z",
+      "updatedAt": "2025-03-12T12:30:00.641Z",
+      "role": "workflow:owner",
+      "workflowId": "5zfELJ5mHLV8s1qw",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,937 @@
+{
+  "createdAt": "2025-07-04T00:57:15.937Z",
+  "updatedAt": "2025-07-24T02:16:56.594Z",
+  "id": "vEF8w4yME43b9Jfc",
+  "name": "Gdrive Processing 2",
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        20
+      ],
+      "id": "ad66be84-b4a9-4aa2-b426-03565eba6457",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/u/0/folders/13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "url"
+        },
+        "event": "folderUpdated"
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        220
+      ],
+      "id": "fd6bd39f-ac20-4298-b2da-f0c6dbcf1e93",
+      "name": "Google Drive Folder Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-document-upload",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        480
+      ],
+      "id": "3df8cbb9-ac27-44da-8f52-b2eb53d62e5e",
+      "name": "Document Upload Webhook",
+      "webhookId": "document-upload-webhook"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        140,
+        120
+      ],
+      "id": "c26647a3-3a29-4a9b-8f50-8738f0042ede",
+      "name": "Merge Triggers"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        360,
+        120
+      ],
+      "id": "15408c5f-8a26-4245-878f-bfce747ce209",
+      "name": "Normalize Trigger Data"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        580,
+        120
+      ],
+      "id": "d1bbff96-7a3f-4c88-a251-b1512d8aca07",
+      "name": "Process Files Loop"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "needs-download",
+              "leftValue": "={{ $json.needsDownload }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -5
+      ],
+      "id": "8c75593b-cf1b-4409-9d70-4aed5147fca5",
+      "name": "Check if Needs Download"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileId }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1020,
+        -80
+      ],
+      "id": "2c03954d-24f0-4d5d-9549-63795a208c1b",
+      "name": "Download File Content",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        -80
+      ],
+      "id": "0113fe45-e244-4e73-8f13-e2d8e3b6266a",
+      "name": "Merge Downloaded Content"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        -5
+      ],
+      "id": "0ba2e8bd-503e-4a05-bffa-657a234faae3",
+      "name": "Merge Processed Data"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Document to analyze:\nFilename: {{ $('Merge Processed Data').first().json.filename }}\nContent: {{ $('Merge Processed Data').first().json.content }}\nTrigger Source: {{ $('Merge Processed Data').first().json.triggerSource }}",
+        "options": {
+          "systemMessage": "You are an intelligent document processing assistant. Your job is to analyze documents and provide structured responses for automated file organization.\n\nFor each document, analyze the content and provide a JSON response with the following structure:\n{\n  \"documentType\": \"string (e.g., 'invoice', 'contract', 'report', 'receipt', 'letter')\",\n  \"suggestedFilename\": \"string (descriptive filename without extension)\",\n  \"category\": \"string (main category like 'Finance', 'Legal', 'HR', 'Marketing')\",\n  \"subcategory\": \"string (subcategory like 'Invoices', 'Contracts', 'Reports')\",\n  \"priority\": \"string ('high', 'medium', 'low')\",\n  \"extractedInfo\": {\n    \"date\": \"string (if found, format YYYY-MM-DD)\",\n    \"amount\": \"string (if monetary value found)\",\n    \"vendor\": \"string (if vendor/company name found)\",\n    \"reference\": \"string (if reference number found)\"\n  },\n  \"suggestedFolder\": \"string (full folder path like '/Documents/Finance/Invoices')\",\n  \"reasoning\": \"string (brief explanation of your analysis)\"\n}\n\nAnalyze the document content carefully and provide intelligent suggestions based on:\n- Document content and structure\n- Keywords and patterns\n- Business context\n- Standard file organization practices\n\nBe specific and practical in your suggestions. If uncertain about any field, use your best judgment based on available information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        -5
+      ],
+      "id": "9e7c95b1-370e-4fa2-8472-517126d29b19",
+      "name": "AI Document Analyzer"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "maxTokens": 1000,
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1768,
+        215
+      ],
+      "id": "dde9002f-3da2-4f99-b424-5d420477da9a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2056,
+        -5
+      ],
+      "id": "f1f7bd2c-5518-4603-a6f4-2e929d8db366",
+      "name": "Process AI Analysis"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2276,
+        -5
+      ],
+      "id": "eeefc510-e53d-4d76-82c4-add5f09109ac",
+      "name": "Prepare Folder Search"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "search"
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2496,
+        -5
+      ],
+      "id": "0ffb4d3d-3c61-4cf1-91f8-cf51b31ed059",
+      "name": "Find Target Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "folder-found",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2716,
+        -5
+      ],
+      "id": "1288e9e2-08ac-48d0-b521-4a5261e6b6bc",
+      "name": "Check if Folder Found"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{$('Prepare Folder Search').first().json.subcategory || $('Prepare Folder Search').first().json.category}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2936,
+        -80
+      ],
+      "id": "9efbf8c4-f108-4f86-9281-10f5ec93f27e",
+      "name": "Create Folder if Needed",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        3156,
+        -5
+      ],
+      "id": "84552d84-c45e-4420-9a01-a7fdf2debb6c",
+      "name": "Merge Folder Result"
+    },
+    {
+      "parameters": {
+        "name": "={{$('Prepare Folder Search').first().json.newName}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3376,
+        -5
+      ],
+      "id": "3ebb721d-f089-4167-828e-fa8134063118",
+      "name": "Upload Processed File",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrCreate",
+        "documentId": {
+          "__rl": true,
+          "value": "1MdHvEHm8qkF_xEz8csHKLQ8lhEs2keKnCBuuOdNezas",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MdHvEHm8qkF_xEz8csHKLQ8lhEs2keKnCBuuOdNezas/edit?usp=drivesdk"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        3596,
+        -5
+      ],
+      "id": "a1576dc4-677d-4202-85df-fb378177ef20",
+      "name": "Log Processing Results",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSs1ml1fZncktfP5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "loop-complete",
+              "leftValue": "={{ $('Process Files Loop').item.json.batchIndex }}",
+              "rightValue": "={{ $('Process Files Loop').item.json.batchCount - 1 }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3816,
+        120
+      ],
+      "id": "5bfe6092-73d0-4b21-8722-c3524c379854",
+      "name": "Check if Loop Complete"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        4036,
+        120
+      ],
+      "id": "820a89b4-061a-4056-96bd-46f8f2ed96cd",
+      "name": "Compile Final Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-webhook",
+              "leftValue": "={{ $json.triggerSource }}",
+              "rightValue": "webhook",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4256,
+        120
+      ],
+      "id": "e84abf45-9f7a-42db-98e3-ae21d185de1c",
+      "name": "Check Final Webhook Response"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        4476,
+        120
+      ],
+      "id": "14bac0ca-6eea-4505-a97b-e5e4001ab6f0",
+      "name": "Final Webhook Response"
+    },
+    {
+      "parameters": {
+        "content": "## Multiple Triggers\n\n**Manual Trigger:** For testing and manual processing\n\n**Google Drive Trigger:** Monitors a specific folder for new documents\n\n**Webhook Trigger:** Receives document upload requests via POST\n\n**Expected webhook payload:**\n- `filename`: Original filename\n- `content`: Document text content\n- `fileId`: (Optional) Google Drive file ID",
+        "height": 200,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -190,
+        -20
+      ],
+      "id": "2523efa9-cece-4893-b8df-ccfae6be95a6",
+      "name": "Triggers Note"
+    },
+    {
+      "parameters": {
+        "content": "## Data Normalization\n\nThis function handles data from different trigger sources:\n- Google Drive: File metadata + needs download\n- Webhook: Direct content + metadata\n- Manual: Sample data for testing\n\nOutputs normalized format for downstream processing.",
+        "height": 140,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        -60
+      ],
+      "id": "5c343439-0cb6-4ff3-84af-3ba705b469f5",
+      "name": "Normalize Note"
+    },
+    {
+      "parameters": {
+        "content": "## File Loop Processing\n\n\ud83d\udd04 **Batch Processing:**\n- Processes multiple files one at a time\n- Handles Google Drive folder uploads\n- Prevents overwhelm with large batches\n- Maintains individual file context\n- Loops back until all files processed\n- Provides final summary response",
+        "height": 140,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        440,
+        -60
+      ],
+      "id": "d1c79434-e645-44eb-ab8e-b85c4b618313",
+      "name": "Loop Processing Note"
+    },
+    {
+      "parameters": {
+        "content": "## AI Document Analyzer\n\n\ud83e\udd16 **Intelligent Analysis:**\n- Analyzes document content using AI\n- Determines document type automatically\n- Suggests intelligent filenames\n- Categorizes documents\n- Extracts key information (dates, amounts, vendors)\n- Provides reasoning for decisions\n\n**Configure OpenAI API credentials**",
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1668,
+        195
+      ],
+      "id": "eb57744b-55cd-4dd8-b243-ef3d75b4a155",
+      "name": "AI Analyzer Note"
+    },
+    {
+      "parameters": {
+        "content": "## Process AI Analysis\n\n\ud83e\udde0 **Smart Processing:**\n- Parses AI JSON response\n- Handles fallback if AI fails\n- Adds timestamps for priority docs\n- Preserves file extensions\n- Merges AI insights with file data\n- Prepares structured output",
+        "height": 140,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        -80
+      ],
+      "id": "ebb2c670-d1e9-4ed7-8cde-fa739d930a91",
+      "name": "Process AI Note"
+    },
+    {
+      "parameters": {
+        "content": "## Smart Folder Management\n\n\ud83d\udcc1 **Intelligent Organization:**\n- Uses AI-suggested folder paths\n- Multiple search strategies\n- Auto-creates folders if needed\n- Category-based organization\n- Handles folder not found scenarios",
+        "height": 120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        -80
+      ],
+      "id": "3b154a51-fe4c-4a7b-8973-95233d4e7b62",
+      "name": "Smart Folder Note"
+    },
+    {
+      "parameters": {
+        "content": "## Enhanced Upload & Logging\n\n\ud83d\udcca **Complete Tracking:**\n- Uploads with AI-generated names\n- Logs all processing details\n- Tracks AI analysis results\n- Records extracted information\n- Maintains audit trail\n- Timestamped entries",
+        "height": 140,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2980,
+        -80
+      ],
+      "id": "0f09b6cd-cf60-4d0a-bf33-81d44e634fff",
+      "name": "Enhanced Upload Note"
+    },
+    {
+      "parameters": {
+        "content": "## AI-Powered Response\n\n\ud83d\ude80 **Rich Information:**\nWebhook response now includes:\n- AI analysis reasoning\n- Extracted document info\n- Category & priority\n- Upload file ID\n- Processing timestamp\n- Complete audit trail",
+        "height": 120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3420,
+        -100
+      ],
+      "id": "349abd4d-577c-468c-89a1-c1c566bcaea0",
+      "name": "AI Response Note"
+    },
+    {
+      "parameters": {
+        "content": "## Conditional Download\n\nChecks if file content needs to be downloaded from Google Drive.\n\n**TRUE:** File from Google Drive trigger \u2192 Download content\n**FALSE:** Content already available \u2192 Skip download",
+        "height": 120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        -60
+      ],
+      "id": "f9a8b81a-94e1-4abf-9d30-eff8fdcee68b",
+      "name": "Conditional Note"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Folder Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Triggers": {
+      "main": [
+        [
+          {
+            "node": "Normalize Trigger Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Trigger Data": {
+      "main": [
+        [
+          {
+            "node": "Process Files Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Files Loop": {
+      "main": [
+        [
+          {
+            "node": "Check if Needs Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Needs Download": {
+      "main": [
+        [
+          {
+            "node": "Download File Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Processed Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Download File Content": {
+      "main": [
+        [
+          {
+            "node": "Merge Downloaded Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Downloaded Content": {
+      "main": [
+        [
+          {
+            "node": "Merge Processed Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Processed Data": {
+      "main": [
+        [
+          {
+            "node": "AI Document Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Document Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Process AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Document Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Prepare Folder Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Folder Search": {
+      "main": [
+        [
+          {
+            "node": "Find Target Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Target Folder": {
+      "main": [
+        [
+          {
+            "node": "Check if Folder Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Folder Found": {
+      "main": [
+        [
+          {
+            "node": "Merge Folder Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Folder if Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder if Needed": {
+      "main": [
+        [
+          {
+            "node": "Merge Folder Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Folder Result": {
+      "main": [
+        [
+          {
+            "node": "Upload Processed File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Processed File": {
+      "main": [
+        [
+          {
+            "node": "Log Processing Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Processing Results": {
+      "main": [
+        [
+          {
+            "node": "Check if Loop Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Loop Complete": {
+      "main": [
+        [
+          {
+            "node": "Compile Final Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Files Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compile Final Results": {
+      "main": [
+        [
+          {
+            "node": "Check Final Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Webhook Response": {
+      "main": [
+        [
+          {
+            "node": "Final Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Google Drive Folder Trigger": {
+      "lastTimeChecked": "2025-07-21T15:43:19Z"
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "versionId": "e634b894-36f8-48ed-87d8-ea549aeb2cbc",
+  "triggerCount": 2,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-07-04T00:57:15.937Z",
+      "updatedAt": "2025-07-04T00:57:15.937Z",
+      "role": "workflow:owner",
+      "workflowId": "vEF8w4yME43b9Jfc",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

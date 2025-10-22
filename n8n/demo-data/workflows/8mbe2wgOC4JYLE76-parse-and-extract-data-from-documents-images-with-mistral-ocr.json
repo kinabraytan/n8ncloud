@@ -1,0 +1,2820 @@
+{
+  "createdAt": "2025-07-24T07:24:03.508Z",
+  "updatedAt": "2025-07-24T11:22:53.515Z",
+  "id": "8mbe2wgOC4JYLE76",
+  "name": "Parse and Extract Data from Documents/Images with Mistral OCR",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c499b8cc-7cc8-411d-9c22-d46c7654e169",
+      "name": "Mistral Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1820,
+        660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "08cbe4b7-2adc-4ea0-8dfc-af107369b1dd",
+      "name": "When clicking \u2018Test workflow\u2019",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        580,
+        660
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "965f294a-5d77-4190-ad4f-ff191aba0948",
+      "name": "Mistral Signed URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2020,
+        660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "15BcE6nXto9lQDHPmwjm7y9JPerAVEutY"
+        },
+        "options": {}
+      },
+      "id": "7abfb1f8-f6c8-4fd0-a78e-9d4b97a4d6bc",
+      "name": "Import PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1600,
+        660
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1a2FcRDWHHncMO8CYxD80uNUBGH1Sy1k2"
+        },
+        "options": {}
+      },
+      "id": "8942c6bf-4d86-4a95-aa4a-c819008e2534",
+      "name": "Import Image",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1600,
+        880
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94a1c3ca-1ca7-4bb1-9e7c-8314742423ab",
+      "name": "Mistral Upload1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1820,
+        880
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9d075eec-ba0e-41e1-8bdc-a732bc0f9229",
+      "name": "Mistral Signed URL1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2020,
+        880
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"include_image_base64\": true\n}",
+        "options": {}
+      },
+      "id": "f623f066-fc70-40fa-b608-f28a75a8ac8c",
+      "name": "Mistral DOC OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2220,
+        660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"image_url\",\n    \"image_url\": \"{{ $json.url }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "15913796-e7c8-451a-8e7b-da7a3b10db02",
+      "name": "Mistral IMAGE OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2220,
+        880
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1eb5f18b-eb06-48df-8491-d60de75b4855",
+              "name": "url",
+              "type": "string",
+              "value": "=https://pub-d4aa9be14ae34d6ebcebe06f13af667b.r2.dev/multimodal_bank_statement_scan.pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a79524ff-84f0-46db-bb8e-afc18f1ddd40",
+      "name": "Document URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        660
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1eb5f18b-eb06-48df-8491-d60de75b4855",
+              "name": "url",
+              "type": "string",
+              "value": "=https://pub-d4aa9be14ae34d6ebcebe06f13af667b.r2.dev/multimodal_bank_statement_2.png"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "72b89f33-a67c-4f73-9a78-e8ccd02fbc98",
+      "name": "Image URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        880
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "### Example 1. Publicly Hosted Files\nThe default way to use Mistral OCR is to give it a public URL of the file you want processed. Great for your own semi-private docs or other people's. If you rather not expose files due to privacy concerns, then you'd want to check out example 2.",
+        "height": 580,
+        "width": 680,
+        "color": 7
+      },
+      "id": "808ccbb3-0dae-4e2c-9166-bf40c589824a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        520
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Example 2. Privately Hosted via Mistral Cloud\nGive Mistral OCR private and secure access to your files by uploading them to Mistral cloud first. Retrieve the file using a signed URL and pass this to Mistral OCR. Benefit of storing via Mistral could be faster cache access and reduced latency for repeat docs.",
+        "height": 560,
+        "width": 920,
+        "color": 7
+      },
+      "id": "b968d6ab-9582-495d-84af-f75833701e2a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        520
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "f2c0b30a-49be-4850-b102-f23d0feac0ec",
+      "name": "Mistral DOC OCR1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1180,
+        660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"image_url\",\n    \"image_url\": \"{{ $json.url }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "64a28537-e70b-48bc-b580-cc9d5a5a1b80",
+      "name": "Mistral IMAGE OCR1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1180,
+        880
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Document Parsing with Mistral OCR\nUp your structured document parsing game with Mistral's latest release... **Mistral-OCR**!\n* Designed to specifically parse PDF and image files.\n* Handles multiple-page documents and images up to 10k pixels.\n* Each page is conveniently transcribed as markdown only - there is no plain text output.\n* Incredible pricing at only $0.001 per page!\n\n### Requirements\n* You'll need a Mistral Cloud API Key\n* This template only works with the Mistral Cloud API for Mistral OCR.",
+        "height": 640,
+        "width": 380
+      },
+      "id": "3caaa30b-21f2-4643-93dd-8dff6f3c1920",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Example 3. No need for Extraction? Talk Directly with the File!\nIt seems Mistral were also able to integrate OCR capabilities into its text models which allows you to carry out tasks such as document classification and sentiment analysis really quickly. Unfortunately, it doesn't work the same way with images - you have to use Pixtral but the results are really bad!",
+        "height": 580,
+        "width": 680,
+        "color": 7
+      },
+      "id": "bd4d0c9f-f4a6-4527-8f9d-5af90a2858c2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2480,
+        520
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1eb5f18b-eb06-48df-8491-d60de75b4855",
+              "name": "url",
+              "type": "string",
+              "value": "=https://pub-d4aa9be14ae34d6ebcebe06f13af667b.r2.dev/multimodal_bank_statement_scan.pdf"
+            },
+            {
+              "id": "c639fce3-6967-444d-be18-6c9ce802ef22",
+              "name": "query",
+              "type": "string",
+              "value": "what is the total number of deposits?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9a9d4bb-4ee6-413a-9f08-97fdcee22bf2",
+      "name": "Document URL1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2640,
+        660
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-small-latest\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $json.query }}\"\n        },\n        {\n          \"type\": \"document_url\",\n          \"document_url\": \"{{ $json.url }}\"\n        }\n      ]\n    }\n  ],\n  \"document_image_limit\": 8,\n  \"document_page_limit\": 64\n}",
+        "options": {}
+      },
+      "id": "5de4d62c-af8f-4e6d-adbd-2f591a2165f7",
+      "name": "Document Understanding",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2860,
+        660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1eb5f18b-eb06-48df-8491-d60de75b4855",
+              "name": "url",
+              "type": "string",
+              "value": "=https://pub-d4aa9be14ae34d6ebcebe06f13af667b.r2.dev/multimodal_bank_statement_2.png"
+            },
+            {
+              "id": "639cd062-ebef-44ab-97a2-79ee388f8b41",
+              "name": "query",
+              "type": "string",
+              "value": "what is the total number of deposits?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9a7bbff0-d446-469d-aa61-838e8c025ad5",
+      "name": "Image URL1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2640,
+        880
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"pixtral-large-latest\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $json.query }}\"\n        },\n        {\n          \"type\": \"image_url\",\n          \"image_url\": \"{{ $json.url }}\"\n        }\n      ]\n    }\n  ],\n  \"document_image_limit\": 8,\n  \"document_page_limit\": 64\n}",
+        "options": {}
+      },
+      "id": "ca43d437-a373-4938-a0a8-8087a98d46a8",
+      "name": "Document Mis-Understanding?",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2860,
+        880
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email\": \"email address\",\n  \"subject\": \"subject text\",\n  \"body\": \" body text .\"\n}\n"
+      },
+      "id": "f810eec9-e1f5-4b85-ad9d-4e595404a95d",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2380,
+        2680
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('AI: Generate Email Reply').item.json.output.email }}",
+        "subject": "={{ $('AI: Generate Email Reply').item.json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI: Generate Email Reply').item.json.output.body }}",
+        "options": {}
+      },
+      "id": "1e50a3e1-f5ce-47fc-84cf-d7ce303d52f1",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3040,
+        2360
+      ],
+      "webhookId": "2fac759a-1e15-489e-b619-ead2dea60008",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "id": "09063294-a445-4ece-a2d4-1648519d9fb2",
+      "name": "Trigger: New Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        700,
+        2500
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3f7094d8-2756-493d-8721-be7d4c83297b",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              },
+              "leftValue": "={{ $json.labelIds }}",
+              "rightValue": "INBOX"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "56956276-5965-459d-8c81-cae156081dd9",
+      "name": "Check: Is Email in Inbox?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        920,
+        2500
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=todays date:- {{ $now }}\nmail date:- {{ $json.headers.date }}\nfrom :- {{ $json.headers.from }}\nsubject :- {{ $json.headers.subject.toJsonString() }}\n\ncontent :- {{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a smart AI email assistant. Your job is to analyze each email and decide if it needs a response from the user. Most emails are promotions, newsletters, or notifications that do not need replies \u2014 skip those.\n\nOnly reply \"yes\" if:\n\nThe email asks a question\n\nThe email requests information or action\n\nThe email seems urgent or time-sensitive\n\nThe email involves work, deadlines, appointments, personal matters, or legal/financial implications\n\nOtherwise, reply \"no\".\n\nRespond in strict JSON format like this:\n\njson\nCopy\nEdit\n{\n  \"response\": \"yes\"\n}\nor\n\njson\nCopy\nEdit\n{\n  \"response\": \"no\"\n}\nDo not explain. No comments. Only JSON."
+        }
+      },
+      "id": "7b222de9-633a-4691-a6f4-6c4bf6e787e7",
+      "name": "AI: Should We Reply?",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1380,
+        2480
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"response\": \"no\"\n}"
+      },
+      "id": "cefcc8cd-c5b8-462f-9024-53e8be19fba9",
+      "name": "Parse: Reply Decision JSON",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1580,
+        2700
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8aa9d41a-a218-456c-8b46-70b2e4a1af03",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output.response }}",
+              "rightValue": "yes"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c60e062-4ca3-4510-a983-36ba8a8c2923",
+      "name": " Check: Response Required?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1800,
+        2480
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {},
+      "id": "c696f9ea-19a7-47a3-a487-6be5b595352e",
+      "name": " Exit: No Reply Needed",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1980,
+        2740
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "57b06c53-a9ca-4e8c-afae-0669aa7d7e87",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1100,
+        2720
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=todays date:- {{ $now }}\nmail date:- {{ $('Trigger: New Email').item.json.headers.date }}\nfrom :- {{ $('Trigger: New Email').item.json.headers.from }}\nsubject :- {{ $('Trigger: New Email').item.json.headers.subject }}\n\ncontent :- {{ $('Trigger: New Email').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=\ud83d\udce7 System Prompt: Email Reply Generator\nYou are an AI email assistant. Based on the following details, write a professional and relevant reply email on behalf of the user.\n\nToday's Date:\nOriginal Email Date:\nFrom: \nSubject:\nEmail Content:\n\n\u270d\ufe0f Instructions:\nWrite a clear and concise reply email that responds meaningfully to the content.\n\nKeep the tone professional, polite, and appropriate to the context.\n\nDo not include greetings like \"Hi\" or sign-offs like \"Best regards\" unless necessary.\n\nYour output must be strictly in the following JSON format:\n\n\n\n{\n  \"email\": \"email address\",\n  \"subject\": \"subject text\",\n  \"body\": \" body text .\"\n}\n\n\n\nIf the email is promotional, spam, or clearly does not require a reply, leave both fields blank:\n\n\n{\n  \"subject\": \"\",\n  \"body\": \"\"\n}\n"
+        }
+      },
+      "id": "dc5ca209-1570-482a-b89c-1d6009fc3e43",
+      "name": "AI: Generate Email Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2200,
+        2460
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "options": {
+          "baseURL": "https://api.openai.com/v1"
+        }
+      },
+      "id": "222e1c93-42be-47cd-bdfb-445c9e620c63",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1400,
+        2700
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "baseURL": "https://api.openai.com/v1"
+        }
+      },
+      "id": "de269e72-9202-4c0e-80f5-a207d5caf95c",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2220,
+        2680
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "=7917193308",
+        "message": "=\ud83d\udce5 *New Email Received*\n\n\ud83d\udc64 *From:*  \n{{ $('Trigger: New Email').item.json.headers.from }}\n\n\ud83d\udcdd *Subject:*  \n{{ $('Trigger: New Email').item.json.headers.subject }}\n\n\ud83d\udcac *Content:*  \n{{ $('Trigger: New Email').item.json.text }}\n\n\n\ud83e\udd16 *AI-Generated Response*\n\n\ud83d\udce4 *To:*  \n{{ $('Trigger: New Email').item.json.headers.from }}\n\n\ud83d\udcdd *Subject:*  \n{{ $json.output.subject }}\n\n\ud83d\udcac *Content:*  \n{{ $json.output.body }}\n",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 5,
+              "resumeUnit": "minutes"
+            }
+          }
+        }
+      },
+      "id": "0a594647-fb2a-46d6-b8c6-53fce05a82fe",
+      "name": "Telegram: Send + Approve",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2600,
+        2460
+      ],
+      "webhookId": "49190a52-864e-4c68-be6c-6ce530f70370",
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c7315e3c-6ee1-40bb-8d74-0c70862f30a4",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "true"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "cf399084-3aab-4a73-82e1-a8c8bd046787",
+      "name": "Check: Telegram Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2820,
+        2460
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {},
+      "id": "587e7b94-d618-41d9-87ad-94ccbe3f659b",
+      "name": " Exit: Telegram Not Approved",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3040,
+        2560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## \ud83e\udd16 AI Email Reply Assistant\n\n## \ud83d\udd04 What this workflow does\nThis automation monitors your Gmail inbox, intelligently decides which emails need replies, generates professional responses using AI, and sends them after your approval via Telegram.\n\n---\n\n#### \ud83e\udde9 Node-by-node Breakdown\n\n1. **\ud83d\udce5 Trigger: New Email**\n   - Gmail Trigger node\n   - Polls inbox every minute for new emails\n\n2. **\ud83d\udcc2 Check: Is Email in Inbox?**\n   - Filters emails to only process those in INBOX\n   - Skips sent, drafts, and other folders\n\n3. **\ud83e\udde0 AI: Should We Reply?**\n   - AI analyzes email content to determine if reply is needed\n   - Skips promotions, newsletters, and notifications\n   - Only processes emails with questions, requests, or urgent matters\n\n4. **\u2705 Check: Response Required?**\n   - Routes emails based on AI decision\n   - Continues only if reply is needed\n\n5. **\u270d\ufe0f AI: Generate Email Reply**\n   - Creates professional, contextual email response\n   - Maintains appropriate tone and format\n   - Generates subject line and body content\n\n6. **\ud83d\udcf1 Telegram: Send + Approve**\n   - Shows original email and AI-generated response\n   - Waits for your approval via Telegram buttons\n   - 5-minute timeout for decision\n\n7. **\ud83d\ude80 Send a message**\n   - Sends the approved reply via Gmail\n   - Only executes if you approve via Telegram\n\n---\n\n#### \ud83d\udca1 Key Features\n- **Smart Filtering**: Only replies to emails that actually need responses\n- **Human Approval**: You control what gets sent\n- **Professional Tone**: AI maintains appropriate business communication\n- **Mobile Control**: Approve/reject replies directly from Telegram\n\n---\n\n#### \ud83d\udee0 Perfect for:\n- Busy professionals managing high email volume\n- Customer service representatives\n- Sales teams with quick response requirements\n- Anyone wanting AI assistance with email management\n\n---\n",
+        "height": 1320,
+        "width": 3180
+      },
+      "id": "0a50acb7-521b-46f2-8a04-946623844131",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        1900
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.piapi.ai/api/v1/task/{{ $json.data.task_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Set API Keys').item.json['PiAPI Key'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d517baa0-4792-4708-878f-ca8c71db365f",
+      "name": "Get image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2820,
+        4340
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.piapi.ai/api/v1/task",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Set API Keys').item.json['PiAPI Key'] }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"model\": \"Qubico/flux1-dev\",\n  \"task_type\": \"txt2img\",\n  \"input\": {\n    \"prompt\": \"{{ $('Generate Image Prompts').item.json.choices[0].message.content }} realistic and casual as if taken by an iphone camera by a TikTok influencer\",\n    \"negative_prompt\": \"taking a photo of a room, recording a video of a room, photos app, video recorder, illegible text, blurry text, low quality text, DSLR, unnatural\",\n    \"width\": 540,\n    \"height\": 960\n  }\n}",
+        "options": {}
+      },
+      "id": "9f588b32-a114-4c6d-9034-530a07483ffc",
+      "name": "Generate Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2540,
+        4340
+      ],
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.piapi.ai/api/v1/task",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Set API Keys').item.json['PiAPI Key'] }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"model\": \"kling\",\n  \"task_type\": \"video_generation\",\n  \"input\": {\n    \"prompt\": \"{{ $json.data.input.prompt }}\",\n    \"negative_prompt\": \"blurry motion, distorted faces, unnatural lighting, over produced, bad quality\",\n    \"cfg_scale\": 0.5,\n    \"duration\": 5,\n    \"mode\": \"pro\",\n    \"image_url\": \"{{ $json.data.output.image_url }}\",\n    \"version\": \"1.6\",\n    \"camera_control\": {\n      \"type\": \"simple\",\n      \"config\": {\n        \"horizontal\": 0,\n        \"vertical\": 0,\n        \"pan\": 0,\n        \"tilt\": 0,\n        \"roll\": 0,\n        \"zoom\": 5\n      }\n    }\n  },\n  \"config\": {}\n}",
+        "options": {}
+      },
+      "id": "c2f5050e-7ee1-4a07-bd4c-3b732626c396",
+      "name": "Image-to-Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2180,
+        4860
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "url": "=https://api.piapi.ai/api/v1/task/{{ $json.data.task_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Set API Keys').item.json['PiAPI Key'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aadf611a-52a6-463f-8bc6-a010c54ce323",
+      "name": "Get Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2440,
+        4860
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    scene_titles: items.map(item => item.json.response.text),\n    video_urls: items.map(item => item.json.data.output.video_url),\n    input_tokens: $('Calculate Token Usage').first().json.total_prompt_tokens,\n    output_tokens: $('Calculate Token Usage').first().json.total_completion_tokens,\n    model: $('Generate Image Prompts').first().json.model\n  }\n];"
+      },
+      "id": "337ede25-bee3-4230-8e85-e7dcc69b39aa",
+      "name": "List Elements",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3060,
+        4900
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "minutes"
+      },
+      "id": "9c1307df-e7e6-4ef0-a3e0-dcda81636060",
+      "name": "Wait 10min",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2320,
+        4860
+      ],
+      "webhookId": "1f9d716f-6544-4e4e-94ec-408ac3ea6e82",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "id": "ed0271d0-369b-4232-a2b1-4549c111ec5f",
+      "name": "Wait 3min",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2680,
+        4340
+      ],
+      "webhookId": "77cdee73-5e99-456a-b5e7-410b4d257669",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "id": "161a7a25-bfc9-4957-b9ab-5fb99b90d34d",
+      "name": "Wait 5min",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3140,
+        4260
+      ],
+      "webhookId": "31d5b1a2-dbb5-4849-ae25-cb491539c16e",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/onwK4e9ZLuTAKqWW03F9",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "={{ $('Set API Keys').item.json['ElevenLabs API Key'] }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "49373fa8-0a2a-4d94-a6df-ae129fdfdb76",
+      "name": "Generate voice",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2540,
+        5320
+      ],
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    sound_urls: items.map(item => $('Upload Voice Audio').first().json.webContentLink)\n  }\n];"
+      },
+      "id": "84a2c8e0-8161-4fce-a8b2-2cc63d9a7ab3",
+      "name": "List Elements1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3060,
+        5120
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a920eb54-fc23-4b68-8f56-2eee907a5481",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b84859f1-1fa6-49a6-9eab-1544c1bd8c57",
+      "name": "Fail check",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2580,
+        4860
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "id": "8f58b209-2bcf-4c9f-a6e0-20e27236173b",
+      "name": "Wait to retry",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2720,
+        4820
+      ],
+      "webhookId": "3b0fae8f-4419-45cd-8380-8f72eca05ff8",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an advanced, unhinged, hilariously entertaining prompt-generation AI specializing in expanding short POV image prompt ideas into detailed, hyper-realistic prompts optimized for Qubico/flux1-dev. Your task is to take a brief input tied to job seeking, job hunting, or resume building and morph it into a cinematic, immersive prompt locked in a first-person perspective, making the viewer feel they\u2019re living the scene.\n\nNEVER include quotation marks or emojis in your response\u2014flux API will choke on them, and that\u2019s a hard no.\n\nThe topic of this narrative is: {{ $('Load Google Sheet').item.json.idea }}\n\nThe short prompt idea to expand for this image generation is: {{ $json.response.text }}\n\nONLY GENERATE ONE PROMPT PER IDEA\u2014NO COMBINING. In at least one scene, weave in this environment descriptor: {{ $('Load Google Sheet').first().json.environment_prompt }}, but go wild with unhinged, edgy, funny twists elsewhere (skip the cringe or cheesy garbage). Most job hunting happens on laptops or desktops, so prioritize those over phones. If a phone sneaks in, it\u2019s only showing job-related content like email, LinkedIn, a resume, or a job posting\u2014never a photo or video app.\n\nEvery prompt has two parts:\n\nForeground: Kick off with First person view POV GoPro shot of... and show the viewer\u2019s hands, limbs, or feet locked in a job-related action.\n\nBackground: Start with In the background,... and paint the scenery, blending the environment descriptor when required, plus sensory zingers.\n\nTop Rules:\n\nNO quotation marks or emojis\u2014EVER. This is life or death for flux.\nStick to first-person POV\u2014the viewer\u2019s in the driver\u2019s seat, not watching from the sidelines.\nShow a limb (hands, feet) doing something job-focused\u2014typing, holding a resume, adjusting a tie.\nKeep it dynamic, like a GoPro clip, with motion and depth mimicking human vision.\nIf tech\u2019s involved (phone, computer), it\u2019s displaying job-hunting gold\u2014email, job boards, resumes\u2014not random trash.\nNo off-topic actions like recording videos or snapping pics\u2014job hunting only, fam.\nExtra Vibes:\n\nFull-body awareness: Drop hints of physical feels\u2014cramping fingers, racing pulse, slumping shoulders.\nSensory overload: Hit sight, touch, sound, smell, temperature for max realism (coffee whiffs, keyboard clacks).\nWorld grip: Limbs interact with the scene\u2014tapping keys, handing over papers, stepping up.\nKeep it under 1000 characters, one slick sentence, no fluff or formatting.\nMake it entertaining, relatable, with an Andrew Tate viral edge for the down-and-out job hustlers.\nExamples:\n\nInput: Updating a LinkedIn profile after a long day\n\nEnvironment_prompt: Tired, cluttered apartment, laptop glow\n\nOutput: First person view POV GoPro shot of my hands hammering a laptop, cheeto-dusted fingers aching from the grind, the screen flashing my LinkedIn profile with a fresh connection ping; in the background, a trashed apartment lit by the laptop\u2019s ghostly glow, pizza boxes toppling, traffic humming outside, stale takeout stench hitting my nose as my back screams from the hustle.\n\nInput: Handing over a resume at a job fair\n\nEnvironment_prompt: Hopeful, busy convention hall, suits everywhere\n\nOutput: First person view POV GoPro shot of my hand thrusting out a crisp resume, fingers twitching with nerves as it brushes another palm; in the background, a buzzing convention hall packed with suits, coffee fumes and shoe polish in the air, chatter drowning my pounding heart as I lock eyes with the recruiter.\n\nNO QUOTATION MARKS. NO EMOJIS. EVER."
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "50426537-9b3d-4d33-a36f-79d061b95e03",
+      "name": "Generate Image Prompts",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2060,
+        4420
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items (the 5 LLM responses)\nconst items = $input.all();\n\n// Calculate total prompt tokens and total completion tokens\nconst totalPromptTokens = items.reduce((sum, item) => sum + item.json.usage.prompt_tokens, 0);\nconst totalCompletionTokens = items.reduce((sum, item) => sum + item.json.usage.completion_tokens, 0);\n\n// Create new items with original data plus the totals\nconst outputItems = items.map(item => ({\n  json: {\n    ...item.json,                   // Spread the original item data\n    total_prompt_tokens: totalPromptTokens,     // Add total prompt tokens\n    total_completion_tokens: totalCompletionTokens // Add total completion tokens\n  }\n}));\n\n// Return the modified items\nreturn outputItems;"
+      },
+      "id": "07cc50f4-6a36-4afb-ba8c-b9885999795f",
+      "name": "Calculate Token Usage",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2360,
+        4420
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "567d1fc9-0638-4a44-b5f5-30a9a6683794",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ef6f7eb5-3f3b-401e-ad6b-dbbf2a689766",
+      "name": "Check for failures",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2960,
+        4340
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "DO NOT include any quotation marks in your response. Do not put a quote at the beginning or the end of your response.\n\nYou are a prompt-generation AI specializing in crafting unhinged, entertaining TikTok captions for a \"day in the life\" POV story about job hunting or resume writing. Generate five concise, action-driven captions (5-10 words each) that follow a Problem > Action > Reward structure. The first caption should be a shocking or funny hook, and the last should conclude with a satisfying reward. Use emojis sparingly\u2014only one per caption at most, and only when they add impact; skip them if they don\u2019t enhance the message.\n\nGuidelines:\n\nPerspective: Always first-person POV, immersing the viewer in the story.\nTone: Channel Andrew Tate mixed with Charlie Sheen\u2014cursing and sexual innuendos are fair game.\nContent: Focus on job seeking, hunting, or resume building, spotlighting AI as the game-changer.\nNarrative: Start with the grind of unemployment or a shitty job, pivot to using AI for resumes and cover letters, and end with scoring the dream gig.\nScenes: Highlight raw, emotional moments\u2014skip the boring stuff.\nYour captions should be wild and entertaining, not polished or professional. The first caption is the hook\u2014make it shocking, hilarious, or ballsy, something Andrew Tate would growl. Use emojis sparingly\u2014max one per caption, only if it hits harder with it.\n\nYour response should be a list of 5 items separated by \"\\n\" (for example: \"item1\\nitem2\\nitem3\\nitem4\\nitem5\")",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.idea }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "5d6623a2-9bd4-4af6-9aad-0c514b739df9",
+      "name": "Generate Video Captions",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1620,
+        5080
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "c03cb6d0-2afc-49dc-8205-d0bf2fc1da8e",
+      "name": "Match captions with videos",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2900,
+        4900
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an unhinged and hilarious TikTok influencer who's like a mix of Andrew Tate and Charlie Sheen. The user is going to provide you with a topic, and then 5 different parts of a story. Your task is to narrate the story as this hilarious character, who isn't afraid to be edgy or curse or use sexual innuendos. However keep each of the 5 talking points brief, as you only have about 5 seconds to speak during each. The entire length of your narration should be around 15 seconds.\n\nEach line item of the users message represents 1 5 second clip, so your response needs to be able to quickly and easily be spoken in those time constraints. Don't say extra things you don't need to. Just quickly tell the story, in order, and make it unhinged, funny, entertaining, and potentially controversially viral. Don't worry about offendeding anyone. Andrew Tate style it.\n\nDo not include any emojis, as your response will be converted from text to speech, so anything but text and punctuation isn't neccesary. Also, don't make your jokes overly corny, speak in a witty, edgy, funny way, but no corny dad jokes or anything cringe.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $('Generate Video Captions').item.json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "ece879a4-6bc0-4add-b54d-5e3ca3557081",
+      "name": "Generate Script",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2180,
+        5320
+      ],
+      "executeOnce": true,
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Load Google Sheet').item.json.id }}-voiceover.mp3",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1w1EQ8xyth6w7AbX2wpDI3vInfYeRy8vH",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1w1EQ8xyth6w7AbX2wpDI3vInfYeRy8vH",
+          "cachedResultName": "Resume Studio"
+        },
+        "options": {}
+      },
+      "id": "164dd900-4a91-43db-9b38-4131d3737dad",
+      "name": "Upload Voice Audio",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2740,
+        5320
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "writer",
+            "type": "anyone",
+            "allowFileDiscovery": true
+          }
+        },
+        "options": {}
+      },
+      "id": "2610ccb4-5a39-482d-8f50-8f1e3b8ce984",
+      "name": "Set Access Permissions",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2920,
+        5320
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "a6405d95-c325-4de8-a5f8-fd1be0ba7adb",
+      "name": "Pair Videos with Audio",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3280,
+        5000
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v1/renders",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set API Keys').item.json['Creatomate API Key'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"template_id\": \"{{ $('Set API Keys').item.json['Creatomate Template ID'] }}\",\n  \"modifications\": {\n    \n    \"Video-1.source\": \"{{ $json.video_urls[0] }}\",\n    \"Video-2.source\": \"{{ $json.video_urls[1] }}\",\n    \"Video-3.source\": \"{{ $json.video_urls[2] }}\",\n    \"Video-4.source\": \"{{ $json.video_urls[3] }}\",\n    \"Video-5.source\": \"{{ $json.video_urls[4] }}\",\n\n    \"Audio-1.source\": \"{{ $json.sound_urls[0] }}\",\n\n    \"Text-1.text\": \"{{ $json.scene_titles[0] }}\",\n    \"Text-2.text\": \"{{ $json.scene_titles[1] }}\",\n    \"Text-3.text\": \"{{ $json.scene_titles[2] }}\",\n    \"Text-4.text\": \"{{ $json.scene_titles[3] }}\",\n    \"Text-5.text\": \"{{ $json.scene_titles[4] }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "56772025-288c-401b-a6a5-ac641df4426c",
+      "name": "Render Final Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3460,
+        5000
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=A new Resume Studio POV video has been created: {{ $json.final_output }}",
+        "options": {}
+      },
+      "id": "ded5ea39-ea7c-4ecf-a273-706bf5f01f10",
+      "name": "Notify me on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        4440,
+        5000
+      ],
+      "webhookId": "1541bc50-06e4-48e8-8c76-23850ee4edf6",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "16df3756-d90b-4817-a256-26e17cde0105",
+      "name": "Once Per Day",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1060,
+        5080
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM/edit?usp=drivesdk",
+          "cachedResultName": "Sheet Template"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "production",
+              "lookupValue": "for production"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "55bab411-2039-4718-b66e-533b66cca293",
+      "name": "Load Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1480,
+        5080
+      ],
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the text directly from the OpenAI response\nconst text = $input.first().json.choices[0].message.content;\n\n// Split the text on literal '\\\\n', trim, and filter empty lines\nconst lines = text.split('\\\\n').map(line => line.trim()).filter(line => line !== '');\n\n// Create an array of items for n8n\nconst items = lines.map(line => ({\n  json: {\n    response: { text: line }\n  }\n}));\n\n// Return the array of items\nreturn items;"
+      },
+      "id": "719cb671-e970-42e5-aa28-11944ce75c4e",
+      "name": "Create List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1940,
+        5000
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "## 1. \ud83d\udde8\ufe0fGenerate video captions from ideas in a Google Sheet\n\n1. Setup your API keys for [PiAPI](https://piapi.ai/?via=n8n), [Eleven Labs](https://try.elevenlabs.io/n8n), and [Creatomate](https://creatomate.com/).\n- Once logged in to your Creatomate account, create a new video template and click \"source code\" in the top right. [Paste this JSON code](https://pastebin.com/c7aMTeLK). This will be your example template for this workflow.\n- In your Creatomate template, click the \"Use Template\" button in the top right and then click \"API Integration\" and you'll see your template_id. Set this value as your Creatomate Template ID in the Set API Keys node\n\n2. The next node will load a Google Sheet, you can copy the [Google Sheet Template](https://docs.google.com/spreadsheets/d/1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM/edit?usp=sharing), simply choose File > Make a copy. Then in the Google Sheets node, connect to your copied sheet template.\n\n3. Next, we generate 5 captions for our video idea with OpenAI. You can edit this node to see the prompt and change it to your needs.\n\n4. In the final two nodes, we use custom javascript code to turn the OpenAI response into a list. Then, it validates to make sure the list was formed correctly (incase of an OpenAI failure to follow instructions)\n",
+        "height": 700,
+        "width": 920,
+        "color": 7
+      },
+      "id": "9aec8352-3b29-4a0d-b6c1-2ce74bd90ebc",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        4640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "id": "ff7ef2f7-1947-42cf-86bb-8d36e674e11c",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3580,
+        5000
+      ],
+      "webhookId": "206d0cdf-b71f-44a7-909f-97df885c471a",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.creatomate.com/v1/renders/{{ $('Render Final Video').item.json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set API Keys').item.json['Creatomate API Key'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c45f7fd-10bc-4ec3-a18b-698937906c80",
+      "name": "Get Final Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3700,
+        5000
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "name": "=POV-{{ $('Render Final Video').item.json.id }}.mp4",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1w1EQ8xyth6w7AbX2wpDI3vInfYeRy8vH",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1w1EQ8xyth6w7AbX2wpDI3vInfYeRy8vH",
+          "cachedResultName": "Resume Studio"
+        },
+        "options": {}
+      },
+      "id": "ae26d57c-16d0-4944-83cb-ec3d9c8c0e61",
+      "name": "Upload Final Video",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        3960,
+        5000
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "43aaa34a-f3c3-4dba-85cb-36103ed8dd69",
+      "name": "Get Raw File",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3820,
+        5000
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "writer",
+            "type": "anyone",
+            "allowFileDiscovery": true
+          }
+        },
+        "options": {}
+      },
+      "id": "7aa70f68-9089-430d-9e39-73fdc37591fd",
+      "name": "Set Permissions",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4100,
+        5000
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM/edit?usp=drivesdk",
+          "cachedResultName": "Sheet Template"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cjd8p_yx-M-3gWLEd5TargtoB35cW-3y66AOTNMQrrM/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Load Google Sheet').first().json.id }}",
+            "width": "={{ $('Get Raw File').item.json.width }}",
+            "height": "={{ $('Get Raw File').item.json.height }}",
+            "model1": "={{ $('Generate Video Captions').item.json.model }}",
+            "model2": "={{ $('Pair Videos with Audio').item.json.model }}",
+            "model3": "={{ $('Generate Script').item.json.model }}",
+            "duration": "={{ $('Get Raw File').item.json.duration }}",
+            "fluxCost": "0.075",
+            "frameRate": "={{ $('Get Raw File').item.json.frame_rate }}",
+            "klingCost": "2.3",
+            "production": "done",
+            "publishing": "for publishing",
+            "final_output": "={{ $('Upload Final Video').item.json.webContentLink }}",
+            "prompt1 input tokens": "={{ $('Generate Video Captions').item.json.usage.prompt_tokens }}",
+            "prompt2 input tokens": "={{ $('Pair Videos with Audio').item.json.input_tokens }}",
+            "prompt3 input tokens": "={{ $('Generate Script').item.json.usage.prompt_tokens }}",
+            "prompt1 output tokens": "={{ $('Generate Video Captions').item.json.usage.completion_tokens }}",
+            "prompt2 output tokens": "={{ $('Pair Videos with Audio').item.json.output_tokens }}",
+            "prompt3 output tokens": "={{ $('Generate Script').item.json.usage.completion_tokens }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idea",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "idea",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "caption",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "production",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "production",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "environment_prompt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "environment_prompt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "publishing",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "publishing",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_output",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "final_output",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "width",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "width",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "height",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "height",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duration",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "duration",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "frameRate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "frameRate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt1 input tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt1 input tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt1 output tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt1 output tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model1 cost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model1 cost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt2 input tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt2 input tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt2 output tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt2 output tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model2 cost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model2 cost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt3 input tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt3 input tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt3 output tokens",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "prompt3 output tokens",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model3 cost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "model3 cost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cmCost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "cmCost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "upgradeCmCost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "upgradeCmCost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fluxCost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "fluxCost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "klingCost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "klingCost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "totalCost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "totalCost",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "datePosted",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "datePosted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "baf23a72-ed3e-4ef5-a316-97803ed12224",
+      "name": "Update Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4260,
+        5000
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35659353-d8e2-4677-876b-401b549605a0",
+              "name": "PiAPI Key",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c4927dd6-c597-48fe-b7c1-bbffcf5ff02f",
+              "name": "ElevenLabs API Key",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "f5e90c05-dd24-4918-9005-4c87a4fb344d",
+              "name": "Creatomate API Key",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "d0ebba50-5a99-4090-adcb-d18aa0b21be2",
+              "name": "Creatomate Template ID",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6bca2261-1088-40f8-a06e-6d1ef24e537e",
+      "name": "Set API Keys",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1280,
+        5080
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4,
+      "notes": "SET BEFORE STARTING"
+    },
+    {
+      "parameters": {
+        "content": "## DO THIS FIRST\n",
+        "height": 220,
+        "width": 220,
+        "color": 3
+      },
+      "id": "40b5cd71-f129-4236-9e29-9c717cd986a4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        5020
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2681c0e9-aa45-4f0f-8933-6e6de324c7aa",
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              },
+              "leftValue": "={{$input.all()}}",
+              "rightValue": 1
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "35307c52-a1b1-41e6-a8dd-902fa7efbee0",
+      "name": "Validate list formatting",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1940,
+        5140
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "content": "## 2. \ud83d\uddbc\ufe0fGenerate images with Flux using [PiAPI](https://piapi.ai/?via=n8n) \n### (total cost: $0.0948 approx. as of 3/9/25)\n1. OpenAI is used to generate 5 Flux image prompts based on the 5 captions generated. Edit this node to see/edit the prompt instructions. \n2. Next we use some custom javascript to total up how many tokens were used for each 5 generations so we can track our costs later.\n3. Then we generate an image with Flux using the [PiAPI service](https://piapi.ai/?via=n8n), waiting to check for failures and retrying if there are any.\n\nYou can change the image model used by editing the Generate Image node API call.\nFlux models available (as of 3/9/25):\n- Qubico/flux1-dev ($0.015) - Currently set\n- Qubico/flux1-schnell ($0.0015)\n- Qubico/flux1-advanced ($0.02)\n\nFor full list of API settings, see the [Flux API Documentation](https://piapi.ai/docs/flux-api/text-to-image?via=n8n)\n",
+        "height": 460,
+        "width": 1260,
+        "color": 5
+      },
+      "id": "d29db1d9-6ac0-4463-b39f-c9b6981d8b08",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2040,
+        4100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 3. \ud83c\udfacGenerate videos with Kling using [PiAPI](https://piapi.ai/?via=n8n)\n### (total cost: $2.30 approx. as of 3/9/25)\n1. We use image-to-video with Kling using [PiAPI](https://piapi.ai/?via=n8n) to generate a video from each image.\n2. Then we wait to check for failures, and repeat the generations the failed if there are any.\n\nYou can edit the video model used in the Image-to-Video node. For testing, I'd recommend switching from pro to std for lower quality and cheaper price.\nKling models available (as of 3/9/25):\n- std (Standard) $0.26 per 5 second video\n- pro (Professional) $0.46 per 5 second video - Currently set\n\nFor full list of API settings, see the [Kling API Documentation](https://piapi.ai/docs/kling-api/create-task?via=n8n)\n",
+        "height": 500,
+        "width": 1040,
+        "color": 6
+      },
+      "id": "b52dc06c-a1d6-4caf-9c2e-3d6a4fb4e403",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        4580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 4. \ud83d\udd09Generate voice overs with [Eleven Labs](https://try.elevenlabs.io/n8n)\n1. OpenAI API is used to generate a funny script that relates to the captions. Open this node to see/edit the prompt instructions. \n2. Then we use the [Eleven Labs API](https://try.elevenlabs.io/n8n) to generate the voiceover and upload it to our Google Drive so it can be accessed in the next step.\n\nTo replace the voice, find the voice ID of the voice you want to use in [Eleven Labs](https://try.elevenlabs.io/n8n), then change the URL in the Generate Voice node to: https://api.elevenlabs.io/v1/text-to-speech/{voice ID here}\n\nFor full list of API settings, see the [Eleven Labs API Documentation](https://elevenlabs.io/docs/api-reference/text-to-speech/convert)\n",
+        "height": 400,
+        "width": 1040,
+        "color": 4
+      },
+      "id": "dba58005-fd3f-43e9-bed4-313df502f857",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        5100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 5. \ud83d\udce5Complete video with [Creatomate](https://creatomate.com/)\n### (total cost: $0.38 approx. with the Essential plan credits | Free trial credits available)\n1. First, the list of videos/captions is combined with the generated voice over into a single item containing all 3 elements.\n2. Those are then passed over to the Creatomate Template ID you specified, replacing the template captions/video/audio with your generated ones.\n3. When the video is finished rendering, it's then uploaded to Google Drive and the permissions set so it can be accessed with a link.\n4. Then we update the original Google Sheet template with the information from our generation, including tokens to calculate cost, then mark this idea as completed.\n5. Finally, we send a notification to via [webhook to the Discord server](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) when the video is ready to be downloaded and used!\n\n",
+        "height": 380,
+        "width": 1360,
+        "color": 3
+      },
+      "id": "2cbd9482-2464-4630-851f-bc3c8084d445",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3220,
+        4780
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# \ud83e\udd16 AI-Powered Short-Form Video Generator with OpenAI, Flux, Kling, and ElevenLabs\n\n## \ud83d\udcc3Before you get started, you'll need:\n- [n8n installation](https://n8n.partnerlinks.io/n8nTTVideoGenTemplate) (tested on version 1.81.4)\n- [OpenAI API Key](https://platform.openai.com/api-keys) (free trial credits available)\n- [PiAPI](https://piapi.ai/?via=n8n) (free trial credits available)\n- [Eleven Labs](https://try.elevenlabs.io/n8n) (free account)\n- [Creatomate API Key](https://creatomate.com/) (free trial credits available)\n- Google Sheets API enabled in [Google Cloud Console](https://console.cloud.google.com/apis/api/sheets.googleapis.com/overview)\n- Google Drive API enabled in [Google Cloud Console](https://console.cloud.google.com/apis/api/drive.googleapis.com/overview)\n- OAuth 2.0 Client ID and Client Secret from your [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials)\n",
+        "height": 420,
+        "width": 620
+      },
+      "id": "a4031943-0ac8-426e-9773-cd4c7e8d6c38",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1340,
+        4140
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Image URL": {
+      "main": [
+        [
+          {
+            "node": "Mistral IMAGE OCR1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image URL1": {
+      "main": [
+        [
+          {
+            "node": "Document Mis-Understanding?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Import PDF": {
+      "main": [
+        [
+          {
+            "node": "Mistral Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document URL": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Import Image": {
+      "main": [
+        [
+          {
+            "node": "Mistral Upload1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document URL1": {
+      "main": [
+        [
+          {
+            "node": "Document Understanding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Upload": {
+      "main": [
+        [
+          {
+            "node": "Mistral Signed URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Upload1": {
+      "main": [
+        [
+          {
+            "node": "Mistral Signed URL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR1": {
+      "main": [
+        []
+      ]
+    },
+    "Mistral Signed URL": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Signed URL1": {
+      "main": [
+        [
+          {
+            "node": "Mistral IMAGE OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Test workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Document URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Should We Reply?",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Generate Email Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger: New Email": {
+      "main": [
+        [
+          {
+            "node": "Check: Is Email in Inbox?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Should We Reply?": {
+      "main": [
+        [
+          {
+            "node": " Check: Response Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Generate Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Send + Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: Send + Approve": {
+      "main": [
+        [
+          {
+            "node": "Check: Telegram Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Is Email in Inbox?": {
+      "main": [
+        [
+          {
+            "node": "AI: Should We Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Telegram Approved?": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " Exit: Telegram Not Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Generate Email Reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Check: Response Required?": {
+      "main": [
+        [
+          {
+            "node": "AI: Generate Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " Exit: No Reply Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse: Reply Decision JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Should We Reply?",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get Final Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video": {
+      "main": [
+        [
+          {
+            "node": "Fail check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get image": {
+      "main": [
+        [
+          {
+            "node": "Check for failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3min": {
+      "main": [
+        [
+          {
+            "node": "Get image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5min": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fail check": {
+      "main": [
+        [
+          {
+            "node": "Wait to retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Match captions with videos",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait 10min": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create List": {
+      "main": [
+        [
+          {
+            "node": "Validate list formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Raw File": {
+      "main": [
+        [
+          {
+            "node": "Upload Final Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Once Per Day": {
+      "main": [
+        [
+          {
+            "node": "Set API Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set API Keys": {
+      "main": [
+        [
+          {
+            "node": "Load Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Elements": {
+      "main": [
+        [
+          {
+            "node": "Pair Videos with Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait to retry": {
+      "main": [
+        [
+          {
+            "node": "Image-to-Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Wait 3min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate voice": {
+      "main": [
+        [
+          {
+            "node": "Upload Voice Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image-to-Video": {
+      "main": [
+        [
+          {
+            "node": "Wait 10min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Elements1": {
+      "main": [
+        [
+          {
+            "node": "Pair Videos with Audio",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Generate Script": {
+      "main": [
+        [
+          {
+            "node": "Generate voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Final Video": {
+      "main": [
+        [
+          {
+            "node": "Get Raw File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Permissions": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Generate Video Captions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for failures": {
+      "main": [
+        [
+          {
+            "node": "Wait 5min",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Image-to-Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Final Video": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Final Video": {
+      "main": [
+        [
+          {
+            "node": "Set Permissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Voice Audio": {
+      "main": [
+        [
+          {
+            "node": "Set Access Permissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Notify me on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Token Usage": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompts": {
+      "main": [
+        [
+          {
+            "node": "Calculate Token Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair Videos with Audio": {
+      "main": [
+        [
+          {
+            "node": "Render Final Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Access Permissions": {
+      "main": [
+        [
+          {
+            "node": "List Elements1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Video Captions": {
+      "main": [
+        [
+          {
+            "node": "Create List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate list formatting": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Prompts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Match captions with videos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Script",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Video Captions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match captions with videos": {
+      "main": [
+        [
+          {
+            "node": "List Elements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "templateId": "3102"
+  },
+  "pinData": {},
+  "versionId": "5941d8c9-1639-49b2-aa95-809f7f3afc3b",
+  "triggerCount": 0,
+  "tags": [
+    {
+      "createdAt": "2025-07-24T07:26:17.180Z",
+      "updatedAt": "2025-07-24T07:26:17.180Z",
+      "id": "aMFPgnDm8IAkotFr",
+      "name": "Template"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-07-24T07:24:03.508Z",
+      "updatedAt": "2025-07-24T07:24:03.508Z",
+      "role": "workflow:owner",
+      "workflowId": "8mbe2wgOC4JYLE76",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

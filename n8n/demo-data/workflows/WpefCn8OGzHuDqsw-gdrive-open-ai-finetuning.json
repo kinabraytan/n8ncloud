@@ -1,0 +1,250 @@
+{
+  "createdAt": "2025-07-01T18:14:04.333Z",
+  "updatedAt": "2025-07-01T18:14:04.333Z",
+  "id": "WpefCn8OGzHuDqsw",
+  "name": "GDrive Open AI FineTuning",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "156f81c0-d383-4f57-a330-d97ef5116fd6",
+      "name": "When clicking \u2018Test workflow\u2019",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -120,
+        160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1wvlEcbxFIENvqL-bACzlLEfy5gA6uF9J",
+          "cachedResultUrl": "https://drive.google.com/file/d/1wvlEcbxFIENvqL-bACzlLEfy5gA6uF9J/view?usp=drivesdk",
+          "cachedResultName": "test_fine_tuning.jsonl"
+        },
+        "options": {
+          "binaryPropertyName": "data.jsonl",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "id": "6613bcd1-da42-4625-95fc-43de4fb84d09",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        100,
+        160
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "483e5fe8-43dc-4bd3-a76e-c4f89018638b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        160,
+        640
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4bf0c548-ff26-44b4-8030-34be945d7ac5",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -120,
+        640
+      ],
+      "webhookId": "88151d03-e7f5-4c9a-8190-7cff8e849ca2",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "model": "ft:gpt-4o-mini-2024-07-18:n3w-italia::AsVfsl7B",
+        "options": {}
+      },
+      "id": "322c2408-dee3-459d-b6b0-57a95630e3fb",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        160,
+        860
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "# Step 2\n\nOnce the .jsonl file for training is uploaded (See the entire process here.: https://platform.openai.com/finetune/), a \"new model\" will be created and made available via your API. OpenAI will automatically train it based on the uploaded .jsonl file. If the training is successful, the new model will be accessible via API.\n\neg. ft:gpt-4o-mini-2024-07-18:n3w-italia::XXXXX7B",
+        "height": 211.35269709543567,
+        "width": 556.5145228215765
+      },
+      "id": "82bf3018-a3c7-4be8-b271-e5ca286c85f4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Step 1\n\nCreate the training file .jsonl with the following syntax and upload it to Drive.\n\n{\"messages\": [{\"role\": \"system\", \"content\": \"You are an experienced and helpful travel assistant.\"}, {\"role\": \"user\", \"content\": \"What documents are needed to travel to the United States?\"}, {\"role\": \"assistant\", \"content\": \"To travel to the United States, you will need a valid passport and an ESTA authorization, which you can apply for online. Make sure to check the specific requirements based on your nationality.\"}]}\n....\n\nThe file will be uploaded here: https://platform.openai.com/storage/files\n\n",
+        "height": 265.161825726141,
+        "width": 777.3941908713687
+      },
+      "id": "45913137-8639-4474-9bae-299d0385c490",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        -180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "data.jsonl",
+        "options": {
+          "purpose": "fine-tune"
+        }
+      },
+      "id": "fe5b8840-6710-40ae-a45e-0c21560c0ed1",
+      "name": "Upload File",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        320,
+        160
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/fine_tuning/jobs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"training_file\": \"{{ $json.id }}\",\n \"model\": \"gpt-4o-mini-2024-07-18\"\n} ",
+        "options": {}
+      },
+      "id": "0e6812d5-a3d3-452f-a059-d3dae4416756",
+      "name": "Create Fine-tuning Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        560,
+        160
+      ],
+      "typeVersion": 4.2
+    }
+  ],
+  "connections": {
+    "Upload File": {
+      "main": [
+        [
+          {
+            "node": "Create Fine-tuning Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Test workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "63c67247-a6d6-4bf1-be88-8510cab58978",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-07-01T18:14:04.333Z",
+      "updatedAt": "2025-07-01T18:14:04.333Z",
+      "role": "workflow:owner",
+      "workflowId": "WpefCn8OGzHuDqsw",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,912 @@
+{
+  "createdAt": "2025-06-14T19:00:21.097Z",
+  "updatedAt": "2025-06-14T19:00:21.097Z",
+  "id": "dntT8w06vlx06fXk",
+  "name": "Template: New Customer Onboarding",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "06d29616-8fa9-42cf-8b5f-abe856083c75",
+        "options": {}
+      },
+      "id": "aa1dcd78-76be-4679-9548-5bceb170eb78",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1700,
+        -40
+      ],
+      "webhookId": "06d29616-8fa9-42cf-8b5f-abe856083c75",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "## What does it do?\nObjective:\n\nStreamline the onboarding process for new customers, ensuring they receive all necessary resources and support.\nTrigger: Set a webhook trigger or a CRM trigger (like HubSpot or Salesforce) for when a new customer is added.\n\nSend Welcome Email: Use the Gmail or SMTP node to send a personalized welcome email to the customer.\n\nSchedule a Welcome Call: Use the Calendar node (Google Calendar) to automatically create a calendar event for a welcome call.\n\nAssign a CSM: Use the CRM node (like HubSpot) to assign the new customer to a dedicated CSM.",
+        "height": 440,
+        "width": 320,
+        "color": 4
+      },
+      "id": "ef321ef4-183f-4d89-b4f2-7cc1067997a1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2560,
+        -80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7ab380a2-a8d3-421c-ab4e-748ea8fb7904",
+              "name": "response",
+              "type": "string",
+              "value": "Unable to perform task. Please try again."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52765b04-3a4c-42ce-ba45-73bb6f71e21d",
+      "name": "Try Again",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -680,
+        620
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39c2f302-03be-4464-a17a-d7cc481d6d44",
+              "name": "=response",
+              "type": "string",
+              "value": "={{$json.output}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3320d44-8beb-4388-9c01-b222651fa2da",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -680,
+        420
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are a calendar assistant. Your responsibilities include creating, getting, and deleting events in the user's calendar.\nIf no date is proposed, find the next available slot using \"Get Events\" and create an event using \"Create Event with Attendee\"\n\n**Calendar Management Tools**  \n   - Use \"Create Event with Attendee\" when an event includes a participant.     \n   - Use \"Get Events\" to fetch calendar schedules when requested.\n   - Use \"Delete Event\" to delete an event. You must use \"Get Events\" first to get the ID of the event to delete.\n   - Use \"Update Event\" to update an event. You must use \"Get Events\" first to get the ID of the event to update.\n\n## Final Notes\nHere is the current date/time: {{ $now }}\nIf a duration for an event isn't specified, assume it will be one hour."
+        }
+      },
+      "id": "75815d44-b327-41f1-b58f-d9a4d1d1936d",
+      "name": "Calendar Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1260,
+        520
+      ],
+      "typeVersion": 1.6,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "__regex": "(^[a-zA-Z0-9.!#$%&\u2019*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "start": "={{ $fromAI(\"eventStart\") }}",
+        "end": "={{ $fromAI(\"eventEnd\") }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI(\"eventAttendeeEmail\") }}"
+          ],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "id": "938c9683-7b73-42d4-9a97-2ec3422e8a04",
+      "name": "Create Event with Attendee",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -1360,
+        740
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "__regex": "(^[a-zA-Z0-9.!#$%&\u2019*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "start": "={{ $fromAI(\"eventStart\") }}",
+        "end": "={{ $fromAI(\"eventEnd\") }}",
+        "additionalFields": {
+          "attendees": [],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "id": "6e0338c0-1e79-4150-a466-74b6a44816b0",
+      "name": "Create Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -1240,
+        740
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $fromAI('Calendar', `sender's email`, 'string') }}"
+        },
+        "timeMin": "={{ $fromAI(\"dayAfter\",\"today\") }}",
+        "timeMax": "={{ $fromAI(\"dayBefore\",\"today plus 7 days\") }}",
+        "options": {}
+      },
+      "id": "598147a0-bc29-48c2-846a-48620bb2f56d",
+      "name": "Get Events",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -1120,
+        740
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "__regex": "(^[a-zA-Z0-9.!#$%&\u2019*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "eventId": "={{ $fromAI(\"eventID\") }}",
+        "options": {}
+      },
+      "id": "bfadf316-3b01-49da-abc9-c59e4cec8532",
+      "name": "Delete Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -1000,
+        740
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "__regex": "(^[a-zA-Z0-9.!#$%&\u2019*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "eventId": "={{ $fromAI(\"eventID\") }}",
+        "updateFields": {
+          "end": "={{ $fromAI(\"endTime\") }}",
+          "start": "={{ $fromAI(\"startTime\") }}"
+        }
+      },
+      "id": "30e6390a-e763-4973-9d70-f5310ddea150",
+      "name": "Update Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "position": [
+        -880,
+        740
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "cf190840-eec2-498f-8b42-0bcb5d3699d4",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1480,
+        520
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "d5c30b11-285b-4e6e-9c80-d20ad2ab23ac",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -160,
+        280
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "description": "Call this tool for any calendar action.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id}}",
+          "cachedResultName": "={{ $workflow.id}}"
+        },
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "69028942-6b99-4da9-86d0-3e758e820723",
+      "name": "calendarAgent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -40,
+        280
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"subject\": \"\",\n\t\"body\": \"\"\n}"
+      },
+      "id": "2a944ef1-1505-4579-b5b5-964532c15670",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        80,
+        280
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/owners",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotOAuth2Api",
+        "options": {}
+      },
+      "id": "52d6296b-e434-480b-af30-874ccf21650d",
+      "name": "Get list of owners",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1260,
+        60
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "id": "17964eec-3ee3-4b8d-a5b4-f85feb7d7376",
+      "name": "Split Out owners",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1040,
+        60
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7c6aec6e-66a9-4739-8a59-28f2ab1c4a26",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "={{ $('Enter your company data here').item.json.sender_email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "05d8753f-c9aa-4511-8dd7-48f39563ca13",
+      "name": "Get current owner",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -820,
+        60
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "content": "## How to Set a Webhook in n8n and HubSpot\n\n## 1. Set Up a Webhook in n8n\n\n### Step 1: Create a New Workflow\n- Go to your **n8n dashboard**.\n- Click on **\"New Workflow.\"**\n\n### Step 2: Add the Webhook Node\n- Click on the **\u201c+\u201d** icon to add a new node.\n- Search for **\u201cWebhook\u201d** and select it.\n- Set the **Webhook Method** (usually POST).\n- Define the **Webhook URL path**, for example, `/hubspot-webhook`.\n- Set the **\"Response Mode\"** (e.g., \"On Received\").\n- Save the workflow.\n\n### Step 3: Set Webhook URL\n- Copy the **Webhook URL** generated by n8n. It should look something like:https://your-n8n-domain/webhook/hubspot-webhook\n\n- Ensure the workflow is **active**.\n\n---\n\n## 2. Set Up a Webhook in HubSpot\n\n### Step 1: Log in to HubSpot\n- Go to **HubSpot Developer Account** (required for webhook setup).\n- Navigate to **\"Settings\" > \"Integrations\" > \"Webhooks.\"**\n\n### Step 2: Create a New Webhook Subscription\n- Click **\u201cCreate Webhook\u201d** or **\u201cAdd Webhook\u201d** if this is your first one.\n- Select the **events** you want to track (e.g., contact creation, form submission).\n- Set the **Webhook URL** as the n8n Webhook URL you copied earlier.\n- Choose **\u201cPOST\u201d** as the request method.\n- Set the **Authentication** if needed (you can set a secret or use OAuth).\n\n### Step 3: Test the Webhook\n- Use the **\u201cTest Webhook\u201d** feature in HubSpot to send a test request.\n- Switch to n8n and ensure the webhook is triggering properly.\n\n---\n\n## 3. Process the Data in n8n\n- After the webhook is triggered in n8n, you will see the data sent by HubSpot.\n- You can now add additional nodes to **process the data** (e.g., save to database, send email, perform actions in another app).\n\n---\n\n## 4. Make the Workflow Active\n- Once you are done configuring, make sure the workflow is **set to \u201cActive.\u201d**\n- This will allow it to receive live data from HubSpot.",
+        "height": 1340,
+        "width": 680,
+        "color": 5
+      },
+      "id": "3a5f666a-dbb3-4191-93a3-86f6b3ef209b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2220,
+        -80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "eventsUi": {
+          "eventValues": [
+            {}
+          ]
+        },
+        "additionalFields": {}
+      },
+      "id": "d0625c24-a501-4f39-a28e-ca8a459de82a",
+      "name": "HubSpot Trigger",
+      "type": "n8n-nodes-base.hubspotTrigger",
+      "position": [
+        -1700,
+        160
+      ],
+      "webhookId": "632f3fc8-b921-4697-ba12-037d5c7f8971",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11a8b9e9-a7ed-454a-9aef-a9137c0e17ea",
+              "name": "company_name",
+              "type": "string",
+              "value": "Pollup Data Services"
+            },
+            {
+              "id": "f2dcfe2e-3145-4a30-9731-0a8d02c7aa9a",
+              "name": "sender_name",
+              "type": "string",
+              "value": "Thomas Vi\u00e9"
+            },
+            {
+              "id": "18b5c0bd-4e75-4b98-92fc-5fca90a8b680",
+              "name": "sender_email",
+              "type": "string",
+              "value": "zeerobug@gmail.com"
+            },
+            {
+              "id": "2c8de3ed-57dc-455b-bfa5-87a0d8d046d2",
+              "name": "company_activity",
+              "type": "string",
+              "value": "Whether it\u2019s automating recurring tasks, analysing data faster, or personalising customer interactions, we build bespoke AI agents to help your workforce work smarter."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ef09a2e-eb86-44d6-9dae-17f6effe1d25",
+      "name": "Enter your company data here",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1480,
+        60
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "## Set your data and your company's \nThe sender_email you set here has to be the same as the one you use in hubspot ",
+        "height": 320,
+        "width": 400,
+        "color": 4
+      },
+      "id": "a798fd45-a95a-4f2c-889e-be4491af23da",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b70f4699-008f-4924-8e69-af4fa69422a5",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Webhook').item.json.body[0].subscriptionType }}",
+              "rightValue": "contact.creation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6f889b3c-e32c-4de0-8a13-4a1da667a1a2",
+      "name": "If a contact is created",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -600,
+        60
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "get",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Webhook').item.json.body[0].objectId }}"
+        },
+        "additionalFields": {}
+      },
+      "id": "cf8ec961-c68a-4f8e-bedc-e9813d8a1cf0",
+      "name": "Get all info about the contact",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        -380,
+        60
+      ],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your task is to write a personalized Welcome email to a recipient.\nWrite also to indicate him that he will receive shortly an invitation for a meeting to resolve his doubts. Use for that the calendarAgent.\nUse the \"Sender's calendar ID\" as the Calendar. And the \"Recipient email\" as an attendee\n\n## Tools\n- calendarAgent: Use this tool to take action in calendar. Send it a query like \"Schedule a meeting with attendee 'Recipient email' on 'Sender's calendar ID' calendar.\"\n\n## Rules\n- Some actions require you to look up contact information first. For the following actions, you must get contact information and send that to the agent who needs it:\n- creating calendar event with attendee, create it as son as there is some free slot\n\nreturn the message as a json like this one:{\"subject\":\"Subject of the message\",\"body\":\"Body of the message\"}\n\n## Use the variables below\nSender's name:  {{ $('Enter your company data here').item.json.sender_name }}\nSender's email: {{ $('Enter your company data here').item.json.sender_email }}\nSender's company name: {{ $('Enter your company data here').item.json.company_name }}\nSender's company activity: {{ $('Enter your company data here').item.json.company_activity }}\nSender's calendar ID: zeerobug@gmail.com\nRecipient first name: {{ $json.properties.firstname.value }}\nRecipient last name: {{ $json.properties.lastname }}\nRecipient email: {{ $json.properties.email.value }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Overview\nYou are a professional Customer Success Manager.\n"
+        }
+      },
+      "id": "fd73ce1b-c0c7-47de-b270-2e0847e56c76",
+      "name": "Write a personalized message",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -120,
+        60
+      ],
+      "typeVersion": 1.9
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get all info about the contact').item.json.properties.email.value }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.data }}",
+        "options": {
+          "bccList": "thomas@pollup.net"
+        }
+      },
+      "id": "3d57c1c5-d8e9-4ec9-bcdc-ad5790344c82",
+      "name": "Send the message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        500,
+        60
+      ],
+      "webhookId": "d1d18d77-71ad-4eab-91c6-08b6a9f5d736",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $('Get all info about the contact').item.json.properties.email.value }}",
+        "additionalFields": {
+          "contactOwner": "={{ $('Get current owner').item.json.id }}"
+        },
+        "options": {}
+      },
+      "id": "c7cd971d-126e-4725-bc14-49ad0a31bd97",
+      "name": "Set owner to contact",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        720,
+        60
+      ],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "content": "## Calendar tool\nThis part has been borrowed from the excellent [Nate Herk](https://www.youtube.com/@nateherk) youtube channel",
+        "height": 560,
+        "width": 1080,
+        "color": 4
+      },
+      "id": "d290dbab-17e4-418d-8a25-72d53d126caa",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        340
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output.body }}",
+        "options": {}
+      },
+      "id": "d9aae176-4513-454e-bd9f-d8a14ca8d7d5",
+      "name": "Transforms markdown to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        280,
+        60
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Email writer\n- This agent writes a personalized Email\n- Uses the calendar Agent tool to create an appointmenton an empty slot.\nFeel free to personalize the prompt",
+        "height": 540,
+        "width": 440,
+        "color": 4
+      },
+      "id": "6764ccaf-59ec-40bf-b36c-0e58f2744059",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "5cbb7601-d116-428d-b4f3-adb7968cacb9",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -1480,
+        740
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Contact me\n- If you need any modification to this workflow\n- if you need some help with this workflow\n- Or if you need any workflow in n8n, Make, or Langchain / Langgraph\n\nWrite to me: [thomas@pollup.net](mailto:thomas@pollup.net)\n\n**Take a look at my others workflows [here](https://n8n.io/creators/zeerobug/)**\n\n",
+        "height": 260,
+        "width": 320
+      },
+      "id": "99f12c05-8afa-4925-9621-3bf8462a383b",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2560,
+        380
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enter your company data here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calendarAgent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Write a personalized message",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Try Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot Trigger": {
+      "main": [
+        [
+          {
+            "node": "Enter your company data here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send the message": {
+      "main": [
+        [
+          {
+            "node": "Set owner to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out owners": {
+      "main": [
+        [
+          {
+            "node": "Get current owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get current owner": {
+      "main": [
+        [
+          {
+            "node": "If a contact is created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get list of owners": {
+      "main": [
+        [
+          {
+            "node": "Split Out owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write a personalized message",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If a contact is created": {
+      "main": [
+        [
+          {
+            "node": "Get all info about the contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Write a personalized message",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event with Attendee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transforms markdown to HTML": {
+      "main": [
+        [
+          {
+            "node": "Send the message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enter your company data here": {
+      "main": [
+        [
+          {
+            "node": "Get list of owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write a personalized message": {
+      "main": [
+        [
+          {
+            "node": "Transforms markdown to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all info about the contact": {
+      "main": [
+        [
+          {
+            "node": "Write a personalized message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "26c023a1-5e30-4222-a77b-8d884264e87b",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-14T19:00:21.097Z",
+      "updatedAt": "2025-06-14T19:00:21.097Z",
+      "role": "workflow:owner",
+      "workflowId": "dntT8w06vlx06fXk",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

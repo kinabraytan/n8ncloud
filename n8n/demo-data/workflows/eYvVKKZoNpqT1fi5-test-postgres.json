@@ -1,0 +1,39 @@
+{
+  "createdAt": "2025-06-16T06:59:00.782Z",
+  "updatedAt": "2025-07-21T20:09:10.124Z",
+  "id": "eYvVKKZoNpqT1fi5",
+  "name": "TEST POSTGRES",
+  "active": false,
+  "isArchived": true,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "1a95e1cd-c4a6-40b2-86bf-527b0888eebd",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-06-16T06:59:00.782Z",
+      "updatedAt": "2025-06-16T06:59:00.782Z",
+      "role": "workflow:owner",
+      "workflowId": "eYvVKKZoNpqT1fi5",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

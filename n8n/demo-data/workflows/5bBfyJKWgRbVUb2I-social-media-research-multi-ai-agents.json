@@ -1,0 +1,622 @@
+{
+  "createdAt": "2025-03-13T17:49:02.259Z",
+  "updatedAt": "2025-03-27T22:17:39.722Z",
+  "id": "5bBfyJKWgRbVUb2I",
+  "name": "Social Media Research Multi AI Agents",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "title, raw_content",
+        "options": {}
+      },
+      "id": "0e97e220-b9f8-44d0-89a9-a367f137a713",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "id": "de6f5ea0-8df5-40fd-b490-1ccf25d71cdb",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"api_key\": \"YOUR-API-KEY-HERE\",\n    \"query\": \"{{ $json.query.replace(/\"/g, '\\\\\"') }}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "options": {}
+      },
+      "id": "a84739b6-468e-4358-9916-87f4cfac614d",
+      "name": "Search Internet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ae61b026-3de0-4d17-adb9-4478fa2dbba1",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        260,
+        120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "61b269d5-df5e-4004-ac81-62caf3fe7c08",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        580,
+        120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo",
+          "mode": "list",
+          "cachedResultName": "Content Creation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Campaign": "={{ $('Google Sheets Trigger').item.json.Campaign }}",
+            "Blog": "={{ $('Blog Writer').item.json.output }}",
+            "LinkedIn": "={{ $('LinkedIn').item.json.output }}",
+            "X": "={{ $('X').item.json.output }}"
+          },
+          "matchingColumns": [
+            "Campaign"
+          ],
+          "schema": [
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content Subject",
+              "displayName": "Content Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target Audience",
+              "displayName": "Target Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "LinkedIn",
+              "displayName": "LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "X",
+              "displayName": "X",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Blog",
+              "displayName": "Blog",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2af16119-cdb4-4a14-b584-b82ae21f791e",
+      "name": "Update Campaign",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        900,
+        -40
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSs1ml1fZncktfP5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b91723e0-8a99-4895-8d32-0ef67c06cd2d",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "custom"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo",
+          "mode": "list",
+          "cachedResultName": "Content Creation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "8b6d657e-a197-4451-a183-8931179671f8",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -280
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "EZ7yjx1YLVf7S2qq",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b493a3c6-939a-4301-9257-055b80c28d7a",
+              "name": "query",
+              "value": "={{ $json['Content Subject'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e2813669-08fd-4d0d-a215-b0634032330b",
+              "name": "targetAudience",
+              "value": "={{ $json['Target Audience'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "46ef9072-35a4-4b1d-9e4f-78016de6a69d",
+      "name": "Set Search Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $('Aggregate').item.json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "# System Role\nYou are a skilled and creative blog writer, capable of crafting engaging, concise, and well-structured two-paragraph blog articles based on provided content.\n\n# Task Specification\nWrite a two-paragraph blog article using the provided content. The blog should be coherent, engaging, and informative, tailored to a general audience. Ensure the tone is professional yet approachable, and the structure flows logically from introduction to conclusion.\n\n# Specifics and Context\nThis task is essential for producing quick, high-quality blog articles that capture readers' attention while accurately conveying the intended message. By writing clear and engaging content, you help brands or individuals establish thought leadership and connect with their audience effectively.\n\n# Examples\n## Example 1\n**Input:**  \nContent: \"Remote work has grown 44% in the last five years. Benefits include flexibility and reduced commute times. Challenges include maintaining productivity and combating isolation.\"\n\n**Output:**  \nRemote work has become a transformative trend, with a 44% increase in adoption over the past five years. The appeal lies in its flexibility, allowing employees to tailor their schedules and eliminate time-consuming commutes. This shift has unlocked new possibilities for work-life balance and broadened the talent pool for businesses willing to embrace remote setups.\n\nHowever, remote work isn\u2019t without its challenges. Employees often face difficulties in maintaining productivity outside a structured office environment and struggle with feelings of isolation. Addressing these concerns requires thoughtful solutions, such as virtual collaboration tools and strategies to foster connection, ensuring remote work remains both productive and fulfilling.\n\n## Example 2\n**Input:**  \nContent: \"The Mediterranean diet includes fruits, vegetables, whole grains, and healthy fats like olive oil. Studies show it reduces the risk of heart disease and supports brain health.\"\n\n**Output:**  \nThe Mediterranean diet has long been celebrated as one of the healthiest eating patterns in the world. Emphasizing fresh fruits, vegetables, whole grains, and heart-healthy fats like olive oil, this diet is as delicious as it is nutritious. Its flavorful diversity makes it easy to adopt and sustain, whether you\u2019re enjoying a vibrant Greek salad or a wholesome bowl of minestrone.\n\nWhat sets the Mediterranean diet apart is its scientifically backed health benefits. Numerous studies highlight its ability to reduce the risk of heart disease and support cognitive health, making it a cornerstone for longevity and wellness. By prioritizing natural, unprocessed foods, this lifestyle offers a sustainable approach to eating well and living better.\n\n# Reminders\n- Maintain clarity and logical flow between paragraphs.\n- Ensure the tone is engaging yet professional.\n- Keep the blog concise and aligned with the provided content.\n"
+        }
+      },
+      "id": "8c529bd7-c479-4a51-8e20-a20a97429bdb",
+      "name": "Blog Writer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        560,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "# System Role  \nYou are an expert LinkedIn content creator specializing in transforming incoming articles into highly engaging posts tailored to a specific target audience.  \n\n# Task Specification  \nUsing the provided article, craft a LinkedIn post that is:  \n1. Written in a concise, engaging tone optimized for readability on mobile.  \n2. Tailored specifically to the target audience\u2019s interests, needs, and professional goals.  \n3. Plain text only, with frequent line breaks for clarity.  \n4. Incorporates 1-2 emojis to enhance personality and appeal.  \n5. Provides actionable value and includes a clear call to action.  \n6. Contains 3-5 relevant hashtags.  \n7. Outputs only the post text\u2014nothing else.  \n\n# Specifics and Context  \nThe post should succinctly capture the core message of the article while resonating with the audience\u2019s values. It must sound human and conversational, staying under 3,000 characters.  \n\n# Examples  \n## Example 1  \n**Input:** Article about productivity tips for managers.  \n**Output:**  \n\ud83d\udd25 Time to Supercharge Your Productivity!  \n\nManagers, are your days packed with back-to-back meetings and endless to-do lists? Here\u2019s the secret to working smarter, not harder: [insight summary].  \n\n\ud83d\udc49 Top tips to stay ahead:  \n1. Prioritize tasks using the Eisenhower Matrix.  \n2. Block time on your calendar for deep focus.  \n3. Delegate effectively to your team.  \n\nWhat strategies help you lead and manage your time effectively? Share your thoughts below!  \n\n#Leadership #TimeManagement #Productivity  \n\n# Reminders  \n- Ensure the content aligns with the target audience's interests and challenges.  \n- Always include 1-2 emojis and a call to action.  \n- Use plain text and only output the post content.  \n"
+        }
+      },
+      "id": "6be0c224-a292-4fbd-ada5-57d77b31672f",
+      "name": "LinkedIn",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -80,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $('Aggregate').item.json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "=# System Role  \nYou are an expert Twitter content creator specializing in transforming articles into engaging, concise tweets tailored to a specific target audience.  \n\n# Task Specification  \nUsing the provided article, craft a tweet that is:  \n1. Short, concise, and optimized for Twitter\u2019s character limit (280 characters).  \n2. Tailored to resonate with the target audience\u2019s interests, needs, and goals.  \n3. Incorporates 1-2 emojis to enhance personality and appeal.  \n4. Offers value or insight and includes a clear call to action.  \n5. Contains 1-3 relevant hashtags.  \n6. Outputs only the tweet text\u2014nothing else.  \n\n# Specifics and Context  \nThe tweet should distill the essence of the article into a single impactful message. It must grab attention, provide immediate value, and encourage engagement (e.g., likes, replies, or clicks).  \n\n# Examples  \n## Example 1  \n**Input:** Article about productivity tips for managers.  \n**Output:**  \n\ud83d\udd25 Overwhelmed by meetings and to-dos? Managers, here\u2019s how to stay ahead:  \n- Use the Eisenhower Matrix.  \n- Block focus time.  \n- Delegate smarter.  \n\nWhat\u2019s your top time-management hack? Let\u2019s share! \u23f0  \n\n#Leadership #Productivity  \n\n# Reminders  \n- Keep the tone approachable and engaging.  \n- Use emojis sparingly for emphasis.  \n- Ensure the tweet stays within 280 characters and is tailored to the audience.  \n- Only output the tweet text.  \n"
+        }
+      },
+      "id": "d1ead046-b5d4-4083-8851-f973c45b8185",
+      "name": "X",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -340,
+        -820
+      ],
+      "id": "19664baf-ccef-4b61-ab10-ce3661d01ab9",
+      "name": "When chat message received",
+      "webhookId": "78c00d6b-228e-4243-bf92-c7bf3bb48090",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        -580
+      ],
+      "id": "96a8b2ac-5c6e-4127-8e94-6c052d936e42",
+      "name": "GPT-4o-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Send a Chat message to Remind everyone in the Chat about the meeting that will happen at 11:00AM EST. ",
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -80,
+        -820
+      ],
+      "id": "37269945-c827-48e0-8e4a-91bff158429c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        20,
+        -540
+      ],
+      "id": "1a700d3c-2b7a-4d71-bf15-4c65a4922b23",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Internet": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "X",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Search Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Fields": {
+      "main": [
+        [
+          {
+            "node": "Search Internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Writer": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X": {
+      "main": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "fbbc60c5-e708-4d32-8f68-e1002dd19708",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-13T17:49:02.259Z",
+      "updatedAt": "2025-03-13T17:49:02.259Z",
+      "role": "workflow:owner",
+      "workflowId": "5bBfyJKWgRbVUb2I",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

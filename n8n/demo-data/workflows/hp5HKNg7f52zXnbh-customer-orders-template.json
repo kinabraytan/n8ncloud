@@ -1,0 +1,145 @@
+{
+  "createdAt": "2025-03-13T17:49:59.157Z",
+  "updatedAt": "2025-03-13T17:50:29.242Z",
+  "id": "hp5HKNg7f52zXnbh",
+  "name": "Customer Orders_ Template",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DY1SukNd5CouGjCkzDSwkF5M56SdYl7T4PngiD0NlFk",
+          "mode": "list",
+          "cachedResultName": "Customer Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DY1SukNd5CouGjCkzDSwkF5M56SdYl7T4PngiD0NlFk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DY1SukNd5CouGjCkzDSwkF5M56SdYl7T4PngiD0NlFk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "04995781-eb42-4d69-9001-028919742270",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -440
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "nateherk88@gmail.com",
+        "subject": "={{ $json.message.content['Email Subject'] }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content['Email Body'] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "28a4bc8b-7e4f-4915-be86-d5084f809d83",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        340,
+        -440
+      ],
+      "webhookId": "ac2c66df-2e91-4d1d-86cb-f4713e8fbc2b"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are in charge of client orders. Your job is to take incoming information regarding new orders and give a nice summary that will be emailed to the team. The email should be signed off from \"Customer Success Team\".\n\nHere is the information on client orders.\nOrder ID: {{ $json.OrderID }}\nCustomer Name:{{ $json.CustomerName }}\nProduct:{{ $json.Product }}\nQuantity:{{ $json.Quantity }}\nPrice:{{ $json.Price }}\nOrder Date:{{ $json.OrderDate }}\nStatus:{{ $json.Status }}\n\nPlease output the following parameters:\nEmail Subject\nEmail Body ",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "86afbc08-5e74-4bfa-b4a0-d1739c1aa7ba",
+      "name": "Summarize",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        -20,
+        -440
+      ]
+    }
+  ],
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "5e12457e-2d78-43bf-a3ef-1e5c1d0c1b02",
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "createdAt": "2025-03-13T17:49:59.157Z",
+      "updatedAt": "2025-03-13T17:49:59.157Z",
+      "role": "workflow:owner",
+      "workflowId": "hp5HKNg7f52zXnbh",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}

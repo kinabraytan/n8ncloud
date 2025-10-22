@@ -1,0 +1,2096 @@
+{
+  "createdAt": "2025-07-24T05:18:01.381Z",
+  "updatedAt": "2025-07-24T07:28:11.738Z",
+  "id": "7uMneMPqri5d0bO1",
+  "name": "Linear GoogleDrive Process",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/13cawol0keib58mS--h23xWgid31el-Ub",
+          "mode": "url"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "8d401150-0303-4f4d-a489-473b63359590",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        -260,
+        20
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "09612e96-462a-4378-a9cd-c9ca8aec51b9",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -60,
+        20
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.File_id }}"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "id": "a764a4f6-4014-4648-b6bf-2495d8829fc5",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        400,
+        20
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "471108e8-3209-46d7-9a70-4b3ba48a5e2e",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.File_Type }}",
+                    "rightValue": "application/pdf"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "217bb864-29af-43a0-9705-8222e095b48c",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.File_Type }}",
+                    "rightValue": "text/plain"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bb17e204-3c80-4d4c-866a-ba25a9874ed8",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        620,
+        20
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<document> \n{{ $('Document Data').item.json.data }}\n\n</document>  \n\nHere is the chunk we want to situate within the overall document:\n<chunk> \n{{ $json.chunks }}\n</chunk>  \n\nPlease: \n- Provide a short and succinct <<context>> to situate this chunk within the document for improved search retrieval. \n- Rather than describing numbers, terms, or phrases as provided unless a correction is necessary. \n- If the chunk contains an <<incomplete number, percentage, or entity>>, correct it using the full document. \n- If part of a sentence is cut off, reconstruct the missing words only if necessary for clarity. \n- If the chunk is part of a table, include the complete table entry to preserve data integrity \n- Do not add any additional explanations or formatting beyond the required output. \n\nFill in the following format: [succinct context]: [original chunk or corrected version if necessary]  \n\nYour response should contain only the text that replaces these placeholders, without including the placeholders, tags, or these themselves.",
+        "batching": {}
+      },
+      "id": "de95c163-26ca-4e89-b7f0-99c55e436b59",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1940,
+        20
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "7ccbd326-8726-4776-956b-b1a81586b857",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1960,
+        220
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "concatenate",
+              "field": "text",
+              "separateBy": "other",
+              "customSeparator": "###SPLIT###"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "73b7caf3-f8f9-4f6a-8873-9efd1707962a",
+      "name": "Summarize",
+      "type": "n8n-nodes-base.summarize",
+      "position": [
+        2316,
+        20
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "096a1fd5-281f-42a7-8fd8-d0535f771f2e",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        2536,
+        240
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "File_url",
+                "value": "={{ $('File info').item.json.File_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "a0a69052-f516-4a31-9a69-14b30867f02b",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        2656,
+        242.5
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "separator": "###SPLIT###",
+        "chunkSize": 1200
+      },
+      "id": "5bfd2795-4b67-40b5-b6b6-3c1f4bc8db78",
+      "name": "Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "position": [
+        2744,
+        440
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "question: 1a(i)\nAnswer:Ammonia\nMark scheme:Pearson Edexcel International Advanced Level in Chemistry (WCH16) Paper 01 Unit 6: Practical Skills in Chemistry II.",
+        "options": {
+          "systemMessage": "=You are an AI Examiner Agent with access to a Supabase database containing exam markschemes via HTTP API. Your primary role is to mark student exam answers fairly, consistently, and accurately according to the official markscheme.\n\n## Core Responsibilities\n\n1. **Mark individual or bulk student answers** against the official markscheme stored in your database\n2. **Provide detailed feedback** explaining how marks were awarded or deducted\n3. **Maintain consistency** in marking standards across all submissions\n4. **Handle various input formats** (single answers, bulk submissions with question numbers)\n\n## Database Access Instructions\n\n- Use HTTP requests to query your Supabase database for markscheme data\n- Query markschemes by question number, exam code, or other relevant identifiers\n- Always verify you have the correct markscheme before marking any answer\n\n## Marking Process\n\n### For Individual Answers:\n1. **Identify the question** from context or ask for question number if unclear\n2. **Retrieve the relevant markscheme** from database\n3. **Compare student answer** against marking criteria\n4. **Award marks** based on markscheme rubric\n5. **Provide specific feedback** citing which criteria were met/missed\n\n### For Bulk Submissions:\n1. **Parse the submission** to extract question numbers and corresponding answers\n2. **Retrieve all relevant markschemes** in batch where possible\n3. **Mark each answer systematically**\n4. **Provide summary report** with individual question breakdowns\n5. **Calculate total score** and percentage if applicable\n\n## Marking Standards\n\n- **Accuracy**: Follow markscheme exactly - do not deviate from official criteria\n- **Fairness**: Apply same standards to all students consistently  \n- **Partial Credit**: Award partial marks for partially correct answers as specified in markscheme\n- **Alternative Answers**: Accept equivalent correct answers not explicitly listed if they demonstrate same understanding\n- **Spelling/Grammar**: Only penalize if markscheme specifically addresses language accuracy\n\n## Response Format\n\n### Individual Answer Marking:\n```\n**Question [X] - [Y] marks available**\n\n**Student Answer Analysis:**\n[Brief summary of student's response]\n\n**Marking Breakdown:**\n- Criterion 1: [X/Y marks] - [Explanation]\n- Criterion 2: [X/Y marks] - [Explanation]\n- etc.\n\n**Total Score: [X/Y] marks**\n\n**Feedback:**\n[Constructive feedback on strengths and areas for improvement]\n```\n\n### Bulk Marking Summary:\n```\n**Exam Marking Summary**\n\n**Overall Score: [X/Y] marks ([Z]%)**\n\n**Question-by-Question Breakdown:**\nQ1: [X/Y] marks - [Brief comment]\nQ2: [X/Y] marks - [Brief comment]\n[etc.]\n\n**Detailed Analysis:**\n[Per question detailed breakdown using individual format above]\n\n**Overall Performance Summary:**\n[Strengths, weaknesses, grade indication if applicable]\n```\n\n## Error Handling\n\n- If question number is unclear, ask for clarification\n- If markscheme cannot be found, request exam details (exam code, subject, etc.)\n- If student answer is ambiguous, explain interpretation used for marking\n- If database access fails, inform user and request manual markscheme provision\n\n## Key Behaviors\n\n- **Be objective and impartial** in all marking decisions\n- **Explain your reasoning** clearly for all mark allocations\n- **Be constructive** in feedback while maintaining marking integrity\n- **Ask for clarification** when inputs are ambiguous\n- **Maintain professional tone** appropriate for educational assessment\n\n## Input Processing\n\nYou can handle various input formats:\n- Single question: \"Q5: [student answer]\"\n- Multiple questions: \"Q1: [answer] Q2: [answer] Q3: [answer]\" \n- Formatted submissions with clear question/answer separation\n- Requests for specific question markschemes for student review\n\nAlways confirm the question number and retrieve the correct markscheme before beginning marking.\n\nReady to begin marking. Please provide the student answer(s) along with question number(s) for assessment."
+        }
+      },
+      "id": "bd6c989e-f89e-4c7e-be76-8c1f6e7aa5ac",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        180,
+        520
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "1. **Document Ingestion & Processing**\n\nGoogle Drive Trigger monitors for new files \u2192 Loop Over Items processes each file \u2192 File Info extracts metadata \u2192 Google Drive downloads the actual content \u2192 Switch routes to appropriate extractors (PDF or TEXT) based on file type\n\n2. **Content Transformation & Chunking**\n\nDocument Data node processes extracted text \u2192 Recursive Splitter breaks content into contextual chunks \u2192 Chunk Splitting applies intelligent segmentation while preserving document context and relationships between chunks\n\n3. **Embedding & Storage**\n\nBasic LLM Chain processes chunks \u2192 OpenAI Chat Model generates contextual understanding \u2192 Summarize creates document summaries \u2192 Supabase Vector Store saves embeddings with metadata \u2192 Embeddings OpenAI creates vector representations \u2192 Default Data Loader handles storage operations\n\n",
+        "height": 640,
+        "width": 540
+      },
+      "id": "dea984c9-6caf-444f-a3c1-14ae62892900",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -200
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "**ASK ME**\n\n\n**Query Processing & Retrieval**\n\nWhen Clicking Execute triggers user queries \u2192 OpenAI processes and understands the question \u2192 AI Agent orchestrates hybrid search (combining vector similarity + keyword matching) \u2192 Google Gemini Chat Model generates final responses using retrieved context \u2192 HTTP Request handles additional external data sources",
+        "height": 420,
+        "width": 380,
+        "color": 4
+      },
+      "id": "924ae365-2613-4e41-8279-5989a37bf608",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        500
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "4146be4e-93c1-469d-933b-205ead789cb8",
+      "name": "When clicking \u2018Execute workflow\u2019",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -260,
+        520
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "44d40028-997d-4552-a77d-a969e9ccf939",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        140,
+        740
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "inputType": "base64",
+        "options": {}
+      },
+      "id": "86971538-d921-4bb3-9e41-d44f6c1b2f56",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -40,
+        520
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4b888bd-827f-4721-b553-b3e1cf38e3fe",
+              "name": "File_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "dcf732a3-aaf5-41a6-8bad-fc06a74e1263",
+              "name": "File_Type",
+              "type": "string",
+              "value": "={{ $json.mimeType }}"
+            },
+            {
+              "id": "5b9870de-94d0-470b-bb9c-e129e895feea",
+              "name": "File_url",
+              "type": "string",
+              "value": "={{ $json.webViewLink }}"
+            },
+            {
+              "id": "4ec5bfff-f78b-406b-a5da-ca2c81e3c41b",
+              "name": "File_name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ab52d434-eeda-449d-8f10-5ab6b2c118e0",
+      "name": "File info",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        180,
+        20
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "25c1adce-d235-4d7c-9a9d-2465d44275fe",
+      "name": "Extract from TEXT",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1060,
+        120
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "const chunkSize = 1000;\nconst chunkOverlap = 200;\nconst text = $input.item.json.data.replace(/\\n/g, '');\n\nconst chunks = [];\nlet remainingText = text;\n\nwhile (remainingText.length > 0) {\n    let splitPoint;\n    \n    // Try splitting at paragraph level first\n    splitPoint = remainingText.lastIndexOf(\"\\n\\n\", chunkSize);\n    \n    // If no paragraph split, try splitting at sentence level\n    if (splitPoint === -1) {\n        splitPoint = remainingText.lastIndexOf(\". \", chunkSize);\n    }\n    \n    // If no sentence split, try splitting at word level\n    if (splitPoint === -1) {\n        splitPoint = remainingText.lastIndexOf(\" \", chunkSize);\n    }\n    \n    // If still no split point, force split at chunkSize\n    if (splitPoint === -1 || splitPoint < chunkSize * 0.5) {\n        splitPoint = chunkSize; // Hard split if no good split point\n    }\n    \n    // Extract chunk and adjust remaining text with overlap\n    let chunk = remainingText.substring(0, splitPoint).trim();\n    chunks.push(chunk);\n    \n    // Move the pointer forward while keeping the overlap\n    remainingText = remainingText.substring(Math.max(0, splitPoint - chunkOverlap)).trim();\n    \n    // Break if remaining text is too small to form another chunk\n    if (remainingText.length < chunkSize * 0.2) {\n        chunks.push(remainingText);\n        break;\n    }\n}\n\nreturn { chunks };"
+      },
+      "id": "a7dac8bb-7c81-40ab-a8e9-29d5723c070f",
+      "name": "Recursive Splitter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1500,
+        20
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"data\":{{ JSON.stringify($json.data) }}\n}\n",
+        "options": {}
+      },
+      "id": "0733865f-45df-4c2e-8bd7-7fb6f300beec",
+      "name": "Document Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1280,
+        20
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "chunks",
+        "options": {}
+      },
+      "id": "33084b71-3361-4c83-a997-a773c3c6a26f",
+      "name": "Chunk Splitting",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1720,
+        20
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://etvncxazsxflierkgyge.supabase.co/functions/v1/query-DB",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Your Supabase Key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "06d85a47-5741-4d1a-b6fe-40058c880fe4",
+      "name": "SupaBase Query",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        520,
+        760
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "lsi_document_vectors",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        2552,
+        20
+      ],
+      "id": "d4455b42-f00d-471c-9aeb-30b97e7aa279",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e8f1cde6-ee97-459c-9e18-5d3b5fb51877",
+      "name": "Create Mistral URL (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        920,
+        -340
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "839d0e18-3f05-4de4-a4c6-afd821e7e930",
+      "name": "Mistral Upload (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1000,
+        -180
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ${MISTRAL_API_KEY}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"pages\": [0,1,2,3,4,5,6,7,8,9],\n  \"include_image_base64\": true\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "ocr_output.json"
+            }
+          }
+        }
+      },
+      "id": "6f996c11-a900-49f6-abbf-54c684a20cea",
+      "name": "Mistral DOC OCR (PDF)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        -340
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a481cde3-b8ec-4d97-aa13-4668bd66c24d",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.pages }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f3c2cc15-5307-4d52-9bf7-d74f3f3c13f1",
+      "name": "Get PDF Response6",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1360,
+        -340
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4bd0c9cd-f9c5-4382-80dd-d39f8801d942",
+      "name": "Mistral Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -60,
+        4520
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ac60b1bf-ca9e-43e6-86da-6b5d3f5e2958",
+      "name": "Mistral Signed URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        4520
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"include_image_base64\": true\n}",
+        "options": {}
+      },
+      "id": "3b68fbff-d9ec-4521-87ef-900d3f9b674c",
+      "name": "Mistral DOC OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        4520
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://QDRANTURL/collections/COLLECTION/points/delete",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"filter\": {}\n}",
+        "options": {}
+      },
+      "id": "3fffd0bd-388a-4420-9d78-199215043c12",
+      "name": "Refresh collection",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -380,
+        3700
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "chunkSize": 400,
+        "chunkOverlap": 40
+      },
+      "id": "770e3777-5421-4c18-b66e-7612030f311a",
+      "name": "Token Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "position": [
+        2320,
+        4940
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6d252c38-bb08-4d72-af0d-61fe5eb9bbb9",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -720,
+        4960
+      ],
+      "webhookId": "97d60090-1717-4195-bf27-2e3c3105b7f8",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0de0d8e9-5e0e-4597-912c-07f9f697dba1",
+      "name": "Question and Answer Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "position": [
+        -400,
+        4960
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {},
+      "id": "ab9acef4-b954-4986-a57b-e9f21180b71d",
+      "name": "Vector Store Retriever",
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "position": [
+        -240,
+        5180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "ocr_mistral_test",
+          "cachedResultName": "ocr_mistral_test"
+        },
+        "options": {}
+      },
+      "id": "a2d77c53-76b4-4e9f-961d-fbbc51a126f0",
+      "name": "Qdrant Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        -220,
+        5380
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d64b2fb8-007e-4875-ac53-d3240f133391",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        -340,
+        5520
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.pages;\n\nreturn data.map(entry => ({\n  json: {\n    markdown: entry.markdown\n  }\n}));"
+      },
+      "id": "eb6b94b5-c846-4b77-a833-0189b23f35e5",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        4520
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {},
+      "id": "948f3dd7-c73d-45f2-a4d3-510dc4b56c17",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2620,
+        4540
+      ],
+      "webhookId": "1000b40d-5dc5-4795-9dd2-8a23653c2b49",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "898893ed-7b9c-4d7f-8c19-c1f74e8698a9",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        300,
+        3700
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "AdVUaHTE9Jk1KO72",
+          "cachedResultName": "Mistral OCR_subworkflow"
+        },
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "39335b2c-a5e5-45f4-a6cb-56e9cbb7be6e",
+      "name": "Execute Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        920,
+        3720
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "0a89b529-fe1a-4dac-b91f-0b50f18b3970",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -700,
+        4520
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ca7c30f2-444d-4551-988d-0f513e5ee4b1",
+              "name": "file_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9198b2af-87d8-4e23-8bac-904125b447b2",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        620,
+        3720
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://QDRANTURL/collections/COLLECTION",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"vectors\": {\n    \"size\": 1536,\n    \"distance\": \"Cosine\"  \n  },\n  \"shard_number\": 1,  \n  \"replication_factor\": 1,  \n  \"write_consistency_factor\": 1 \n}",
+        "options": {}
+      },
+      "id": "99159289-a99f-4114-820a-ed1d3c2215f2",
+      "name": "Create collection",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -720,
+        3240
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "# STEP 1\n\n## Create Qdrant Collection\nChange:\n- QDRANTURL\n- COLLECTION",
+        "height": 220,
+        "width": 880,
+        "color": 6
+      },
+      "id": "7a947865-0002-4aa3-8020-b5767ed2597c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        3180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# STEP 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Documents vectorization with Qdrant and Google Drive\nChange:\n- QDRANTURL\n- COLLECTION",
+        "height": 520,
+        "width": 620,
+        "color": 4
+      },
+      "id": "1bca6300-0214-43de-a1e7-2da8aad98654",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        3600
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "combineMapPrompt": "Write a concise summary of the following (in italiano):\n\n\n\"{text}\"\n\n\nCONCISE SUMMARY:",
+              "prompt": "Write a concise summary of the following (in italiano):\n\n\n\"{text}\"\n\n\nCONCISE SUMMARY:"
+            }
+          }
+        }
+      },
+      "id": "d8235c05-7609-445e-a16a-ad6f06b1a44d",
+      "name": "Summarization Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "position": [
+        1580,
+        4140
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "2d8fa1e0-4a88-4a58-aa7c-d67ef4779833",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1600,
+        4320
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xyK9CstPcAIDLFiL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "189f4944-a692-423c-bc6d-76747e1d04df",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.markdown }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8d236262-bfb4-4e90-9ce4-e31abbf9a51e",
+      "name": "Set page",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1760,
+        4540
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "189f4944-a692-423c-bc6d-76747e1d04df",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.response.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d981cb24-c0d5-49a9-acde-547002993668",
+      "name": "Set summary",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1940,
+        4140
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1LWVo3yn_1bWQJsLskBIbWTGwlfObvtUK",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1LWVo3yn_1bWQJsLskBIbWTGwlfObvtUK",
+            "cachedResultName": "PDFs"
+          }
+        },
+        "options": {}
+      },
+      "id": "e9bedda7-b669-4464-b673-b1118b878e33",
+      "name": "Search PDFs",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -40,
+        3700
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.file_id }}"
+        },
+        "options": {}
+      },
+      "id": "d9076c6b-e790-4dd4-854c-5ccd8a289e7d",
+      "name": "Get PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -380,
+        4520
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Complete RAG system from PDF Documents with Mistral OCR, Qdrant and Gemini AI\n\nThis workflow is designed to process PDF documents using Mistral's OCR capabilities, store the extracted text in a Qdrant vector database, and enable Retrieval-Augmented Generation (RAG) for answering questions. ",
+        "height": 140,
+        "width": 1140
+      },
+      "id": "db30fd0f-2872-4145-9c39-f5baf563f4ef",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        2920
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b10bd86c-b731-42ab-a7a5-43958e525259",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1300,
+        4520
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "options": {
+          "stripNewLines": false
+        }
+      },
+      "id": "81404f00-cd86-4362-90b9-e5aa304a087c",
+      "name": "Embeddings OpenAI2",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        2080,
+        4800
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "openAiApi": {
+          "id": "FGduNFSxLzm7OQQE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6827276f-193c-4125-a317-d22922151aa9",
+      "name": "Default Data Loader1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        2220,
+        4760
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "id": "48bf1df3-130e-44af-966c-403af5905a5d",
+      "name": "Google Gemini Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -460,
+        5160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## STEP 3\nIf you want a \"light\" and faster rag with the main contents replace the \"Set page\" node with \"Summarization Chain\"",
+        "height": 680,
+        "width": 600
+      },
+      "id": "5ef03b9e-dacc-4db9-9ee3-730eeaf86a12",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        4020
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## STEP 4\nTest the RAG",
+        "height": 120,
+        "width": 500,
+        "color": 2
+      },
+      "id": "0b2be7ed-9907-4ed4-8c24-890280818371",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        4960
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "lsi_doc_vectors",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        2120,
+        4540
+      ],
+      "id": "d4d20a76-8608-49cc-8da6-25df1bb00f9d",
+      "name": "Postgres PGVector Store1",
+      "credentials": {
+        "postgres": {
+          "id": "P3tXVnG4nimxmM4P",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"pages\": [0,1,2,3,4,5,6,7,8,9],\n  \"include_image_base64\": true\n}",
+        "options": {}
+      },
+      "id": "c6399036-ca86-4bfe-99f9-469b5197aa9b",
+      "name": "Mistral DOC OCR1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2060,
+        -640
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "15BcE6nXto9lQDHPmwjm7y9JPerAVEutY"
+        },
+        "options": {}
+      },
+      "id": "0474361b-8636-4396-9fe3-163755c5b2f4",
+      "name": "Import PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        620,
+        -660
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "41A8x3MtmKUsugVg",
+          "name": "JVX OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1e65a0d0-75e7-4db3-8979-8af939b03173",
+      "name": "Mistral Upload1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        840,
+        -660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{ $json.id }}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "88a20258-daea-4cfb-9e2f-50ceed8a9dec",
+      "name": "Mistral Signed URL1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1040,
+        -660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.url }}\"\n  },\n  \"include_image_base64\": true\n}",
+        "options": {}
+      },
+      "id": "bc2a2512-5269-45f7-a03d-76e9d49ca6f2",
+      "name": "Mistral DOC OCR2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1240,
+        -660
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "rsh9HVWq693wbykq",
+          "name": "Mistral Cloud account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Mistral Upload1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from TEXT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File info": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Data": {
+      "main": [
+        [
+          {
+            "node": "Recursive Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SupaBase Query": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Splitting": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "File info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from TEXT": {
+      "main": [
+        [
+          {
+            "node": "Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Splitter": {
+      "main": [
+        [
+          {
+            "node": "Chunk Splitting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Mistral URL (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Upload (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Create Mistral URL (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR (PDF)": {
+      "main": [
+        []
+      ]
+    },
+    "Get PDF Response6": {
+      "main": [
+        [
+          {
+            "node": "Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PDF": {
+      "main": [
+        [
+          {
+            "node": "Mistral Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set page": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search PDFs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Upload": {
+      "main": [
+        [
+          {
+            "node": "Mistral Signed URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Signed URL": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refresh collection": {
+      "main": [
+        [
+          {
+            "node": "Search PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "Set summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR1": {
+      "main": [
+        []
+      ]
+    },
+    "Import PDF": {
+      "main": [
+        []
+      ]
+    },
+    "Mistral Upload1": {
+      "main": [
+        [
+          {
+            "node": "Mistral Signed URL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Signed URL1": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR2": {
+      "main": [
+        [
+          {
+            "node": "Get PDF Response6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Google Drive Trigger": {
+      "lastTimeChecked": "2025-07-24T05:06:59Z"
+    },
+    "node:Google Drive Trigger1": {
+      "lastTimeChecked": "2025-07-24T03:36:59Z"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "dcaa296c-f67c-4270-b794-f6ea412f699b",
+  "triggerCount": 3,
+  "tags": [
+    {
+      "createdAt": "2025-07-21T20:18:01.180Z",
+      "updatedAt": "2025-07-21T20:18:01.180Z",
+      "id": "Jix5w5AZ1rSoh8x1",
+      "name": "LifeStages"
+    },
+    {
+      "createdAt": "2025-06-19T23:39:52.053Z",
+      "updatedAt": "2025-06-19T23:39:52.053Z",
+      "id": "hqGuRJJPzE8JK1K2",
+      "name": "Google Drive"
+    }
+  ],
+  "shared": [
+    {
+      "createdAt": "2025-07-24T05:18:01.381Z",
+      "updatedAt": "2025-07-24T05:18:01.381Z",
+      "role": "workflow:owner",
+      "workflowId": "7uMneMPqri5d0bO1",
+      "projectId": "QEiebo2x6YENAnrq",
+      "project": {
+        "createdAt": "2025-03-12T12:15:21.659Z",
+        "updatedAt": "2025-03-15T14:25:50.674Z",
+        "id": "QEiebo2x6YENAnrq",
+        "name": "Joel Quinn Ebb-Wrightten <n8n.admin@virtualxperiencellc.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null
+      }
+    }
+  ]
+}
