@@ -36,15 +36,6 @@ jobs:
             --min-workflows "70" \
             --min-credentials "30"
 
-      - name: Preflight: validate secrets
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        shell: bash
-        run: |
-          echo "Checking required secrets..."
-          if [[ -z "${{ secrets.N8N_BASE_URL }}" ]]; then echo "Missing secret: N8N_BASE_URL"; exit 1; fi
-          if [[ -z "${{ secrets.N8N_BASIC_AUTH_USER }}" ]]; then echo "Missing secret: N8N_BASIC_AUTH_USER"; exit 1; fi
-          if [[ -z "${{ secrets.N8N_BASIC_AUTH_PASSWORD }}" ]]; then echo "Missing secret: N8N_BASIC_AUTH_PASSWORD"; exit 1; fi
-
       - name: Import to n8n
         env:
           N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
