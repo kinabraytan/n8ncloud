@@ -27,6 +27,16 @@ jobs:
           pip --version || true
           pip list || true
 
+      - name: Debug n8n import environment
+        env:
+          N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
+          N8N_BASIC_AUTH_USER: ${{ secrets.N8N_BASIC_AUTH_USER }}
+          N8N_BASIC_AUTH_PASSWORD: ${{ secrets.N8N_BASIC_AUTH_PASSWORD }}
+        run: |
+          echo "N8N_BASE_URL: $N8N_BASE_URL"
+          echo "N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:0:2}***${N8N_BASIC_AUTH_USER: -2}"
+          echo "N8N_BASIC_AUTH_PASSWORD: *** (masked)"
+
       - name: Dry run parse
         env:
           N8N_BASIC_AUTH_USER: ${{ secrets.N8N_BASIC_AUTH_USER }}

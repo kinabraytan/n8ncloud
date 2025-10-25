@@ -335,3 +335,14 @@ can:
   pro, the community and our team are ready to support with any challenges.
 - **Propose Ideas**: Have an idea for a feature or improvement? Let us know!
   We’re always eager to hear what you’d like to see next.
+
+## Credential Import Limitations
+
+**Encrypted credentials (e.g., credentials1.json) cannot be imported via the n8n public REST API.**
+
+- The `data` field in credentials1.json is an encrypted string blob, suitable only for direct database seeding (using the n8n-import container or scripts with access to the encryption key).
+- The n8n public API expects the `data` field to be a decrypted object. Attempting to import encrypted credentials via the API will result in errors such as `request/body/data must be object`.
+- For initial credential seeding, use the n8n-import container or run import scripts inside n8n with access to the encryption key.
+- If you need to migrate credentials between instances, always keep your original `N8N_ENCRYPTION_KEY` and use the database seeding approach.
+
+---

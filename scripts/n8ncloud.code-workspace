@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../n8n"
+		}
+	],
+	"settings": {
+		"github-actions.workflows.pinned.workflows": [
+			".github/workflows/sync-n8n.yml"
+		]
+	}
+}

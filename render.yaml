@@ -14,26 +14,11 @@ services:
         value: "true"
       - key: DB_TYPE
         value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        fromDatabase:
-          name: n8n-db
-          property: host
-      - key: DB_POSTGRESDB_PORT
-        fromDatabase:
-          name: n8n-db
-          property: port
-      - key: DB_POSTGRESDB_DATABASE
-        fromDatabase:
-          name: n8n-db
-          property: database
-      - key: DB_POSTGRESDB_USER
-        fromDatabase:
-          name: n8n-db
-          property: user
-      - key: DB_POSTGRESDB_PASSWORD
-        fromDatabase:
-          name: n8n-db
-          property: password
+      # Using Neon Postgres (external) instead of Render managed DB
+      - key: DB_POSTGRESDB_CONNECTION_URL
+        sync: false
+      - key: DB_POSTGRESDB_SSL
+        value: "true"
       - key: N8N_DIAGNOSTICS_ENABLED
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
@@ -53,7 +38,7 @@ services:
       - key: WEBHOOK_URL
         value: https://n8n-3d2s.onrender.com/
 
-# Managed Postgres database (free tier)
-databases:
-  - name: n8n-db
-    plan: free
+# NOTE: The managed Render Postgres block has been removed because this blueprint
+# now uses an external Neon Postgres instance. If you still want a Render-managed
+# database, re-add a `databases` block here and switch the DB env vars back to
+# reference the managed database (the previous version used `fromDatabase`).
