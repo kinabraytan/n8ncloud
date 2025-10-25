@@ -2,4 +2,5 @@
 
 n8n\demo-data\credentials\credentials1.json
 n8n\demo-data\workflows\workflows1.json
+n8n\demo-data\credentials\decrypted_credentials_for_import.json
 
