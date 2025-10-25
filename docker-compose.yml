@@ -12,6 +12,10 @@ x-n8n: &service-n8n
   networks: ['demo']
   environment:
     - DB_TYPE=postgresdb
+    # Optional: If you prefer to use an external Postgres (e.g. Neon) set the
+    # full connection URL in your environment (.env or Render) as
+    # DB_POSTGRESDB_CONNECTION_URL and it will be passed into the container.
+    - DB_POSTGRESDB_CONNECTION_URL=${DB_POSTGRESDB_CONNECTION_URL}
     - DB_POSTGRESDB_HOST=postgres
     - DB_POSTGRESDB_USER=${POSTGRES_USER}
     - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}

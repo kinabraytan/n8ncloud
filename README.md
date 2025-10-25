@@ -118,7 +118,11 @@ If you're running OLLAMA locally on your Mac (not in Docker), you need to modify
    - `N8N_BASIC_AUTH_ACTIVE=true`
    - `N8N_BASIC_AUTH_USER`
    - `N8N_BASIC_AUTH_PASSWORD`
-   - (DB vars are injected automatically by `render.yaml`)
+    - (DB vars are injected automatically by `render.yaml`). If you're using an
+       external Postgres (for example Neon), set the full connection string in
+       the Render Environment as `DB_POSTGRESDB_CONNECTION_URL` (or set it in
+       your local `.env` for compose). Example value:
+       `postgresql://user:password@host:5432/dbname?sslmode=require&channel_binding=require`
 
    ### 5. Import Data into Fresh Instance
    After the new container is healthy, run the import script locally pointing to the NEW base URL:
