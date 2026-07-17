@@ -29,6 +29,8 @@ services:
         value: "true"
       - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
         value: "true"
+      - key: DB_PING_TIMEOUT_MS
+        value: "10000"
       - key: NODE_OPTIONS
         value: "--max-old-space-size=384"
       - key: N8N_DIAGNOSTICS_ENABLED
