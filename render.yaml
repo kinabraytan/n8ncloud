@@ -14,16 +14,26 @@ services:
         value: "true"
       - key: DB_TYPE
         value: postgresdb
-      # Using Neon Postgres (external) instead of Render managed DB
-      - key: DB_POSTGRESDB_CONNECTION_URL
+      # Neon DB values
+      - key: DB_POSTGRESDB_HOST
         sync: false
-      - key: DB_POSTGRESDB_SSL
+      - key: DB_POSTGRESDB_PORT
+        value: "5432"
+      - key: DB_POSTGRESDB_DATABASE
+        sync: false
+      - key: DB_POSTGRESDB_USER
+        sync: false
+      - key: DB_POSTGRESDB_PASSWORD
+        sync: false
+      - key: DB_POSTGRESDB_SSL_ENABLED
+        value: "true"
+      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
         value: "true"
       - key: N8N_DIAGNOSTICS_ENABLED
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
         value: "false"
-      # Add your secrets below (set in Render dashboard for security)
+      # Secrets set in Render dashboard
       - key: N8N_BASIC_AUTH_ACTIVE
         sync: false
       - key: N8N_ENCRYPTION_KEY
@@ -34,11 +44,8 @@ services:
         sync: false
       - key: N8N_BASIC_AUTH_PASSWORD
         sync: false
-      # Optional: WEBHOOK_URL for incoming webhooks
       - key: WEBHOOK_URL
         value: https://n8n-3d2s.onrender.com/
 
-# NOTE: The managed Render Postgres block has been removed because this blueprint
-# now uses an external Neon Postgres instance. If you still want a Render-managed
-# database, re-add a `databases` block here and switch the DB env vars back to
-# reference the managed database (the previous version used `fromDatabase`).
+# NOTE: Blueprint uses external Neon Postgres.
+# Re-add a `databases` block only if you want Render-managed Postgres.

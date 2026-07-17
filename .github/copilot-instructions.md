@@ -94,63 +94,41 @@ OLLAMA_HOST=host.docker.internal:11434 docker compose up
 ### Import/Export Safety
 - Scripts are idempotent (safe to run multiple times)
 - Use `--dry-run` flag to validate before actual import
-- `--wait-ready` flag prevents importing to unhealthy services
-- Export before major changes to avoid data loss
+### n8ncloud — AI agent quick guide
 
-### Profile Selection
-- Use specific profiles (`--profile cpu`) to avoid resource conflicts
-- GPU profiles require proper Docker/driver setup (see Ollama Docker docs)
-- Mac users cannot expose GPU to Docker containers
+Short, actionable notes an AI assistant needs to be productive in this repo.
 
-## Common Pitfalls
+What this repo is: a Docker Compose-based n8n starter (n8n + Ollama + Qdrant + Postgres) with a Render deployment blueprint.
 
-1. **Wrong Ollama Host**: Mac users must use `host.docker.internal:11434`
-2. **Missing Encryption Key**: Service starts but credentials fail to decrypt
-3. **Profile Mismatch**: Running without `--profile` may not start Ollama
-4. **Import Timing**: Importing before service ready causes partial failures
-5. **Credential Editing**: Manual ID changes cause duplicate workflows
-6. **Data Not Loading**: If `credentials1.json` and `workflows1.json` don't load:
-   - Verify files are properly formatted JSON arrays (not objects)
-   - Check n8n-import container logs: `docker compose logs n8n-import`
-   - Ensure import container completes successfully before main n8n starts
-   - Files in `n8n/demo-data/` must use correct naming: `{id}-{name}.json`
-   - Run manual import: `python scripts/import_n8n_data.py --dry-run` to validate
+Essential files:
+- `docker-compose.yml` — local runtime; supports profiles `cpu`, `gpu-nvidia`, `gpu-amd`.
+- `render.yaml` — Render service manifest. Declares env keys (most marked `sync:false`) — set secrets in Render dashboard or via CLI.
+- `n8n/demo-data/` — workflows + credentials used by `n8n-import`. Filenames are `{id}-{slugified-name}.json` and imports are idempotent.
+- `scripts/import_n8n_data.py` / `scripts/export_n8n_data.py` — import/export tooling. Use `--dry-run` and `--wait-ready` when automating.
 
-## Extension Points
+Concrete commands (copy/paste):
+- Start local stack (CPU):
+   docker compose --profile cpu up
+- Import demo data (wait for service readiness):
+   python scripts/import_n8n_data.py --wait-ready 120
+- Test a Postgres URL (useful when validating Neon):
+   docker run --rm postgres:17 psql "<POSTGRES_URL>?sslmode=require&channel_binding=require" -c "SELECT version();"
 
-- Add new AI services via additional Docker services in `networks: ['demo']`
-- Extend `n8n/demo-data/` with new workflow templates
-- Customize Ollama models by modifying pull commands in init containers
-- Add volume mounts for additional shared data access patterns
+Project-specific conventions & gotchas:
+- NEVER rotate `N8N_ENCRYPTION_KEY` after deploy — encrypted credentials become unreadable.
+- Credential files in `n8n/demo-data/` are encrypted blobs; workflows reference credential names (not raw secrets).
+- This repo avoids storing secrets: `.gitignore` includes `.env` and `credentials/`. For runtime, prefer `DB_POSTGRESDB_CONNECTION_URL` (full URL) or set `DB_POSTGRESDB_*` envs.
+- On Render, set `DB_POSTGRESDB_CONNECTION_URL` exactly (including `sslmode=require&channel_binding=require`) — common deploy errors (ENOTFOUND, ECONNREFUSED, "connection insecure") come from wrong/missing env values.
+   - Recommended production DB: Neon (https://neon.tech). Prefer supplying the full Neon connection URL to Render's `DB_POSTGRESDB_CONNECTION_URL` (example: `postgresql://USER:PASSWORD@ep-xxxxxx-pooler.c-1.region.aws.neon.tech/DBNAME?sslmode=require&channel_binding=require`).
+   - If the Neon URL (or password) was ever committed to git history, rotate the Neon password/role immediately and update Render secrets. Use `docker run --rm postgres:17 psql "<NEON_URL>?sslmode=require&channel_binding=require" -c "SELECT version();"` to validate connectivity.
+- macOS Docker + Ollama: use `OLLAMA_HOST=host.docker.internal:11434`.
 
-## Production Stability Setup
+Integration flow (high level):
+- n8n connects to Postgres (DB_POSTGRESDB_CONNECTION_URL). n8n-import seeds database from `n8n/demo-data/`. Workflows may call Ollama/Qdrant via internal Docker network when run locally.
 
-### Automated Maintenance
-1. **Health Monitoring**: Create workflows that monitor service health and restart if needed
-2. **Backup Automation**: Schedule regular exports using GitHub Actions
-3. **Update Notifications**: Monitor for n8n updates and test in staging first
+First tasks for an AI agent arriving here:
+1. Open `docker-compose.yml` and `render.yaml` to read runtime envs and service profiles.
+2. Inspect `n8n/demo-data/` and `scripts/import_n8n_data.py` to learn import conventions and filename patterns.
+3. Run the local compose stack and tail `n8n` logs (`docker compose logs -f n8n`) to observe import/db errors.
 
-### Render Optimization
-1. **Environment Variables**: Set all required vars in Render dashboard:
-   ```
-   N8N_BASIC_AUTH_ACTIVE=true
-   N8N_BASIC_AUTH_USER=your-email
-   N8N_BASIC_AUTH_PASSWORD=your-password
-   N8N_ENCRYPTION_KEY=your-32-char-hex-key
-   N8N_USER_MANAGEMENT_JWT_SECRET=your-secret
-   WEBHOOK_URL=https://your-n8n.onrender.com
-   TRUST_PROXY=true
-   N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-   ```
-2. **Auto-scaling**: Free tier limitations - consider upgrading for production use
-3. **Database Persistence**: Render PostgreSQL free tier persists data automatically
-
-### Data Import Troubleshooting
-- **Array Format**: Ensure JSON files contain arrays of objects, not single objects
-- **ID Consistency**: Don't manually edit `id` fields in JSON files
-- **Import Verification**: Always run with `--dry-run` first
-- **Workflow Files**: If workflows are in an array file (e.g., `workflows1.json`), split them into individual files named `{id}-{slugified-name}.json` using the provided `scripts/split_workflows.py` script
-- **Manual Blueprint**: Add data import as manual step in render.yaml if needed:
-  ```yaml
-  buildCommand: python scripts/import_n8n_data.py --wait-ready 120
-  ```
+If you want this trimmed further (deploy automation snippets, Render CLI usage, or import script examples), tell me which section to expand and I will iterate.

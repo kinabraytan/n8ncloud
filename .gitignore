@@ -1,3 +1,8 @@
+.compound-engineering/*.local.yaml
 .env
 credentials/
 n8n.env
+n8nrender.env
+n8nrender.env.bak
+blueprintrender.yaml
+.compound-engineering/
