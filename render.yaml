@@ -29,6 +29,8 @@ services:
         value: "true"
       - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
         value: "true"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=384"
       - key: N8N_DIAGNOSTICS_ENABLED
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
